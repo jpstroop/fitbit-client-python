@@ -115,7 +115,7 @@ See `pyproject.toml`
    * Add your redirect URI (e.g., http://localhost:8080)
    * Save your Client ID and Client Secret
 
-2. Create a `secrets.json` file in your project root (see [secrets.json.example](secrets.json.example):
+2. Create a `secrets.json` file in your project root (see [secrets.json.example](secrets.json.example)):
 ```json
 {
     "client_id": "YOUR_CLIENT_ID",

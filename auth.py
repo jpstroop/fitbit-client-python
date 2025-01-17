@@ -1,18 +1,19 @@
-import base64
+from base64 import urlsafe_b64encode
 from datetime import datetime
-import hashlib
+from hashlib import sha256
 from json import dump
 from json import load
-import os
-from requests.auth import HTTPBasicAuth
-from requests_oauthlib import OAuth2Session
-import secrets
+from os.path import exists
+from secrets import token_urlsafe
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
 import webbrowser
+
+from requests.auth import HTTPBasicAuth
+from requests_oauthlib import OAuth2Session
 
 
 class FitbitOAuth2:
@@ -67,7 +68,7 @@ class FitbitOAuth2:
         self.token_file: str = token_file or self.TOKEN_FILE
 
         # Generate PKCE code verifier and challenge
-        self.code_verifier: str = secrets.token_urlsafe(64)
+        self.code_verifier: str = token_urlsafe(64)
         self.code_challenge: str = self._generate_code_challenge()
 
         # Try to load existing tokens
@@ -86,13 +87,13 @@ class FitbitOAuth2:
 
     def _generate_code_challenge(self) -> str:
         """Generate PKCE code challenge from verifier using SHA-256"""
-        sha256: bytes = hashlib.sha256(self.code_verifier.encode("utf-8")).digest()
-        return base64.urlsafe_b64encode(sha256).decode("utf-8").rstrip("=")
+        challenge: bytes = sha256(self.code_verifier.encode("utf-8")).digest()
+        return urlsafe_b64encode(challenge).decode("utf-8").rstrip("=")
 
     def _load_token(self) -> Optional[Dict[str, Any]]:
         """Load token from file if it exists and is valid"""
         try:
-            if os.path.exists(self.token_file):
+            if exists(self.token_file):
                 with open(self.token_file, "r") as f:
                     token: Dict[str, Any] = load(f)
 
