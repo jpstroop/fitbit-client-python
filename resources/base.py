@@ -1,8 +1,10 @@
-from requests import Response
-from requests_oauthlib import OAuth2Session
+# resources/base.py
 from typing import Any
 from typing import Dict
 from typing import Optional
+
+from requests import Response
+from requests_oauthlib import OAuth2Session
 
 
 class BaseResource:

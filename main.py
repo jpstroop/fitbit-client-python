@@ -1,6 +1,7 @@
-from client import FitbitClient
 from json import dumps
 from json import load
+
+from client import FitbitClient
 
 
 def print_json(obj):
@@ -51,7 +52,7 @@ def main():
 
     try:
         client.authenticate()
-        profile = client.profile.get_profile()
+        profile = client.user.get_profile()
         print_json(profile)
         # activities = client.activity.get_daily_activity()
         # sleep = client.sleep.get_sleep_logs()
