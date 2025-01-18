@@ -10,6 +10,7 @@ from tempfile import NamedTemporaryFile
 from threading import Thread
 from time import sleep
 from time import time
+from typing import IO
 from typing import Optional
 from urllib.parse import urlparse
 
@@ -42,8 +43,8 @@ class CallbackServer:
         self.port: int = parsed.port or 8080
         self.server: Optional[HTTPServer] = None
         self.oauth_response: Optional[str] = None
-        self.cert_file: Optional[NamedTemporaryFile[bytes]] = None
-        self.key_file: Optional[NamedTemporaryFile[bytes]] = None
+        self.cert_file: Optional[IO[bytes]] = None
+        self.key_file: Optional[IO[bytes]] = None
 
     def start(self) -> None:
         """Start callback server in background thread"""
