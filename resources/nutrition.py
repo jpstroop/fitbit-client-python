@@ -44,6 +44,8 @@ class NutritionResource(BaseResource):
         """
         Creates a new private food entry for a user.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/create-food/
+
         Args:
             name: Name of the food being created
             default_food_measurement_unit_id: ID from the food units endpoint
@@ -84,6 +86,8 @@ class NutritionResource(BaseResource):
     ) -> Dict[str, Any]:
         """
         Creates a food log entry for a given day.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/create-food-log/
 
         Args:
             date: Log date in yyyy-MM-dd format
@@ -136,6 +140,8 @@ class NutritionResource(BaseResource):
         """
         Creates or updates a user's daily calorie consumption goal or food plan.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/create-food-goal/
+
         Args:
             calories: Optional manual calorie consumption goal
             intensity: Optional food plan intensity (MAINTENANCE, EASIER, MEDIUM,
@@ -169,6 +175,8 @@ class NutritionResource(BaseResource):
         """
         Creates a meal with the given foods.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/create-meal/
+
         Args:
             name: Name of the meal
             description: Short description of the meal
@@ -194,6 +202,8 @@ class NutritionResource(BaseResource):
         """
         Creates or updates a user's daily water consumption goal.
 
+        API Reference: 
+
         Args:
             target: Target water goal in the unit system matching locale
             user_id: Optional user ID, defaults to current user
@@ -208,6 +218,8 @@ class NutritionResource(BaseResource):
     ) -> Dict[str, Any]:
         """
         Creates a water log entry.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/create-water-goal/
 
         Args:
             amount: Amount of water consumed (X.X format)
@@ -230,6 +242,8 @@ class NutritionResource(BaseResource):
         """
         Deletes a custom food created by the user.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/delete-custom-food/
+
         Args:
             food_id: ID of the food to delete
             user_id: Optional user ID, defaults to current user
@@ -239,6 +253,8 @@ class NutritionResource(BaseResource):
     def delete_favorite_food(self, food_id: str, user_id: str = "-") -> None:
         """
         Removes a food from user's list of favorite foods.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/delete-favorite-foods/
 
         Args:
             food_id: ID of the food to remove from favorites
@@ -250,6 +266,8 @@ class NutritionResource(BaseResource):
         """
         Deletes a food log entry.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/delete-food-log/
+
         Args:
             food_log_id: ID of the food log to delete
             user_id: Optional user ID, defaults to current user
@@ -259,6 +277,8 @@ class NutritionResource(BaseResource):
     def delete_meal(self, meal_id: str, user_id: str = "-") -> None:
         """
         Deletes a meal.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/delete-meal/
 
         Args:
             meal_id: ID of the meal to delete
@@ -270,6 +290,8 @@ class NutritionResource(BaseResource):
         """
         Deletes a water log entry.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/delete-water-log/
+
         Args:
             water_log_id: ID of the water log to delete
             user_id: Optional user ID, defaults to current user
@@ -280,6 +302,8 @@ class NutritionResource(BaseResource):
         """
         Retrieves details of a specific food from Fitbit's database or user's private foods.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/get-food/
+
         Args:
             food_id: ID of the food to retrieve
 
@@ -289,11 +313,13 @@ class NutritionResource(BaseResource):
         Note:
             Nutritional values are only included for PRIVATE foods.
         """
-        return self._get(f"foods/{food_id}.json", requires_user_id = False)
+        return self._get(f"foods/{food_id}.json", requires_user_id=False)
 
     def get_food_goals(self, user_id: str = "-") -> Dict[str, Any]:
         """
         Retrieves the user's daily calorie consumption goal and/or food plan.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/get-food-goals/
 
         Args:
             user_id: Optional user ID, defaults to current user
@@ -310,6 +336,8 @@ class NutritionResource(BaseResource):
         """
         Retrieves a summary of all food log entries for a given day.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/get-food-log/
+
         Args:
             date: The date in yyyy-MM-dd format or 'today'
             user_id: Optional user ID, defaults to current user
@@ -323,23 +351,29 @@ class NutritionResource(BaseResource):
         """
         Retrieves the list of food locales used for searching and creating foods.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/get-food-log/
+
         Returns:
             List of supported locales with regional settings
         """
-        return self._get("foods/locales.json", requires_user_id = False)
+        return self._get("foods/locales.json", requires_user_id=False)
 
     def get_food_units(self) -> List[Dict[str, Any]]:
         """
         Retrieves list of valid Fitbit food units.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/get-food-units/
+
         Returns:
             List of available measurement units for food logging
         """
-        return self._get("foods/units.json", requires_user_id = False)
+        return self._get("foods/units.json", requires_user_id=False)
 
     def get_frequent_foods(self, user_id: str = "-") -> List[Dict[str, Any]]:
         """
         Retrieves a list of user's frequently consumed foods.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/get-frequent-foods/
 
         Args:
             user_id: Optional user ID, defaults to current user
@@ -356,6 +390,8 @@ class NutritionResource(BaseResource):
         """
         Retrieves a list of user's recently consumed foods.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/get-recent-foods/
+
         Args:
             user_id: Optional user ID, defaults to current user
 
@@ -368,6 +404,8 @@ class NutritionResource(BaseResource):
         """
         Retrieves a list of user's favorite foods.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/get-favorite-foods/
+
         Args:
             user_id: Optional user ID, defaults to current user
 
@@ -379,6 +417,8 @@ class NutritionResource(BaseResource):
     def get_meal(self, meal_id: str, user_id: str = "-") -> Dict[str, Any]:
         """
         Retrieves a single meal from user's food log.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/get-meal/
 
         Args:
             meal_id: ID of the meal to retrieve
@@ -396,6 +436,8 @@ class NutritionResource(BaseResource):
         """
         Retrieves list of all user's saved meals.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/get-meals/
+
         Args:
             user_id: Optional user ID, defaults to current user
 
@@ -408,6 +450,8 @@ class NutritionResource(BaseResource):
         """
         Retrieves user's daily water consumption goal.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/get-water-goal/
+
         Args:
             user_id: Optional user ID, defaults to current user
 
@@ -419,6 +463,8 @@ class NutritionResource(BaseResource):
     def get_water_log(self, date: str, user_id: str = "-") -> Dict[str, Any]:
         """
         Retrieves water log entries for a specific date.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/get-water-log/
 
         Args:
             date: Log date in yyyy-MM-dd format
@@ -433,6 +479,10 @@ class NutritionResource(BaseResource):
         """
         Searches Fitbit's food database and user's custom foods.
 
+        API Reference: 
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/search-foods/
+
         Args:
             query: Search string to match against food names
 
@@ -443,7 +493,7 @@ class NutritionResource(BaseResource):
             Results include both PUBLIC (Fitbit database) and PRIVATE (user-created) foods.
             Search uses the locale specified in accept-language header.
         """
-        return self._get("foods/search.json", params={"query": query}, requires_user_id = False)
+        return self._get("foods/search.json", params={"query": query}, requires_user_id=False)
 
     def update_food_log(
         self,
@@ -456,6 +506,8 @@ class NutritionResource(BaseResource):
     ) -> Dict[str, Any]:
         """
         Updates an existing food log entry.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/update-food-log/
 
         Args:
             food_log_id: ID of the food log to update
@@ -489,6 +541,8 @@ class NutritionResource(BaseResource):
         """
         Updates an existing meal.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/update-meal/
+
         Args:
             meal_id: ID of the meal to update
             name: New name for the meal
@@ -508,6 +562,8 @@ class NutritionResource(BaseResource):
     ) -> Dict[str, Any]:
         """
         Updates an existing water log entry.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/update-water-log/
 
         Args:
             water_log_id: ID of the water log to update
