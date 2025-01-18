@@ -202,7 +202,7 @@ class NutritionResource(BaseResource):
         """
         Creates or updates a user's daily water consumption goal.
 
-        API Reference: 
+        API Reference:
 
         Args:
             target: Target water goal in the unit system matching locale
@@ -478,8 +478,6 @@ class NutritionResource(BaseResource):
     def search_foods(self, query: str) -> List[Dict[str, Any]]:
         """
         Searches Fitbit's food database and user's custom foods.
-
-        API Reference: 
 
         API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/search-foods/
 
