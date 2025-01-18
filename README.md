@@ -1,49 +1,16 @@
 # Fitbit™ API Client
 
-A Python client for interacting with the Fitbit API, featuring OAuth2 PKCE authentication and resource-based API interactions.
-
-## Features
-
-* OAuth2 PKCE authentication flow with automatic token refresh
-* Token caching for persistent authentication
-* Fully type-annotated
-* Resource-based separation of concerns
+A fully-typed Python client for interacting with the Fitbit API, featuring OAuth2 PKCE authentication and resource-based API interactions.
 
 ## Installation
 
-This package requires Python 3.13 or later.
+This package requires Python 3.10 or later.
 
 ```bash
 pdm add fitbit-client
 ```
 
-## Usage
-
-```python
-from fitbit_client import FitbitClient
-
-# Initialize the client
-client = FitbitClient(
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-    redirect_uri="YOUR_REDIRECT_URI"
-)
-
-# Authenticate (will open browser for OAuth flow)
-client.authenticate()
-
-# Get user profile
-profile = client.profile.get_profile()
-
-# Log water intake
-water_log = client.nutrition.log_water(
-    amount=8,
-    unit='cup'
-)
-
-# Get daily food log
-food_log = client.nutrition.get_food_logs()
-```
+Read about authentication and registering your app below.
 
 ## Getting Started with Development
 
@@ -87,55 +54,78 @@ Run all formatters with:
 pdm run fmt
 ```
 
-### Project Structure
+## Authentication Setup
 
-```
-fitbit_client/
-├── __init__.py
-├── auth.py           # OAuth2 PKCE implementation
-├── client.py         # Main client class
-└── resources/        # API resource implementations
-    ├── __init__.py
-    ├── base.py
-    ├── profile.py
-    └── nutrition.py
-    └── etc ... 
-```
+This client supports two methods of OAuth2 authentication:
 
-### Configuration Files
+### 1. Automatic (Recommended)
+Uses a local callback server to automatically handle the OAuth2 flow:
 
-See `pyproject.toml`
-
-## Credentials Setup
-
-1. First, obtain your Fitbit API credentials:
-   * Go to [dev.fitbit.com](https://dev.fitbit.com)
-   * Log in and create a new application
-   * Set OAuth 2.0 Application Type to "Personal"
-   * Add your redirect URI (e.g., http://localhost:8080)
-   * Save your Client ID and Client Secret
-
-2. Create a `secrets.json` file in your project root (see [secrets.json.example](secrets.json.example)):
-```json
-{
-    "client_id": "YOUR_CLIENT_ID",
-    "client_secret": "YOUR_CLIENT_SECRET",
-    "redirect_uri": "https://localhost:8080"
-}
-```
-
-3. In your code, load the credentials:
 ```python
-from json import load
+from fitbit_client import FitbitClient
 
-with open("secrets.json") as f:
-    secrets = load(f)
-    
-client = FitbitClient(**secrets)
+client = FitbitClient(
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+    redirect_uri="https://localhost:8080",
+    use_callback_server=True  # default is True
+)
+
+# Will open browser and handle callback automatically
 client.authenticate()
 ```
 
-See [main.py](main.py) for a basic example.
+### 2. Manual URL Copy/Paste
+If you prefer not to use a local server:
+
+```python
+from fitbit_client import FitbitClient
+
+client = FitbitClient(
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+    redirect_uri="YOUR_REGISTERED_REDIRECT_URI",
+    use_callback_server=False
+)
+
+# Will prompt you to copy/paste the callback URL
+client.authenticate()
+```
+
+## Minimal Working Example
+
+```python
+from fitbit_client import FitbitClient
+from json import dumps
+
+# Initialize client
+client = FitbitClient(
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+    redirect_uri="https://localhost:8080"
+)
+
+try:
+    # Authenticate (opens browser automatically)
+    client.authenticate()
+    
+    # Make a request (e.g., get user profile)
+    profile = client.user.get_profile()
+    print(dumps(profile, indent=2))
+    
+except Exception as e:
+    print(f"Error: {str(e)}")
+
+
+```
+## Setting Up Your Fitbit App
+
+1. Go to dev.fitbit.com and create a new application
+2. Set OAuth 2.0 Application Type to "Personal"
+3. Set Callback URL to:
+   - For automatic method: "https://localhost:8080"
+   - For manual method: Your preferred redirect URI
+4. Copy your Client ID and Client Secret
 
 ## License
 

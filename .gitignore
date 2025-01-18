@@ -51,3 +51,4 @@ secrets.json
 TODO.md
 dev.fitbit.com
 web-api
+*.pem
