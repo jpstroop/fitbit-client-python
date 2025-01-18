@@ -1,8 +1,10 @@
 # resources/body.py
+# Standard library imports
 from typing import Any
 from typing import Dict
 from typing import Optional
 
+# Local imports
 from resources.base import BaseResource
 from resources.constants import BodyGoalType
 
@@ -48,7 +50,11 @@ class BodyResource(BaseResource):
         return self._post("body/log/fat.json", params=params, user_id=user_id)
 
     def create_weight_goal(
-        self, start_date: str, start_weight: float, weight: Optional[float] = None, user_id: str = "-"
+        self,
+        start_date: str,
+        start_weight: float,
+        weight: Optional[float] = None,
+        user_id: str = "-",
     ) -> Dict[str, Any]:
         """
         Create or update a user's weight goal.

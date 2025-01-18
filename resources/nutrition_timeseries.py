@@ -1,7 +1,9 @@
+# Standard library imports
 from enum import Enum
 from typing import Any
 from typing import Dict
 
+# Local imports
 from resources.base import BaseResource
 from resources.constants import NutritionResource
 from resources.constants import Period
@@ -37,7 +39,9 @@ class NutritionTimeSeriesResource(BaseResource):
             Returns data using units corresponding to Accept-Language header.
             Only returns data since user's join date or first log entry.
         """
-        return self._get(f"foods/log/{resource.value}/date/{date}/{period.value}.json", user_id=user_id)
+        return self._get(
+            f"foods/log/{resource.value}/date/{date}/{period.value}.json", user_id=user_id
+        )
 
     def get_time_series_by_date_range(
         self, resource: NutritionResource, start_date: str, end_date: str, user_id: str = "-"
@@ -59,4 +63,6 @@ class NutritionTimeSeriesResource(BaseResource):
             Returns data using units corresponding to Accept-Language header.
             Only returns data since user's join date or first log entry.
         """
-        return self._get(f"foods/log/{resource.value}/date/{start_date}/{end_date}.json", user_id=user_id)
+        return self._get(
+            f"foods/log/{resource.value}/date/{start_date}/{end_date}.json", user_id=user_id
+        )

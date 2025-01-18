@@ -1,7 +1,9 @@
 # client.py
+# Standard library imports
 from typing import Optional
 from urllib.parse import urlparse
 
+# Local imports
 from auth.oauth import FitbitOAuth2
 from resources.activezone import ActiveZoneResource
 from resources.activity import ActivityResource
@@ -55,11 +57,15 @@ class FitbitClient:
         )
 
         # Initialize API resources
-        self.active_zone: ActiveZoneResource = ActiveZoneResource(self.auth.oauth, language=language, locale=locale)
+        self.active_zone: ActiveZoneResource = ActiveZoneResource(
+            self.auth.oauth, language=language, locale=locale
+        )
         self.activity_timeseries: ActivityTimeSeriesResource = ActivityTimeSeriesResource(
             self.auth.oauth, language=language, locale=locale
         )
-        self.activity: ActivityResource = ActivityResource(self.auth.oauth, language=language, locale=locale)
+        self.activity: ActivityResource = ActivityResource(
+            self.auth.oauth, language=language, locale=locale
+        )
         self.body_timeseries: BodyTimeSeriesResource = BodyTimeSeriesResource(
             self.auth.oauth, language=language, locale=locale
         )
@@ -70,9 +76,13 @@ class FitbitClient:
         self.cardiofitness: CardioFitnessResource = CardioFitnessResource(
             self.auth.oauth, language=language, locale=locale
         )
-        self.device: DeviceResource = DeviceResource(self.auth.oauth, language=language, locale=locale)
+        self.device: DeviceResource = DeviceResource(
+            self.auth.oauth, language=language, locale=locale
+        )
         self.ecg: ECGResource = ECGResource(self.auth.oauth, language=language, locale=locale)
-        self.friends: FriendsResource = FriendsResource(self.auth.oauth, language=language, locale=locale)
+        self.friends: FriendsResource = FriendsResource(
+            self.auth.oauth, language=language, locale=locale
+        )
         self.heartrate_timeseries: HeartRateTimeSeriesResource = HeartRateTimeSeriesResource(
             self.auth.oauth, language=language, locale=locale
         )
@@ -85,13 +95,17 @@ class FitbitClient:
         self.nutrition_timeseries: NutritionTimeSeriesResource = NutritionTimeSeriesResource(
             self.auth.oauth, language=language, locale=locale
         )
-        self.nutrition: NutritionResource = NutritionResource(self.auth.oauth, language=language, locale=locale)
+        self.nutrition: NutritionResource = NutritionResource(
+            self.auth.oauth, language=language, locale=locale
+        )
         self.sleep: SleepResource = SleepResource(self.auth.oauth, language=language, locale=locale)
         self.spo2: SpO2Resource = SpO2Resource(self.auth.oauth, language=language, locale=locale)
         self.subscription: SubscriptionResource = SubscriptionResource(
             self.auth.oauth, language=language, locale=locale
         )
-        self.temperature: TemperatureResource = TemperatureResource(self.auth.oauth, language=language, locale=locale)
+        self.temperature: TemperatureResource = TemperatureResource(
+            self.auth.oauth, language=language, locale=locale
+        )
         self.user: UserResource = UserResource(self.auth.oauth, language=language, locale=locale)
 
     def authenticate(self, force_new: bool = False) -> bool:

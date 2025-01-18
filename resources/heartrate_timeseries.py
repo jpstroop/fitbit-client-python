@@ -1,8 +1,10 @@
 # resources/heartrate_timeseries.py
+# Standard library imports
 from typing import Any
 from typing import Dict
 from typing import Optional
 
+# Local imports
 from resources.base import BaseResource
 from resources.constants import Period
 
@@ -45,16 +47,26 @@ class HeartRateTimeSeriesResource(BaseResource):
             prioritizing sleep periods. If insufficient data exists for a day,
             resting heart rate may not be available.
         """
-        supported_periods = {Period.ONE_DAY, Period.SEVEN_DAYS, Period.THIRTY_DAYS, Period.ONE_WEEK, Period.ONE_MONTH}
+        supported_periods = {
+            Period.ONE_DAY,
+            Period.SEVEN_DAYS,
+            Period.THIRTY_DAYS,
+            Period.ONE_WEEK,
+            Period.ONE_MONTH,
+        }
 
         if period not in supported_periods:
-            raise ValueError(f"Period must be one of: {', '.join(p.value for p in supported_periods)}")
+            raise ValueError(
+                f"Period must be one of: {', '.join(p.value for p in supported_periods)}"
+            )
 
         if timezone is not None and timezone != "UTC":
             raise ValueError("Only 'UTC' timezone is supported")
 
         params = {"timezone": timezone} if timezone else None
-        return self._get(f"activities/heart/date/{date}/{period.value}.json", params=params, user_id=user_id)
+        return self._get(
+            f"activities/heart/date/{date}/{period.value}.json", params=params, user_id=user_id
+        )
 
     def get_time_series_by_date_range(
         self, start_date: str, end_date: str, user_id: str = "-", timezone: Optional[str] = None
@@ -85,4 +97,6 @@ class HeartRateTimeSeriesResource(BaseResource):
             raise ValueError("Only 'UTC' timezone is supported")
 
         params = {"timezone": timezone} if timezone else None
-        return self._get(f"activities/heart/date/{start_date}/{end_date}.json", params=params, user_id=user_id)
+        return self._get(
+            f"activities/heart/date/{start_date}/{end_date}.json", params=params, user_id=user_id
+        )

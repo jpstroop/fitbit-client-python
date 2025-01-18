@@ -1,7 +1,9 @@
 # resources/activity_timeseries.py
+# Standard library imports
 from typing import Any
 from typing import Dict
 
+# Local imports
 from resources.base import BaseResource
 from resources.constants import ActivityTimeSeriesPath
 from resources.constants import Period
@@ -25,10 +27,16 @@ class ActivityTimeSeriesResource(BaseResource):
             period: Time period to get data for
             user_id: The encoded ID of the user. Use "-" (dash) for current logged-in user.
         """
-        return self._get(f"activities/{resource_path.value}/date/{date}/{period.value}.json", user_id=user_id)
+        return self._get(
+            f"activities/{resource_path.value}/date/{date}/{period.value}.json", user_id=user_id
+        )
 
     def get_time_series_by_date_range(
-        self, resource_path: ActivityTimeSeriesPath, start_date: str, end_date: str, user_id: str = "-"
+        self,
+        resource_path: ActivityTimeSeriesPath,
+        start_date: str,
+        end_date: str,
+        user_id: str = "-",
     ) -> Dict[str, Any]:
         """
         Get activity time series data for a specified date range.
@@ -44,4 +52,6 @@ class ActivityTimeSeriesResource(BaseResource):
             - activityCalories: 30 days
             - Most other resources: 1095 days (~3 years)
         """
-        return self._get(f"activities/{resource_path.value}/date/{start_date}/{end_date}.json", user_id=user_id)
+        return self._get(
+            f"activities/{resource_path.value}/date/{start_date}/{end_date}.json", user_id=user_id
+        )

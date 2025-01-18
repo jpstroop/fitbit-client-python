@@ -1,9 +1,11 @@
 # resources/activezone.py
+# Standard library imports
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
 
+# Local imports
 from resources.base import BaseResource
 from resources.constants import Period
 
@@ -36,9 +38,13 @@ class ActiveZoneResource(BaseResource):
         if not isinstance(period, Period):
             raise ValueError(f"Period must be a valid Period enum value. Got: {period}")
 
-        return self._get(f"activities/active-zone-minutes/date/{date}/{period.value}.json", user_id=user_id)
+        return self._get(
+            f"activities/active-zone-minutes/date/{date}/{period.value}.json", user_id=user_id
+        )
 
-    def get_azm_by_date_range(self, start_date: str, end_date: str, user_id: str = "-") -> Dict[str, Any]:
+    def get_azm_by_date_range(
+        self, start_date: str, end_date: str, user_id: str = "-"
+    ) -> Dict[str, Any]:
         """
         Get Active Zone Minutes time series data for a specified date range.
 
@@ -57,4 +63,6 @@ class ActiveZoneResource(BaseResource):
         Note:
             Maximum date range is 1095 days (approximately 3 years)
         """
-        return self._get(f"activities/active-zone-minutes/date/{start_date}/{end_date}.json", user_id=user_id)
+        return self._get(
+            f"activities/active-zone-minutes/date/{start_date}/{end_date}.json", user_id=user_id
+        )

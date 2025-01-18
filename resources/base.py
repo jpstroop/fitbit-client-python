@@ -1,7 +1,10 @@
+# resources/base.py
+# Standard library imports
 from typing import Any
 from typing import Dict
 from typing import Optional
 
+# Third party imports
 from requests import Response
 from requests_oauthlib import OAuth2Session
 
@@ -46,7 +49,11 @@ class BaseResource:
         return f"{self.API_BASE}/{endpoint}"
 
     def _get(
-        self, endpoint: str, params: Optional[Dict[str, Any]] = None, user_id: str = "-", requires_user_id: bool = True
+        self,
+        endpoint: str,
+        params: Optional[Dict[str, Any]] = None,
+        user_id: str = "-",
+        requires_user_id: bool = True,
     ) -> Dict[str, Any]:
         """
         Make GET request to Fitbit API
@@ -89,12 +96,18 @@ class BaseResource:
             JSON response from the API
         """
         url: str = self._build_url(endpoint, user_id, requires_user_id)
-        response: Response = self.oauth.post(url, data=data, json=json, params=params, headers=self.headers)
+        response: Response = self.oauth.post(
+            url, data=data, json=json, params=params, headers=self.headers
+        )
         response.raise_for_status()
         return response.json()
 
     def _delete(
-        self, endpoint: str, params: Optional[Dict[str, Any]] = None, user_id: str = "-", requires_user_id: bool = True
+        self,
+        endpoint: str,
+        params: Optional[Dict[str, Any]] = None,
+        user_id: str = "-",
+        requires_user_id: bool = True,
     ) -> None:
         """
         Make DELETE request to Fitbit API
