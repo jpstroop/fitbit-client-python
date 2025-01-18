@@ -72,7 +72,11 @@ TBD
   - [ ] Document response payloads for each endpoint
   - [ ] Add examples for complex operations
   - [ ] Document rate limiting behavior
-  - [ ] Add authentication troubleshooting guide
+  - [x] Badges
+    - [x] Black
+    - [x] Python 3.13 
+    - [x] License
+
 
 - Development Documentation
 
