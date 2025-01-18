@@ -19,7 +19,8 @@ class BaseResource:
 
     API_BASE: str = "https://api.fitbit.com/1"
 
-    def __init__(self, oauth_session: OAuth2Session) -> None:
+    def __init__(self, oauth_session: OAuth2Session, locale: str, language: str) -> None:
+        self.headers: Dict = {"Accept-Locale": locale, "Accept-Language": language}
         self.oauth: OAuth2Session = oauth_session
 
     def _build_url(self, endpoint: str, user_id: str = "-", requires_user_id: bool = True) -> str:
@@ -60,7 +61,7 @@ class BaseResource:
             JSON response from the API
         """
         url: str = self._build_url(endpoint, user_id, requires_user_id)
-        response: Response = self.oauth.get(url, params=params)
+        response: Response = self.oauth.get(url, params=params, headers=self.headers)
         response.raise_for_status()
         return response.json()
 
@@ -88,7 +89,7 @@ class BaseResource:
             JSON response from the API
         """
         url: str = self._build_url(endpoint, user_id, requires_user_id)
-        response: Response = self.oauth.post(url, data=data, json=json, params=params)
+        response: Response = self.oauth.post(url, data=data, json=json, params=params, headers=self.headers)
         response.raise_for_status()
         return response.json()
 
@@ -105,5 +106,5 @@ class BaseResource:
             requires_user_id: Whether the endpoint is user-specific (default: True)
         """
         url: str = self._build_url(endpoint, user_id, requires_user_id)
-        response: Response = self.oauth.delete(url, params=params)
+        response: Response = self.oauth.delete(url, params=params, headers=self.headers)
         response.raise_for_status()
