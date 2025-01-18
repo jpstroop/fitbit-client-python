@@ -1,8 +1,10 @@
+# Standard library imports
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
 
+# Local imports
 from resources.base import BaseResource
 from resources.constants import SubscriptionCategory
 
@@ -89,7 +91,10 @@ class SubscriptionResource(BaseResource):
         self._delete(endpoint, user_id=user_id, headers=headers)
 
     def get_subscription_list(
-        self, category: Optional[SubscriptionCategory] = None, subscriber_id: Optional[str] = None, user_id: str = "-"
+        self,
+        category: Optional[SubscriptionCategory] = None,
+        subscriber_id: Optional[str] = None,
+        user_id: str = "-",
     ) -> List[Dict[str, Any]]:
         """
         Gets a list of subscriptions created by your application for a user.
@@ -107,7 +112,9 @@ class SubscriptionResource(BaseResource):
             this endpoint periodically to ensure data consistency.
         """
         # Build the endpoint URL based on whether a category is specified
-        endpoint = f"{category.value}/apiSubscriptions.json" if category else "apiSubscriptions.json"
+        endpoint = (
+            f"{category.value}/apiSubscriptions.json" if category else "apiSubscriptions.json"
+        )
 
         headers = {}
         if subscriber_id:

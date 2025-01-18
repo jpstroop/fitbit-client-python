@@ -1,8 +1,10 @@
 # resources/sleep.py
+# Standard library imports
 from typing import Any
 from typing import Dict
 from typing import Optional
 
+# Local imports
 from resources.base import BaseResource
 from resources.constants import SleepType
 
@@ -61,7 +63,12 @@ class SleepResource(BaseResource):
         if duration_millis <= 0:
             raise ValueError("duration_millis must be positive")
 
-        data = {"startTime": start_time, "duration": duration_millis, "date": date, "type": sleep_type.value}
+        data = {
+            "startTime": start_time,
+            "duration": duration_millis,
+            "date": date,
+            "type": sleep_type.value,
+        }
         return self._post("sleep.json", data=data, user_id=user_id)
 
     def delete_sleep_log(self, log_id: str, user_id: str = "-") -> None:
@@ -109,7 +116,9 @@ class SleepResource(BaseResource):
         """
         return self._get(f"sleep/date/{date}.json", user_id=user_id)
 
-    def get_sleep_logs_by_date_range(self, start_date: str, end_date: str, user_id: str = "-") -> Dict[str, Any]:
+    def get_sleep_logs_by_date_range(
+        self, start_date: str, end_date: str, user_id: str = "-"
+    ) -> Dict[str, Any]:
         """
         Gets sleep logs for a date range.
 

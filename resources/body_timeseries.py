@@ -1,7 +1,9 @@
 # resources/body_timeseries.py
+# Standard library imports
 from typing import Any
 from typing import Dict
 
+# Local imports
 from resources.base import BaseResource
 from resources.constants import BodyResourceType
 from resources.constants import BodyTimePeriod
@@ -29,7 +31,9 @@ class BodyTimeSeriesResource(BaseResource):
         Note:
             For fat and weight resources, only periods up to 1m are supported - 3m, 6m, 1y, max are not available.
         """
-        return self._get(f"body/{resource_type.value}/date/{date}/{period.value}.json", user_id=user_id)
+        return self._get(
+            f"body/{resource_type.value}/date/{date}/{period.value}.json", user_id=user_id
+        )
 
     def get_time_series_by_date_range(
         self, resource_type: BodyResourceType, base_date: str, end_date: str, user_id: str = "-"
@@ -49,9 +53,13 @@ class BodyTimeSeriesResource(BaseResource):
             - fat: 30 days
             - weight: 31 days
         """
-        return self._get(f"body/{resource_type.value}/date/{base_date}/{end_date}.json", user_id=user_id)
+        return self._get(
+            f"body/{resource_type.value}/date/{base_date}/{end_date}.json", user_id=user_id
+        )
 
-    def get_body_fat_time_series_by_date(self, date: str, period: BodyTimePeriod, user_id: str = "-") -> Dict[str, Any]:
+    def get_body_fat_time_series_by_date(
+        self, date: str, period: BodyTimePeriod, user_id: str = "-"
+    ) -> Dict[str, Any]:
         """
         Get user's body fat measurements over a period of time by specifying a date and time period.
 
@@ -81,7 +89,9 @@ class BodyTimeSeriesResource(BaseResource):
         """
         return self._get(f"body/log/fat/date/{base_date}/{end_date}.json", user_id=user_id)
 
-    def get_weight_time_series_by_date(self, date: str, period: BodyTimePeriod, user_id: str = "-") -> Dict[str, Any]:
+    def get_weight_time_series_by_date(
+        self, date: str, period: BodyTimePeriod, user_id: str = "-"
+    ) -> Dict[str, Any]:
         """
         Get user's weight measurements over a period of time by specifying a date and time period.
 
@@ -95,7 +105,9 @@ class BodyTimeSeriesResource(BaseResource):
         """
         return self._get(f"body/log/weight/date/{date}/{period.value}.json", user_id=user_id)
 
-    def get_weight_time_series_by_date_range(self, base_date: str, end_date: str, user_id: str = "-") -> Dict[str, Any]:
+    def get_weight_time_series_by_date_range(
+        self, base_date: str, end_date: str, user_id: str = "-"
+    ) -> Dict[str, Any]:
         """
         Get user's weight measurements over a period of time by specifying a date range.
 

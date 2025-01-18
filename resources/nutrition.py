@@ -1,9 +1,11 @@
 # resources/nutrition.py
+# Standard library imports
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
 
+# Local imports
 from resources.base import BaseResource
 from resources.constants import FoodFormType
 from resources.constants import FoodPlanIntensity
@@ -114,7 +116,12 @@ class NutritionResource(BaseResource):
         if not food_id and not (food_name and calories):
             raise ValueError("Must provide either food_id or (food_name and calories)")
 
-        params = {"date": date, "mealTypeId": meal_type_id.value, "unitId": unit_id, "amount": amount}
+        params = {
+            "date": date,
+            "mealTypeId": meal_type_id.value,
+            "unitId": unit_id,
+            "amount": amount,
+        }
 
         if food_id:
             params["foodId"] = food_id
@@ -170,7 +177,13 @@ class NutritionResource(BaseResource):
         return self._post("foods/log/goal.json", params=params, user_id=user_id)
 
     def create_meal(
-        self, name: str, description: str, food_id: int, unit_id: int, amount: float, user_id: str = "-"
+        self,
+        name: str,
+        description: str,
+        food_id: int,
+        unit_id: int,
+        amount: float,
+        user_id: str = "-",
     ) -> Dict[str, Any]:
         """
         Creates a meal with the given foods.
@@ -534,7 +547,12 @@ class NutritionResource(BaseResource):
         return self._post(f"foods/log/{food_log_id}.json", params=params, user_id=user_id)
 
     def update_meal(
-        self, meal_id: str, name: str, description: str, foods: List[Dict[str, Any]], user_id: str = "-"
+        self,
+        meal_id: str,
+        name: str,
+        description: str,
+        foods: List[Dict[str, Any]],
+        user_id: str = "-",
     ) -> Dict[str, Any]:
         """
         Updates an existing meal.

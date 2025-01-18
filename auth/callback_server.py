@@ -1,4 +1,5 @@
 # auth/callback_server.py
+# Standard library imports
 from datetime import datetime
 from datetime import timedelta
 from http.server import HTTPServer
@@ -12,12 +13,14 @@ from time import time
 from typing import Optional
 from urllib.parse import urlparse
 
+# Third party imports
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.rsa import generate_private_key
 from cryptography.x509.oid import NameOID
 
+# Local imports
 from auth.callback_handler import CallbackHandler
 
 

@@ -1,4 +1,5 @@
 # auth/oauth.py
+# Standard library imports
 from base64 import urlsafe_b64encode
 from datetime import datetime
 from hashlib import sha256
@@ -15,9 +16,11 @@ from typing import Tuple
 from urllib.parse import urlparse
 from webbrowser import open as browser_open
 
+# Third party imports
 from requests.auth import HTTPBasicAuth
 from requests_oauthlib.oauth2_session import OAuth2Session
 
+# Local imports
 from auth.callback_server import CallbackServer
 
 
@@ -46,7 +49,13 @@ class FitbitOAuth2:
         "weight",
     ]
 
-    def __init__(self, client_id: str, client_secret: str, redirect_uri: str, use_callback_server: bool = True) -> None:
+    def __init__(
+        self,
+        client_id: str,
+        client_secret: str,
+        redirect_uri: str,
+        use_callback_server: bool = True,
+    ) -> None:
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
@@ -172,7 +181,11 @@ class FitbitOAuth2:
     def refresh_token(self, refresh_token: str) -> Dict[str, Any]:
         """Refresh the access token"""
         auth = HTTPBasicAuth(self.client_id, self.client_secret)
-        extra = {"client_id": self.client_id, "refresh_token": refresh_token, "grant_type": "refresh_token"}
+        extra = {
+            "client_id": self.client_id,
+            "refresh_token": refresh_token,
+            "grant_type": "refresh_token",
+        }
 
         token = self.oauth.refresh_token(self.TOKEN_URL, auth=auth, **extra)
         self._save_token(token)
