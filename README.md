@@ -82,9 +82,15 @@ For detailed usage examples and API documentation, visit our [documentation site
 
 For development guidelines, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
+## Important Note -  Intraday Data Support
+
+* This client does not currently support intraday data endpoints (detailed heart rate, steps, etc). These endpoints require special access from Fitbit and are typically limited to research applications.
+* For intraday data access requests, see [Fitbit's API documentation](https://dev.fitbit.com/build/reference/web-api/intraday/).
+* See additional notes about this in [DEVELOPMENT.md](DEVELOPMENT.md)
+
 ## License
 
-Copyright (C) 2024 Jon Stroop
+Copyright (C) 2025 Jon Stroop
 
 This program is licensed under the GNU Affero General Public License Version 3.0 (AGPL-3.0).
 See the [LICENSE](LICENSE) file for details.
