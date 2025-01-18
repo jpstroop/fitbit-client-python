@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 class CallbackHandler(BaseHTTPRequestHandler):
     """Handle OAuth2 callback requests"""
 
-    def do_GET(self):
+    def do_GET(self) -> None:
         """Process GET request and extract OAuth parameters"""
         # Parse query parameters
         query_components = parse_qs(urlparse(self.path).query)
@@ -32,9 +32,8 @@ class CallbackHandler(BaseHTTPRequestHandler):
         self.wfile.write(response.encode("utf-8"))
 
         # Store query parameters in server instance
-        if hasattr(self.server, "oauth_response"):
-            self.server.oauth_response = self.path
+        setattr(self.server, "last_callback", self.path)
 
-    def log_message(self, format, *args):
+    def log_message(self, format: str, *args: str) -> None:
         """Suppress logging output"""
         pass

@@ -18,8 +18,8 @@ Once published, install like this:
 pdm add fitbit-client-python # or your dependency manager of choice
 ```
 
-For now, you can [use it from Github](https://pdm-project.org/latest/usage/dependency/#vcs-dependencies).
-
+For now, you can
+[use it from Github](https://pdm-project.org/latest/usage/dependency/#vcs-dependencies).
 
 ## Quick Start
 
