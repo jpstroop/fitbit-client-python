@@ -50,7 +50,7 @@ tokens.json
 secrets.json
 TODO.md
 dev.fitbit.com
-web-api
+web-api-docs.tgz
 *.pem
 main.py
 units.json
