@@ -38,12 +38,12 @@ class CallbackServer:
         if parsed.scheme != "https":
             raise ValueError(f"Redirect URI must use HTTPS, got {parsed.scheme}")
 
-        self.host = parsed.hostname or "localhost"
-        self.port = parsed.port or 8080
+        self.host: str = parsed.hostname or "localhost"
+        self.port: int = parsed.port or 8080
         self.server: Optional[HTTPServer] = None
         self.oauth_response: Optional[str] = None
-        self.cert_file = None
-        self.key_file = None
+        self.cert_file: Optional[NamedTemporaryFile[bytes]] = None
+        self.key_file: Optional[NamedTemporaryFile[bytes]] = None
 
     def start(self) -> None:
         """Start callback server in background thread"""
@@ -91,7 +91,7 @@ class CallbackServer:
         # Wrap the socket
         self.server.socket = context.wrap_socket(self.server.socket, server_side=True)
 
-        self.server.oauth_response = None
+        setattr(self.server, "last_callback", None)
         print(f"HTTPS server starting on {self.host}:{self.port}")
 
         # Start server in background thread
@@ -113,8 +113,9 @@ class CallbackServer:
         # Wait for response with timeout
         start_time = time()
         while time() - start_time < timeout:
-            if self.server.oauth_response:
-                return self.server.oauth_response
+            if hasattr(self.server, "last_callback") and getattr(self.server, "last_callback"):
+                self.oauth_response = getattr(self.server, "last_callback")
+                return self.oauth_response
             sleep(0.1)
 
         return None

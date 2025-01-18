@@ -74,9 +74,8 @@ TBD
   - [ ] Document rate limiting behavior
   - [x] Badges
     - [x] Black
-    - [x] Python 3.13 
+    - [x] Python 3.13
     - [x] License
-
 
 - Development Documentation
 
