@@ -73,6 +73,10 @@ fitbit-client/
     └── user.py
 ```
 
+## Goals, Notes, and TODOs
+
+For now these are just in [TODO.md](TODO.md)
+
 ## Development Tools and Standards
 
 ### Code Formatting and Style
@@ -150,3 +154,19 @@ TODO
 * Check existing issues before creating new ones
 * Use issue templates when reporting bugs
 * Include Python version and environment details in bug reports
+
+
+## Scope and Limitations - Intraday Data Support
+
+This client explicitly does not implement intraday data endpoints (detailed heart rate, steps, etc). These endpoints:
+
+* Require special access from Fitbit (typically limited to research applications)
+* Have different rate limits than standard endpoints
+* Need additional OAuth2 scopes
+* Often require institutional review board (IRB) approval
+
+If you need intraday data access:
+1. Apply through Fitbit's developer portal
+2. Document your research use case
+3. Obtain necessary approvals
+4. Consider implementing these endpoints in a separate client
