@@ -158,11 +158,11 @@ class ActivityResource(BaseResource):
         Args:
             activity_id: ID of the activity type to retrieve
         """
-        return self._get(f"activities/{activity_id}.json")
+        return self._get(f"activities/{activity_id}.json", requires_user_id=False)
 
     def get_activity_types(self) -> List[Dict[str, Any]]:
         """Retrieves the complete list of available activities and their details."""
-        return self._get("activities.json")
+        return self._get("activities.json", requires_user_id=False)
 
     def get_favorite_activities(self, user_id: str = "-") -> List[Dict[str, Any]]:
         """
