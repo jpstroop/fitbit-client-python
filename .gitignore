@@ -48,10 +48,7 @@ htmlcov/
 # Project specific
 tokens.json 
 secrets.json
-TODO.md
-dev.fitbit.com
 web-api-docs.tgz
-*.pem
 main.py
 units.json
 my_food_data
