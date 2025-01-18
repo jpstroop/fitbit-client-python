@@ -1,8 +1,10 @@
 # resources/ecg.py
+# Standard library imports
 from typing import Any
 from typing import Dict
 from typing import Optional
 
+# Local imports
 from resources.base import BaseResource
 
 

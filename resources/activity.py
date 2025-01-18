@@ -1,9 +1,11 @@
 # resources/activity.py
+# Standard library imports
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
 
+# Local imports
 from resources.base import BaseResource
 from resources.constants import ActivityGoalType
 
@@ -69,7 +71,9 @@ class ActivityResource(BaseResource):
             data["activityName"] = activity_name
             data["manualCalories"] = manual_calories
         else:
-            raise ValueError("Must provide either activity_id or (activity_name and manual_calories)")
+            raise ValueError(
+                "Must provide either activity_id or (activity_name and manual_calories)"
+            )
 
         return self._post("activities.json", data=data, user_id=user_id)
 
@@ -200,7 +204,9 @@ class ActivityResource(BaseResource):
         """
         return self._get("activities.json", user_id=user_id)
 
-    def get_activity_tcx(self, log_id: str, include_partial_tcx: bool = False, user_id: str = "-") -> Dict[str, Any]:
+    def get_activity_tcx(
+        self, log_id: str, include_partial_tcx: bool = False, user_id: str = "-"
+    ) -> Dict[str, Any]:
         """
         Retrieves the TCX (Training Center XML) data for a specific activity log. TCX files
         contain GPS, heart rate, and lap data recorded during the logged exercise.

@@ -1,7 +1,9 @@
+# Standard library imports
 from typing import Any
 from typing import Dict
 from typing import List
 
+# Local imports
 from resources.base import BaseResource
 from resources.constants import WeekDay
 
@@ -19,7 +21,13 @@ class DeviceResource(BaseResource):
     """
 
     def create_alarm(
-        self, tracker_id: str, time: str, enabled: bool, recurring: bool, week_days: List[WeekDay], user_id: str = "-"
+        self,
+        tracker_id: str,
+        time: str,
+        enabled: bool,
+        recurring: bool,
+        week_days: List[WeekDay],
+        user_id: str = "-",
     ) -> Dict[str, Any]:
         """
         Create an alarm for a device.
@@ -41,7 +49,9 @@ class DeviceResource(BaseResource):
             "recurring": str(recurring).lower(),
             "weekDays": ",".join(day.value for day in week_days),
         }
-        return self._post(f"devices/tracker/{tracker_id}/alarms.json", params=params, user_id=user_id)
+        return self._post(
+            f"devices/tracker/{tracker_id}/alarms.json", params=params, user_id=user_id
+        )
 
     def delete_alarm(self, tracker_id: str, alarm_id: str, user_id: str = "-") -> None:
         """
@@ -126,4 +136,6 @@ class DeviceResource(BaseResource):
         if vibe:
             params["vibe"] = vibe
 
-        return self._post(f"devices/tracker/{tracker_id}/alarms/{alarm_id}.json", params=params, user_id=user_id)
+        return self._post(
+            f"devices/tracker/{tracker_id}/alarms/{alarm_id}.json", params=params, user_id=user_id
+        )

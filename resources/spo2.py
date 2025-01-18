@@ -1,7 +1,9 @@
+# Standard library imports
 from typing import Any
 from typing import Dict
 from typing import List
 
+# Local imports
 from resources.base import BaseResource
 
 
@@ -38,7 +40,9 @@ class SpO2Resource(BaseResource):
         """
         return self._get(f"spo2/date/{date}.json", user_id=user_id)
 
-    def get_summary_by_interval(self, start_date: str, end_date: str, user_id: str = "-") -> List[Dict[str, Any]]:
+    def get_summary_by_interval(
+        self, start_date: str, end_date: str, user_id: str = "-"
+    ) -> List[Dict[str, Any]]:
         """
         Get SpO2 summary data for a date range.
 

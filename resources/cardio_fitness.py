@@ -1,7 +1,9 @@
 # resources/cardio_fitness.py
+# Standard library imports
 from typing import Any
 from typing import Dict
 
+# Local imports
 from resources.base import BaseResource
 
 
@@ -35,7 +37,9 @@ class CardioFitnessResource(BaseResource):
         """
         return self._get(f"cardioscore/date/{date}.json", user_id=user_id)
 
-    def get_vo2_max_summary_by_interval(self, start_date: str, end_date: str, user_id: str = "-") -> Dict[str, Any]:
+    def get_vo2_max_summary_by_interval(
+        self, start_date: str, end_date: str, user_id: str = "-"
+    ) -> Dict[str, Any]:
         """
         Get cardio fitness (VO2 Max) data for a date range.
 

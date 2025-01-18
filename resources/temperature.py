@@ -1,8 +1,10 @@
+# Standard library imports
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
 
+# Local imports
 from resources.base import BaseResource
 
 
@@ -32,7 +34,9 @@ class TemperatureResource(BaseResource):
         """
         return self._get(f"temp/core/date/{date}.json", user_id=user_id)
 
-    def get_core_summary_by_interval(self, start_date: str, end_date: str, user_id: str = "-") -> Dict[str, Any]:
+    def get_core_summary_by_interval(
+        self, start_date: str, end_date: str, user_id: str = "-"
+    ) -> Dict[str, Any]:
         """
         Get core temperature summary data for a date range.
 
@@ -69,7 +73,9 @@ class TemperatureResource(BaseResource):
         """
         return self._get(f"temp/skin/date/{date}.json", user_id=user_id)
 
-    def get_skin_summary_by_interval(self, start_date: str, end_date: str, user_id: str = "-") -> Dict[str, Any]:
+    def get_skin_summary_by_interval(
+        self, start_date: str, end_date: str, user_id: str = "-"
+    ) -> Dict[str, Any]:
         """
         Get skin temperature summary data for a date range.
 

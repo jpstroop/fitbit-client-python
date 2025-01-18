@@ -1,7 +1,9 @@
 # resources/breathingrate.py
+# Standard library imports
 from typing import Any
 from typing import Dict
 
+# Local imports
 from resources.base import BaseResource
 
 

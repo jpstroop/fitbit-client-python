@@ -1,7 +1,9 @@
 # resources/heartrate_variability.py
+# Standard library imports
 from typing import Any
 from typing import Dict
 
+# Local imports
 from resources.base import BaseResource
 
 
@@ -46,7 +48,9 @@ class HeartRateVariabilityResource(BaseResource):
         """
         return self._get(f"hrv/date/{date}.json", user_id=user_id)
 
-    def get_hrv_summary_by_interval(self, start_date: str, end_date: str, user_id: str = "-") -> Dict[str, Any]:
+    def get_hrv_summary_by_interval(
+        self, start_date: str, end_date: str, user_id: str = "-"
+    ) -> Dict[str, Any]:
         """
         Retrieves HRV summary data for a date range.
 

@@ -1,13 +1,14 @@
-# Fitbit™ API Client
+# Python API Client for Fitbit™
 
-A fully-typed Python client for interacting with the Fitbit API, featuring OAuth2 PKCE authentication and resource-based API interactions.
+A fully-typed Python client for interacting with the Fitbit API, featuring OAuth2 PKCE
+authentication and resource-based API interactions.
 
 ## Installation
 
 This package requires Python 3.10 or later.
 
 ```bash
-pdm add fitbit-client
+pdm add fitbit-client-python # or your dependency manager of choice
 ```
 
 ## Quick Start
@@ -38,6 +39,7 @@ except Exception as e:
 ## Authentication Methods
 
 ### 1. Automatic (Recommended)
+
 Uses a local callback server to automatically handle the OAuth2 flow:
 
 ```python
@@ -53,6 +55,7 @@ client.authenticate()
 ```
 
 ### 2. Manual URL Copy/Paste
+
 If you prefer not to use a local server:
 
 ```python
@@ -63,7 +66,7 @@ client = FitbitClient(
     use_callback_server=False
 )
 
-# Will prompt you to copy/paste the callback URL
+# Will prompt you on the command line to copy/paste the callback URL
 client.authenticate()
 ```
 
@@ -76,25 +79,25 @@ client.authenticate()
    - For manual method: Your preferred redirect URI
 4. Copy your Client ID and Client Secret
 
-## Documentation
-
-For detailed usage examples and API documentation, visit our [documentation site](https://fitbit-client.readthedocs.io/).
-
 For development guidelines, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
-## Important Note -  Intraday Data Support
+## Important Note - Intraday Data Support
 
-* This client does not currently support intraday data endpoints (detailed heart rate, steps, etc). These endpoints require special access from Fitbit and are typically limited to research applications.
-* For intraday data access requests, see [Fitbit's API documentation](https://dev.fitbit.com/build/reference/web-api/intraday/).
-* See additional notes about this in [DEVELOPMENT.md](DEVELOPMENT.md)
+- This client does not currently support intraday data endpoints (detailed heart rate, steps, etc).
+  These endpoints require special access from Fitbit and are typically limited to research
+  applications.
+- For intraday data access requests, see
+  [Fitbit's API documentation](https://dev.fitbit.com/build/reference/web-api/intraday/).
+- See additional notes about this in [DEVELOPMENT.md](DEVELOPMENT.md)
 
 ## License
 
 Copyright (C) 2025 Jon Stroop
 
-This program is licensed under the GNU Affero General Public License Version 3.0 (AGPL-3.0).
-See the [LICENSE](LICENSE) file for details.
+This program is licensed under the GNU Affero General Public License Version 3.0 (AGPL-3.0). See the
+[LICENSE](LICENSE) file for details.
 
 ## Disclaimer
 
-Fitbit™ is a trademark of Google LLC. This project is designed for use with the Fitbit API but is not endorsed, certified, or otherwise approved by Google or Fitbit.
+Fitbit™ is a trademark of Google LLC. This project is designed for use with the Fitbit API but is
+not endorsed, certified, or otherwise approved by Google or Fitbit.
