@@ -289,7 +289,7 @@ class NutritionResource(BaseResource):
         Note:
             Nutritional values are only included for PRIVATE foods.
         """
-        return self._get(f"foods/{food_id}.json")
+        return self._get(f"foods/{food_id}.json", requires_user_id = False)
 
     def get_food_goals(self, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -326,7 +326,7 @@ class NutritionResource(BaseResource):
         Returns:
             List of supported locales with regional settings
         """
-        return self._get("foods/locales.json")
+        return self._get("foods/locales.json", requires_user_id = False)
 
     def get_food_units(self) -> List[Dict[str, Any]]:
         """
@@ -335,7 +335,7 @@ class NutritionResource(BaseResource):
         Returns:
             List of available measurement units for food logging
         """
-        return self._get("foods/units.json")
+        return self._get("foods/units.json", requires_user_id = False)
 
     def get_frequent_foods(self, user_id: str = "-") -> List[Dict[str, Any]]:
         """
@@ -443,7 +443,7 @@ class NutritionResource(BaseResource):
             Results include both PUBLIC (Fitbit database) and PRIVATE (user-created) foods.
             Search uses the locale specified in accept-language header.
         """
-        return self._get("foods/search.json", params={"query": query})
+        return self._get("foods/search.json", params={"query": query}, requires_user_id = False)
 
     def update_food_log(
         self,
