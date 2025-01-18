@@ -34,7 +34,7 @@ asdf local pdm latest
 3. Install project dependencies:
 
 ```bash
-pdm install -G dev
+pdm install -G lint
 ```
 
 ## Project Structure
@@ -141,6 +141,36 @@ Follow your nose from `client.py` and the structure should be very clear.
 - Only use enums for validating request parameters, not responses
 - Place all enums in constants.py
 - Only import enums that are actively used in the class
+
+## OAuth Callback Implementation
+
+The OAuth callback mechanism is implemented using two main classes: `CallbackServer` and `CallbackHandler`.
+
+### Implementation Flow
+
+1. `CallbackServer` starts an HTTPS server on localhost with a dynamically generated SSL certificate
+2. When the OAuth provider redirects to our callback URL, `CallbackHandler` receives the GET request
+3. The handler stores the full callback URL path (including query parameters) on the server instance using `setattr(self.server, "last_callback", self.path)`
+4. `CallbackServer.wait_for_callback()` polls for this stored path using `getattr()` until either:
+   - The callback data is found (returns the URL path)
+   - The timeout is reached (returns None)
+5. When complete, `stop()` cleans up by:
+   - Shutting down the HTTP server
+   - Removing temporary certificate files
+   - Clearing internal state
+
+### Security Notes
+
+- Uses HTTPS with a temporary self-signed certificate
+- Certificate and private key are stored in temporary files and cleaned up on server shutdown
+- Server runs only for the duration of the OAuth flow and automatically shuts down
+
+### Cleanup
+
+The `stop()` method ensures proper cleanup by:
+- Shutting down the HTTP server
+- Removing temporary certificate files
+- Clearing internal state
 
 ## Testing
 
