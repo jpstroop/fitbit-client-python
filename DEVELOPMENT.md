@@ -144,13 +144,15 @@ Follow your nose from `client.py` and the structure should be very clear.
 
 ## OAuth Callback Implementation
 
-The OAuth callback mechanism is implemented using two main classes: `CallbackServer` and `CallbackHandler`.
+The OAuth callback mechanism is implemented using two main classes: `CallbackServer` and
+`CallbackHandler`.
 
 ### Implementation Flow
 
 1. `CallbackServer` starts an HTTPS server on localhost with a dynamically generated SSL certificate
 2. When the OAuth provider redirects to our callback URL, `CallbackHandler` receives the GET request
-3. The handler stores the full callback URL path (including query parameters) on the server instance using `setattr(self.server, "last_callback", self.path)`
+3. The handler stores the full callback URL path (including query parameters) on the server instance
+   using `setattr(self.server, "last_callback", self.path)`
 4. `CallbackServer.wait_for_callback()` polls for this stored path using `getattr()` until either:
    - The callback data is found (returns the URL path)
    - The timeout is reached (returns None)
@@ -168,6 +170,7 @@ The OAuth callback mechanism is implemented using two main classes: `CallbackSer
 ### Cleanup
 
 The `stop()` method ensures proper cleanup by:
+
 - Shutting down the HTTP server
 - Removing temporary certificate files
 - Clearing internal state
