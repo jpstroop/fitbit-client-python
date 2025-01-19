@@ -1,7 +1,12 @@
 # Project TODO and Notes
 
 ## TODO
-
+- [ ] Move `client.py` into a folder so that no code is at the top of the project.
+  - Should it go into `client/__init__.py`?
+- Implement `all` in `__init__.py`s?
+- [ ] Make all responses a `{ }` with two keys: `headers` and `response`
+  - Allows for complete isolation of HTTP
+  - Makee typing more reliable.
 - [ ] Check that all methods are implemented
   - [ ] Implement "Add Favorite Food" in nutrition
 - [x] Implement `accept-language` and `add-locale`
