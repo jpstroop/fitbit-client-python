@@ -1,12 +1,15 @@
 # Python API Client for Fitbit™
 
-[![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![PDM](https://img.shields.io/badge/pdm-managed-blueviolet)](https://pdm.fming.dev)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%203.0-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
 A fully-typed Python client for interacting with the Fitbit API, featuring
 OAuth2 PKCE authentication and resource-based API interactions.
+
+**THIS IS WORK IN PROGRESS** most methods have been tested, but there is no test
+coverage yet, and more work [TODO](TODO.md). YMMV.
 
 ## Installation
 
