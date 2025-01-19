@@ -31,7 +31,12 @@ class SleepResource(BaseResource):
         if min_duration <= 0:
             raise ValueError("min_duration must be positive")
 
-        return self._post("sleep/goal.json", data={"minDuration": min_duration}, user_id=user_id)
+        return self._make_request(
+            "sleep/goal.json",
+            data={"minDuration": min_duration},
+            user_id=user_id,
+            http_method="POST",
+        )
 
     def log_sleep(
         self,
@@ -63,15 +68,15 @@ class SleepResource(BaseResource):
         if duration_millis <= 0:
             raise ValueError("duration_millis must be positive")
 
-        data = {
+        params = {
             "startTime": start_time,
             "duration": duration_millis,
             "date": date,
             "type": sleep_type.value,
         }
-        return self._post("sleep.json", data=data, user_id=user_id)
+        return self._make_request("sleep.json", params=params, user_id=user_id, http_method="POST")
 
-    def delete_sleep_log(self, log_id: str, user_id: str = "-") -> None:
+    def delete_sleep_log(self, log_id: str, user_id: str = "-") -> Dict[str, Any]:
         """
         Deletes a specific sleep log entry.
 
@@ -79,7 +84,7 @@ class SleepResource(BaseResource):
             log_id: ID of the sleep log to delete
             user_id: Optional user ID, defaults to current user
         """
-        self._delete(f"sleep/{log_id}.json", user_id=user_id)
+        self._make_request(f"sleep/{log_id}.json", user_id=user_id, http_method="DELETE")
 
     def get_sleep_goal(self, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -94,7 +99,7 @@ class SleepResource(BaseResource):
             - consistency: Sleep goal consistency flow status
             - updatedOn: Last update timestamp
         """
-        return self._get("sleep/goal.json", user_id=user_id)
+        return self._make_request("sleep/goal.json", user_id=user_id)
 
     def get_sleep_logs(self, date: str, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -114,7 +119,7 @@ class SleepResource(BaseResource):
             date. For example, requesting logs for 2021-12-22 may return a log entry
             that began on 2021-12-21 but ended on 2021-12-22.
         """
-        return self._get(f"sleep/date/{date}.json", user_id=user_id)
+        return self._make_request(f"sleep/date/{date}.json", user_id=user_id)
 
     def get_sleep_logs_by_date_range(
         self, start_date: str, end_date: str, user_id: str = "-"
@@ -133,7 +138,7 @@ class SleepResource(BaseResource):
         Note:
             Maximum date range is 100 days
         """
-        return self._get(f"sleep/date/{start_date}/{end_date}.json", user_id=user_id)
+        return self._make_request(f"sleep/date/{start_date}/{end_date}.json", user_id=user_id)
 
     def get_sleep_logs_list(
         self,
@@ -185,4 +190,4 @@ class SleepResource(BaseResource):
         if after_date:
             params["afterDate"] = after_date
 
-        return self._get("sleep/list.json", params=params, user_id=user_id)
+        return self._make_request("sleep/list.json", params=params, user_id=user_id)

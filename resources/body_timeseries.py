@@ -31,7 +31,7 @@ class BodyTimeSeriesResource(BaseResource):
         Note:
             For fat and weight resources, only periods up to 1m are supported - 3m, 6m, 1y, max are not available.
         """
-        return self._get(
+        return self._make_request(
             f"body/{resource_type.value}/date/{date}/{period.value}.json", user_id=user_id
         )
 
@@ -53,7 +53,7 @@ class BodyTimeSeriesResource(BaseResource):
             - fat: 30 days
             - weight: 31 days
         """
-        return self._get(
+        return self._make_request(
             f"body/{resource_type.value}/date/{base_date}/{end_date}.json", user_id=user_id
         )
 
@@ -71,7 +71,7 @@ class BodyTimeSeriesResource(BaseResource):
         Note:
             Only periods up to 1m are supported - 3m, 6m, 1y, max are not available.
         """
-        return self._get(f"body/log/fat/date/{date}/{period.value}.json", user_id=user_id)
+        return self._make_request(f"body/log/fat/date/{date}/{period.value}.json", user_id=user_id)
 
     def get_body_fat_time_series_by_date_range(
         self, base_date: str, end_date: str, user_id: str = "-"
@@ -87,7 +87,7 @@ class BodyTimeSeriesResource(BaseResource):
         Note:
             Maximum range is 30 days
         """
-        return self._get(f"body/log/fat/date/{base_date}/{end_date}.json", user_id=user_id)
+        return self._make_request(f"body/log/fat/date/{base_date}/{end_date}.json", user_id=user_id)
 
     def get_weight_time_series_by_date(
         self, date: str, period: BodyTimePeriod, user_id: str = "-"
@@ -103,7 +103,9 @@ class BodyTimeSeriesResource(BaseResource):
         Note:
             Only periods up to 1m are supported - 3m, 6m, 1y, max are not available.
         """
-        return self._get(f"body/log/weight/date/{date}/{period.value}.json", user_id=user_id)
+        return self._make_request(
+            f"body/log/weight/date/{date}/{period.value}.json", user_id=user_id
+        )
 
     def get_weight_time_series_by_date_range(
         self, base_date: str, end_date: str, user_id: str = "-"
@@ -119,4 +121,6 @@ class BodyTimeSeriesResource(BaseResource):
         Note:
             Maximum range is 31 days
         """
-        return self._get(f"body/log/weight/date/{base_date}/{end_date}.json", user_id=user_id)
+        return self._make_request(
+            f"body/log/weight/date/{base_date}/{end_date}.json", user_id=user_id
+        )

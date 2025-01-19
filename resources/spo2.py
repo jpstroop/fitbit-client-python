@@ -38,11 +38,11 @@ class SpO2Resource(BaseResource):
             - Device sync after waking
             - Up to 1 hour processing time after sync
         """
-        return self._get(f"spo2/date/{date}.json", user_id=user_id)
+        return self._make_request(f"spo2/date/{date}.json", user_id=user_id)
 
     def get_summary_by_interval(
         self, start_date: str, end_date: str, user_id: str = "-"
-    ) -> List[Dict[str, Any]]:
+    ) -> Dict[str, Any]:
         """
         Get SpO2 summary data for a date range.
 
@@ -59,4 +59,4 @@ class SpO2Resource(BaseResource):
             Unlike many other endpoints, there is no maximum date range limit
             for this endpoint.
         """
-        return self._get(f"spo2/date/{start_date}/{end_date}.json", user_id=user_id)
+        return self._make_request(f"spo2/date/{start_date}/{end_date}.json", user_id=user_id)

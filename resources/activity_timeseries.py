@@ -27,7 +27,7 @@ class ActivityTimeSeriesResource(BaseResource):
             period: Time period to get data for
             user_id: The encoded ID of the user. Use "-" (dash) for current logged-in user.
         """
-        return self._get(
+        return self._make_request(
             f"activities/{resource_path.value}/date/{date}/{period.value}.json", user_id=user_id
         )
 
@@ -52,6 +52,6 @@ class ActivityTimeSeriesResource(BaseResource):
             - activityCalories: 30 days
             - Most other resources: 1095 days (~3 years)
         """
-        return self._get(
+        return self._make_request(
             f"activities/{resource_path.value}/date/{start_date}/{end_date}.json", user_id=user_id
         )

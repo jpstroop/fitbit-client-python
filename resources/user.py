@@ -35,7 +35,7 @@ class UserResource(BaseResource):
             Numerical values are returned in units specified by Accept-Language header.
             The profile includes all badges visible in the user's badge locker.
         """
-        return self._get("profile.json", user_id=user_id)
+        return self._make_request("profile.json", user_id=user_id)
 
     def update_profile(
         self,
@@ -122,8 +122,8 @@ class UserResource(BaseResource):
             "strideLengthRunning": stride_length_running,
         }
 
-        data = {key: value for key, value in updates.items() if value is not None}
-        return self._post("profile.json", data=data, user_id=user_id)
+        params = {key: value for key, value in updates.items() if value is not None}
+        return self._post("profile.json", params=params, user_id=user_id)
 
     def get_badges(self, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -140,4 +140,4 @@ class UserResource(BaseResource):
             to allow access. Weight badges are only included if "My Body" privacy
             setting allows access.
         """
-        return self._get("badges.json", user_id=user_id)
+        return self._make_request("badges.json", user_id=user_id)

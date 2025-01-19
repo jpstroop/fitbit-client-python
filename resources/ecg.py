@@ -71,4 +71,4 @@ class ECGResource(BaseResource):
         if after_date:
             params["afterDate"] = after_date
 
-        return self._get("ecg/list.json", params=params, user_id=user_id)
+        return self._make_request("ecg/list.json", params=params, user_id=user_id)

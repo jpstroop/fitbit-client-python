@@ -32,7 +32,7 @@ class TemperatureResource(BaseResource):
             Core temperature measurements manually logged by the user for the date.
             Values are in Celsius or Fahrenheit based on Accept-Language header.
         """
-        return self._get(f"temp/core/date/{date}.json", user_id=user_id)
+        return self._make_request(f"temp/core/date/{date}.json", user_id=user_id)
 
     def get_core_summary_by_interval(
         self, start_date: str, end_date: str, user_id: str = "-"
@@ -51,7 +51,7 @@ class TemperatureResource(BaseResource):
         Note:
             Maximum date range is 30 days
         """
-        return self._get(f"temp/core/date/{start_date}/{end_date}.json", user_id=user_id)
+        return self._make_request(f"temp/core/date/{start_date}/{end_date}.json", user_id=user_id)
 
     def get_skin_summary_by_date(self, date: str, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -71,7 +71,7 @@ class TemperatureResource(BaseResource):
             - Takes ~15 minutes after device sync for data to be available
             - Requires minimal movement during sleep for accurate measurements
         """
-        return self._get(f"temp/skin/date/{date}.json", user_id=user_id)
+        return self._make_request(f"temp/skin/date/{date}.json", user_id=user_id)
 
     def get_skin_summary_by_interval(
         self, start_date: str, end_date: str, user_id: str = "-"
@@ -94,4 +94,4 @@ class TemperatureResource(BaseResource):
             - Requires at least 3 hours of quality sleep
             - Takes ~15 minutes after device sync for data to be available
         """
-        return self._get(f"temp/skin/date/{start_date}/{end_date}.json", user_id=user_id)
+        return self._make_request(f"temp/skin/date/{start_date}/{end_date}.json", user_id=user_id)
