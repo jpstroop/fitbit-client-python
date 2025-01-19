@@ -1,17 +1,24 @@
 # Project TODO and Notes
 
 ## TODO
-- [ ] Move `client.py` into a folder so that no code is at the top of the project.
+
+- [ ] Move `client.py` into a folder so that no code is at the top of the
+  project.
   - Should it go into `client/__init__.py`?
-- Implement `all` in `__init__.py`s?
-- [ ] Make all responses a `{ }` with two keys: `headers` and `response`
+- [ ] Check how data is sent and that we're using params= vs json= in
+  create/POST methods
+- [ ] Implement `all` in `__init__.py`s?
+- [ ] Remove "Note" from docstrings; they mostly just repeat the fitbit API docs
+- [x] Refactor BaseResource to just have one request method and parameterize the
+  header. They all do the same thing otherwise.
+- [x] Make all responses a `{ }` with two keys: `headers` and `response`
   - Allows for complete isolation of HTTP
   - Makee typing more reliable.
 - [ ] Check that all methods are implemented
   - [ ] Implement "Add Favorite Food" in nutrition
 - [x] Implement `accept-language` and `add-locale`
-- [ ] Map scopes to classes for documentation (this is not done consistently) _AND_ link to
-  documentation at the method level:
+- [ ] Map scopes to classes for documentation (this is not done consistently)
+  _AND_ link to documentation at the method level:
   - [ ] activezone.py
   - [ ] activity.py
   - [ ] activity_timeseries.py

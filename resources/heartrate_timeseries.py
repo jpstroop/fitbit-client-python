@@ -64,7 +64,7 @@ class HeartRateTimeSeriesResource(BaseResource):
             raise ValueError("Only 'UTC' timezone is supported")
 
         params = {"timezone": timezone} if timezone else None
-        return self._get(
+        return self._make_request(
             f"activities/heart/date/{date}/{period.value}.json", params=params, user_id=user_id
         )
 
@@ -97,6 +97,6 @@ class HeartRateTimeSeriesResource(BaseResource):
             raise ValueError("Only 'UTC' timezone is supported")
 
         params = {"timezone": timezone} if timezone else None
-        return self._get(
+        return self._make_request(
             f"activities/heart/date/{start_date}/{end_date}.json", params=params, user_id=user_id
         )

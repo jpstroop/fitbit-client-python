@@ -26,7 +26,9 @@ class BodyResource(BaseResource):
         Returns:
             Response contains goal object with the fat value
         """
-        return self._post("body/log/fat/goal.json", params={"fat": fat}, user_id=user_id)
+        return self._make_request(
+            "body/log/fat/goal.json", params={"fat": fat}, user_id=user_id, http_method="POST"
+        )
 
     def create_body_fat_log(
         self, fat: float, date: str, time: Optional[str] = None, user_id: str = "-"
@@ -47,7 +49,9 @@ class BodyResource(BaseResource):
         params = {"fat": fat, "date": date}
         if time:
             params["time"] = time
-        return self._post("body/log/fat.json", params=params, user_id=user_id)
+        return self._make_request(
+            "body/log/fat.json", params=params, user_id=user_id, http_method="POST"
+        )
 
     def create_weight_goal(
         self,
@@ -71,7 +75,9 @@ class BodyResource(BaseResource):
         params = {"startDate": start_date, "startWeight": start_weight}
         if weight is not None:
             params["weight"] = weight
-        return self._post("body/log/weight/goal.json", params=params, user_id=user_id)
+        return self._make_request(
+            "body/log/weight/goal.json", params=params, user_id=user_id, http_method="POST"
+        )
 
     def create_weight_log(
         self, weight: float, date: str, time: Optional[str] = None, user_id: str = "-"
@@ -92,9 +98,11 @@ class BodyResource(BaseResource):
         params = {"weight": weight, "date": date}
         if time:
             params["time"] = time
-        return self._post("body/log/weight.json", params=params, user_id=user_id)
+        return self._make_request(
+            "body/log/weight.json", params=params, user_id=user_id, http_method="POST"
+        )
 
-    def delete_body_fat_log(self, body_fat_log_id: str, user_id: str = "-") -> None:
+    def delete_body_fat_log(self, body_fat_log_id: str, user_id: str = "-") -> Dict[str, Any]:
         """
         Delete a body fat log entry.
 
@@ -102,9 +110,11 @@ class BodyResource(BaseResource):
             body_fat_log_id: ID of the log entry to delete
             user_id: Optional user ID, defaults to current user
         """
-        self._delete(f"body/log/fat/{body_fat_log_id}.json", user_id=user_id)
+        self._make_request(
+            f"body/log/fat/{body_fat_log_id}.json", user_id=user_id, http_method="DELETE"
+        )
 
-    def delete_weight_log(self, weight_log_id: str, user_id: str = "-") -> None:
+    def delete_weight_log(self, weight_log_id: str, user_id: str = "-") -> Dict[str, Any]:
         """
         Delete a weight log entry.
 
@@ -112,7 +122,9 @@ class BodyResource(BaseResource):
             weight_log_id: ID of the log entry to delete
             user_id: Optional user ID, defaults to current user
         """
-        self._delete(f"body/log/weight/{weight_log_id}.json", user_id=user_id)
+        self._make_request(
+            f"body/log/weight/{weight_log_id}.json", user_id=user_id, http_method="DELETE"
+        )
 
     def get_body_goals(self, goal_type: BodyGoalType, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -125,7 +137,7 @@ class BodyResource(BaseResource):
         Returns:
             Response contains the goal object for the specified type
         """
-        return self._get(f"body/log/{goal_type.value}/goal.json", user_id=user_id)
+        return self._make_request(f"body/log/{goal_type.value}/goal.json", user_id=user_id)
 
     def get_body_fat_logs(self, date: str, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -138,7 +150,7 @@ class BodyResource(BaseResource):
         Returns:
             Response contains a list of body fat log entries for the date
         """
-        return self._get(f"body/log/fat/date/{date}.json", user_id=user_id)
+        return self._make_request(f"body/log/fat/date/{date}.json", user_id=user_id)
 
     def get_weight_logs(self, date: str, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -151,4 +163,4 @@ class BodyResource(BaseResource):
         Returns:
             Response contains a list of weight log entries for the date
         """
-        return self._get(f"body/log/weight/date/{date}.json", user_id=user_id)
+        return self._make_request(f"body/log/weight/date/{date}.json", user_id=user_id)

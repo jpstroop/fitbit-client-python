@@ -29,8 +29,10 @@ class ActivityResource(BaseResource):
             value: Target value for the goal
             user_id: Optional user ID, defaults to current user
         """
-        data = {"type": type.value, "value": value}
-        return self._post(f"activities/goals/{period}.json", data=data, user_id=user_id)
+        params = {"type": type.value, "value": value}
+        return self._make_request(
+            f"activities/goals/{period}.json", params, user_id=user_id, http_method="POST"
+        )
 
     def log_activity(
         self,
@@ -59,7 +61,7 @@ class ActivityResource(BaseResource):
             distance_unit: Optional unit for distance
             user_id: Optional user ID, defaults to current user
         """
-        data = {"startTime": start_time, "durationMillis": duration_millis, "date": date}
+        params = {"startTime": start_time, "durationMillis": duration_millis, "date": date}
 
         if activity_id:
             data["activityId"] = activity_id
@@ -75,7 +77,9 @@ class ActivityResource(BaseResource):
                 "Must provide either activity_id or (activity_name and manual_calories)"
             )
 
-        return self._post("activities.json", data=data, user_id=user_id)
+        return self._make_request(
+            "activities.json", params=params, user_id=user_id, http_method="POST"
+        )
 
     def get_activity_logs(
         self,
@@ -103,7 +107,7 @@ class ActivityResource(BaseResource):
         if after_date:
             params["afterDate"] = after_date
 
-        return self._get("activities/list.json", params=params, user_id=user_id)
+        return self._make_request("activities/list.json", params=params, user_id=user_id)
 
     def add_favorite_activity(self, activity_id: str, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -113,9 +117,11 @@ class ActivityResource(BaseResource):
             activity_id: ID of the activity to favorite
             user_id: Optional user ID, defaults to current user
         """
-        return self._post(f"activities/favorite/{activity_id}.json", user_id=user_id)
+        return self._make_request(
+            f"activities/favorite/{activity_id}.json", user_id=user_id, http_method="POST"
+        )
 
-    def delete_activity_log(self, activity_log_id: str, user_id: str = "-") -> None:
+    def delete_activity_log(self, activity_log_id: str, user_id: str = "-") -> Dict[str, Any]:
         """
         Deletes a specific activity log entry from the user's activity history.
 
@@ -123,9 +129,11 @@ class ActivityResource(BaseResource):
             activity_log_id: ID of the activity log to delete
             user_id: Optional user ID, defaults to current user
         """
-        self._delete(f"activities/{activity_log_id}.json", user_id=user_id)
+        self._make_request(
+            f"activities/{activity_log_id}.json", user_id=user_id, http_method="DELETE"
+        )
 
-    def delete_favorite_activity(self, activity_id: str, user_id: str = "-") -> None:
+    def delete_favorite_activity(self, activity_id: str, user_id: str = "-") -> Dict[str, Any]:
         """
         Removes an activity from the user's list of favorite activities.
 
@@ -133,7 +141,9 @@ class ActivityResource(BaseResource):
             activity_id: ID of the activity to unfavorite
             user_id: Optional user ID, defaults to current user
         """
-        self._delete(f"activities/favorite/{activity_id}.json", user_id=user_id)
+        self._make_request(
+            f"activities/favorite/{activity_id}.json", user_id=user_id, http_method="DELETE"
+        )
 
     def get_activity_goals(self, period: str, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -143,7 +153,7 @@ class ActivityResource(BaseResource):
             period: 'daily' or 'weekly'
             user_id: Optional user ID, defaults to current user
         """
-        return self._get(f"activities/goals/{period}.json", user_id=user_id)
+        return self._make_request(f"activities/goals/{period}.json", user_id=user_id)
 
     def get_activity_summary(self, date: str, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -153,7 +163,7 @@ class ActivityResource(BaseResource):
             date: Date to get summary for (YYYY-MM-DD)
             user_id: Optional user ID, defaults to current user
         """
-        return self._get(f"activities/date/{date}.json", user_id=user_id)
+        return self._make_request(f"activities/date/{date}.json", user_id=user_id)
 
     def get_activity_type(self, activity_id: str) -> Dict[str, Any]:
         """
@@ -162,38 +172,38 @@ class ActivityResource(BaseResource):
         Args:
             activity_id: ID of the activity type to retrieve
         """
-        return self._get(f"activities/{activity_id}.json", requires_user_id=False)
+        return self._make_request(f"activities/{activity_id}.json", requires_user_id=False)
 
-    def get_activity_types(self) -> List[Dict[str, Any]]:
+    def get_activity_types(self) -> Dict[str, Any]:
         """Retrieves the complete list of available activities and their details."""
-        return self._get("activities.json", requires_user_id=False)
+        return self._make_request("activities.json", requires_user_id=False)
 
-    def get_favorite_activities(self, user_id: str = "-") -> List[Dict[str, Any]]:
+    def get_favorite_activities(self, user_id: str = "-") -> Dict[str, Any]:
         """
         Gets the list of activities that the user has marked as favorite.
 
         Args:
             user_id: Optional user ID, defaults to current user
         """
-        return self._get("activities/favorite.json", user_id=user_id)
+        return self._make_request("activities/favorite.json", user_id=user_id)
 
-    def get_frequent_activities(self, user_id: str = "-") -> List[Dict[str, Any]]:
+    def get_frequent_activities(self, user_id: str = "-") -> Dict[str, Any]:
         """
         Gets the list of activities that the user logs most frequently.
 
         Args:
             user_id: Optional user ID, defaults to current user
         """
-        return self._get("activities/frequent.json", user_id=user_id)
+        return self._make_request("activities/frequent.json", user_id=user_id)
 
-    def get_recent_activities(self, user_id: str = "-") -> List[Dict[str, Any]]:
+    def get_recent_activities(self, user_id: str = "-") -> Dict[str, Any]:
         """
         Gets the list of activities that the user has logged recently.
 
         Args:
             user_id: Optional user ID, defaults to current user
         """
-        return self._get("activities/recent.json", user_id=user_id)
+        return self._make_request("activities/recent.json", user_id=user_id)
 
     def get_lifetime_stats(self, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -202,7 +212,7 @@ class ActivityResource(BaseResource):
         Args:
             user_id: Optional user ID, defaults to current user
         """
-        return self._get("activities.json", user_id=user_id)
+        return self._make_request("activities.json", user_id=user_id)
 
     def get_activity_tcx(
         self, log_id: str, include_partial_tcx: bool = False, user_id: str = "-"
@@ -220,4 +230,4 @@ class ActivityResource(BaseResource):
             Requires both 'activity' and 'location' scopes to be authorized.
         """
         params = {"includePartialTCX": include_partial_tcx} if include_partial_tcx else None
-        return self._get(f"activities/{log_id}.tcx", params=params, user_id=user_id)
+        return self._make_request(f"activities/{log_id}.tcx", params=params, user_id=user_id)
