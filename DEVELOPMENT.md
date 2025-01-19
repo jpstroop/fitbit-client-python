@@ -167,14 +167,6 @@ The OAuth callback mechanism is implemented using two main classes: `CallbackSer
 - Certificate and private key are stored in temporary files and cleaned up on server shutdown
 - Server runs only for the duration of the OAuth flow and automatically shuts down
 
-### Cleanup
-
-The `stop()` method ensures proper cleanup by:
-
-- Shutting down the HTTP server
-- Removing temporary certificate files
-- Clearing internal state
-
 ## Testing
 
 TODO/TBD
