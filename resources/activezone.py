@@ -38,7 +38,7 @@ class ActiveZoneResource(BaseResource):
         if not isinstance(period, Period):
             raise ValueError(f"Period must be a valid Period enum value. Got: {period}")
 
-        return self._get(
+        return self._make_request(
             f"activities/active-zone-minutes/date/{date}/{period.value}.json", user_id=user_id
         )
 
@@ -63,6 +63,6 @@ class ActiveZoneResource(BaseResource):
         Note:
             Maximum date range is 1095 days (approximately 3 years)
         """
-        return self._get(
+        return self._make_request(
             f"activities/active-zone-minutes/date/{start_date}/{end_date}.json", user_id=user_id
         )

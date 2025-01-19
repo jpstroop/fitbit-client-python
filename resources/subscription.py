@@ -59,7 +59,7 @@ class SubscriptionResource(BaseResource):
         if subscriber_id:
             headers["X-Fitbit-Subscriber-Id"] = subscriber_id
 
-        return self._post(endpoint, user_id=user_id, headers=headers)
+        return self._make_request(endpoint, user_id=user_id, headers=headers, http_method="POST")
 
     def delete_subscription(
         self,
@@ -67,7 +67,7 @@ class SubscriptionResource(BaseResource):
         category: Optional[SubscriptionCategory] = None,
         subscriber_id: Optional[str] = None,
         user_id: str = "-",
-    ) -> None:
+    ) -> Dict[str, Any]:
         """
         Deletes a subscription for a specific user.
 
@@ -88,14 +88,14 @@ class SubscriptionResource(BaseResource):
         if subscriber_id:
             headers["X-Fitbit-Subscriber-Id"] = subscriber_id
 
-        self._delete(endpoint, user_id=user_id, headers=headers)
+        self._make_request(endpoint, user_id=user_id, headers=headers, http_method="DELETE")
 
     def get_subscription_list(
         self,
         category: Optional[SubscriptionCategory] = None,
         subscriber_id: Optional[str] = None,
         user_id: str = "-",
-    ) -> List[Dict[str, Any]]:
+    ) -> Dict[str, Any]:
         """
         Gets a list of subscriptions created by your application for a user.
 
@@ -120,4 +120,4 @@ class SubscriptionResource(BaseResource):
         if subscriber_id:
             headers["X-Fitbit-Subscriber-Id"] = subscriber_id
 
-        return self._get(endpoint, user_id=user_id, headers=headers)
+        return self._make_request(endpoint, user_id=user_id, headers=headers)

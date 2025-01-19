@@ -81,7 +81,7 @@ class IrregularRhythmResource(BaseResource):
         if after_date:
             params["afterDate"] = after_date
 
-        return self._get("irn/alerts/list.json", params=params, user_id=user_id)
+        return self._make_request("irn/alerts/list.json", params=params, user_id=user_id)
 
     def get_profile(self, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -100,4 +100,4 @@ class IrregularRhythmResource(BaseResource):
             This endpoint provides information about the user's current engagement with
             the IRN feature, including onboarding progress and algorithm processing state.
         """
-        return self._get("irn/profile.json", user_id=user_id)
+        return self._make_request("irn/profile.json", user_id=user_id)

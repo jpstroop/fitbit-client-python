@@ -46,7 +46,7 @@ class HeartRateVariabilityResource(BaseResource):
             A 200 status code indicates successful execution, even if no data exists.
             For reliable data collection, users should remain still during sleep measurement.
         """
-        return self._get(f"hrv/date/{date}.json", user_id=user_id)
+        return self._make_request(f"hrv/date/{date}.json", user_id=user_id)
 
     def get_hrv_summary_by_interval(
         self, start_date: str, end_date: str, user_id: str = "-"
@@ -72,4 +72,4 @@ class HeartRateVariabilityResource(BaseResource):
             A 200 status code indicates successful execution, even if no data exists.
             Since HRV data requires sleep, consider querying once or twice daily (e.g., noon and midnight).
         """
-        return self._get(f"hrv/date/{start_date}/{end_date}.json", user_id=user_id)
+        return self._make_request(f"hrv/date/{start_date}/{end_date}.json", user_id=user_id)

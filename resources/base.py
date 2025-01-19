@@ -48,31 +48,7 @@ class BaseResource:
             return f"{self.API_BASE}/user/{user_id}/{endpoint}"
         return f"{self.API_BASE}/{endpoint}"
 
-    def _get(
-        self,
-        endpoint: str,
-        params: Optional[Dict[str, Any]] = None,
-        user_id: str = "-",
-        requires_user_id: bool = True,
-    ) -> Dict[str, Any]:
-        """
-        Make GET request to Fitbit API
-
-        Parameters:
-            endpoint: API endpoint path
-            params: Optional query parameters
-            user_id: User ID, defaults to '-' for authenticated user
-            requires_user_id: Whether the endpoint is user-specific (default: True)
-
-        Returns:
-            JSON response from the API
-        """
-        url: str = self._build_url(endpoint, user_id, requires_user_id)
-        response: Response = self.oauth.get(url, params=params, headers=self.headers)
-        response.raise_for_status()
-        return response.json()
-
-    def _post(
+    def _make_request(
         self,
         endpoint: str,
         data: Optional[Dict[str, Any]] = None,
@@ -80,44 +56,26 @@ class BaseResource:
         params: Optional[Dict[str, Any]] = None,
         user_id: str = "-",
         requires_user_id: bool = True,
+        http_method: str = "GET",
     ) -> Dict[str, Any]:
         """
-        Make POST request to Fitbit API
+        Make a request to Fitbit API
 
         Parameters:
             endpoint: API endpoint path
-            data: Optional form data
-            json: Optional JSON data
             params: Optional query parameters
+            data: Optional form data
             user_id: User ID, defaults to '-' for authenticated user
             requires_user_id: Whether the endpoint is user-specific (default: True)
+            http_method: GET (default), POST, or DELETE
 
         Returns:
-            JSON response from the API
+            JSON with two keys: "headers" and "content"
         """
         url: str = self._build_url(endpoint, user_id, requires_user_id)
-        response: Response = self.oauth.post(
-            url, data=data, json=json, params=params, headers=self.headers
+        response: Response = self.oauth.request(
+            http_method, url, data=data, json=json, params=params, headers=self.headers
         )
         response.raise_for_status()
-        return response.json()
-
-    def _delete(
-        self,
-        endpoint: str,
-        params: Optional[Dict[str, Any]] = None,
-        user_id: str = "-",
-        requires_user_id: bool = True,
-    ) -> None:
-        """
-        Make DELETE request to Fitbit API
-
-        Parameters:
-            endpoint: API endpoint path
-            params: Optional query parameters
-            user_id: User ID, defaults to '-' for authenticated user
-            requires_user_id: Whether the endpoint is user-specific (default: True)
-        """
-        url: str = self._build_url(endpoint, user_id, requires_user_id)
-        response: Response = self.oauth.delete(url, params=params, headers=self.headers)
-        response.raise_for_status()
+        full_response = {"headers": dict(response.headers), "content": response.json()}
+        return full_response

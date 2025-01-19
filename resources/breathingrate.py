@@ -32,7 +32,7 @@ class BreathingRateResource(BaseResource):
             For example, requesting data for 2021-12-22 may include measurements
             from sleep that started on 2021-12-21.
         """
-        return self._get(f"br/date/{date}.json", user_id=user_id)
+        return self._make_request(f"br/date/{date}.json", user_id=user_id)
 
     def get_breathing_rate_summary_by_interval(
         self, start_date: str, end_date: str, user_id: str = "-"
@@ -50,4 +50,4 @@ class BreathingRateResource(BaseResource):
             Data is collected during each day's main sleep period (longest sleep period).
             The measurement may reflect sleep that began the previous day.
         """
-        return self._get(f"br/date/{start_date}/{end_date}.json", user_id=user_id)
+        return self._make_request(f"br/date/{start_date}/{end_date}.json", user_id=user_id)

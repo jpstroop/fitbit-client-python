@@ -39,7 +39,7 @@ class NutritionTimeSeriesResource(BaseResource):
             Returns data using units corresponding to Accept-Language header.
             Only returns data since user's join date or first log entry.
         """
-        return self._get(
+        return self._make_request(
             f"foods/log/{resource.value}/date/{date}/{period.value}.json", user_id=user_id
         )
 
@@ -63,6 +63,6 @@ class NutritionTimeSeriesResource(BaseResource):
             Returns data using units corresponding to Accept-Language header.
             Only returns data since user's join date or first log entry.
         """
-        return self._get(
+        return self._make_request(
             f"foods/log/{resource.value}/date/{start_date}/{end_date}.json", user_id=user_id
         )

@@ -23,7 +23,7 @@ class FriendsResource(BaseResource):
         individually consent to share their data.
     """
 
-    def get_friends(self, user_id: str = "-") -> List[Dict[str, Any]]:
+    def get_friends(self, user_id: str = "-") -> Dict[str, Any]:
         """
         Retrieves a list of the specified Fitbit user's friends.
 
@@ -44,7 +44,7 @@ class FriendsResource(BaseResource):
             The user's privacy settings ('My Friends') determine whether this data is accessible.
             Access may be restricted based on whether the setting is Private, Friends Only, or Public.
         """
-        return self._get("friends.json", user_id=user_id)["data"]
+        return self._make_request("friends.json", user_id=user_id)["data"]
 
     def get_friends_leaderboard(self, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -73,4 +73,4 @@ class FriendsResource(BaseResource):
             - The 'Average Daily Step Count' privacy setting affects leaderboard inclusion
             - Both active (ranked-user) and inactive (inactive-user) friends are included
         """
-        return self._get("leaderboard/friends.json", user_id=user_id)
+        return self._make_request("leaderboard/friends.json", user_id=user_id)

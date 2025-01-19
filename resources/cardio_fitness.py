@@ -35,7 +35,7 @@ class CardioFitnessResource(BaseResource):
             weight changes and other factors. The response always uses ml/kg/min units
             regardless of the Accept-Language header.
         """
-        return self._get(f"cardioscore/date/{date}.json", user_id=user_id)
+        return self._make_request(f"cardioscore/date/{date}.json", user_id=user_id)
 
     def get_vo2_max_summary_by_interval(
         self, start_date: str, end_date: str, user_id: str = "-"
@@ -54,4 +54,4 @@ class CardioFitnessResource(BaseResource):
             weight changes and other factors. The response always uses ml/kg/min units
             regardless of the Accept-Language header.
         """
-        return self._get(f"cardioscore/date/{start_date}/{end_date}.json", user_id=user_id)
+        return self._make_request(f"cardioscore/date/{start_date}/{end_date}.json", user_id=user_id)

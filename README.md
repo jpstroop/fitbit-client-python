@@ -5,8 +5,8 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%203.0-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
-A fully-typed Python client for interacting with the Fitbit API, featuring OAuth2 PKCE
-authentication and resource-based API interactions.
+A fully-typed Python client for interacting with the Fitbit API, featuring
+OAuth2 PKCE authentication and resource-based API interactions.
 
 ## Installation
 
@@ -45,6 +45,12 @@ try:
 except Exception as e:
     print(f"Error: {str(e)}")
 ```
+
+The response will always be a `Dict` with two keys: `headers` (the HTTP headers
+returned by the API call), and `content`, which is the API response. This
+approach allows us to almost completely encapsulate the HTTP(S) interactions
+entirely (exceptions are the, erm, exception) and also makes strong typing more
+predictable.
 
 ## Authentication Methods
 
@@ -93,9 +99,9 @@ For development guidelines, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ## Important Note - Intraday Data Support
 
-- This client does not currently support intraday data endpoints (detailed heart rate, steps, etc).
-  These endpoints require special access from Fitbit and are typically limited to research
-  applications.
+- This client does not currently support intraday data endpoints (detailed heart
+  rate, steps, etc). These endpoints require special access from Fitbit and are
+  typically limited to research applications.
 - For intraday data access requests, see
   [Fitbit's API documentation](https://dev.fitbit.com/build/reference/web-api/intraday/).
 - See additional notes about this in [DEVELOPMENT.md](DEVELOPMENT.md)
@@ -104,10 +110,11 @@ For development guidelines, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
 Copyright (C) 2025 Jon Stroop
 
-This program is licensed under the GNU Affero General Public License Version 3.0 (AGPL-3.0). See the
-[LICENSE](LICENSE) file for details.
+This program is licensed under the GNU Affero General Public License Version 3.0
+(AGPL-3.0). See the [LICENSE](LICENSE) file for details.
 
 ## Disclaimer
 
-Fitbit™ is a trademark of Google LLC. This project is designed for use with the Fitbit API but is
-not endorsed, certified, or otherwise approved by Google or Fitbit.
+Fitbit™ is a trademark of Google LLC. This project is designed for use with the
+Fitbit API but is not endorsed, certified, or otherwise approved by Google or
+Fitbit.
