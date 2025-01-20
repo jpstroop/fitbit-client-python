@@ -12,7 +12,8 @@
 - [x] Implement `accept-language` and `add-locale`
 - [x] Add a note to the README that IntraDate is not implemented
 - [x] Have isort add comments about imports
-- [ ] add `body.txt` to the message when we `raise_for_status()` in base.by
+- [x] add `r.text` to the message when we `raise_for_status()` in base.by
+  - Now in `e.__notes__`
 - [ ] can we add other units when using `create_food`? see note under `create_food_log`.
 - [ ] Add input validation for update methods
 - [ ] More robust and error handling; consider custom exceptions. Do everything
