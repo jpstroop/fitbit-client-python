@@ -76,7 +76,7 @@ class NutritionResource(BaseResource):
             "formType": form_type.value,
             **{k.value: v for k, v in nutritional_values.items()},
         }
-        return self._make_request("foods.json", params=params, user_id=user_id)
+        return self._make_request("foods.json", params=params, user_id=user_id, http_method="POST")
 
     def create_food_log(
         self,
@@ -118,6 +118,9 @@ class NutritionResource(BaseResource):
             Either food_id or (food_name and calories) must be provided.
             Using food_id is recommended when possible.
             Nutritional values are only used when creating custom food logs.
+            unit_id must match one of the units associated with the food. It may
+                also be that it can only match the default_food_measurement_unit_id
+                for a food you created.
         """
         if not food_id and not (food_name and calories):
             raise ValueError("Must provide either food_id or (food_name and calories)")
@@ -132,7 +135,7 @@ class NutritionResource(BaseResource):
         if food_id:
             params["foodId"] = food_id
             if favorite:
-                params["favorite"] = True
+                params["favorite"] = "true"
         else:
             params["foodName"] = food_name
             params["calories"] = calories
@@ -141,7 +144,7 @@ class NutritionResource(BaseResource):
             if nutritional_values:
                 params.update({k.value: v for k, v in nutritional_values.items()})
 
-        return self._make_request("foods/log.json", params=params, user_id=user_id)
+        return self._make_request("foods/log.json", params=params, user_id=user_id, http_method="POST")
 
     def create_food_goal(
         self,
@@ -180,7 +183,7 @@ class NutritionResource(BaseResource):
             if personalized is not None:
                 params["personalized"] = personalized
 
-        return self._make_request("foods/log/goal.json", params=params, user_id=user_id)
+        return self._make_request("foods/log/goal.json", params=params, user_id=user_id, http_method="POST")
 
     def create_meal(
         self,
