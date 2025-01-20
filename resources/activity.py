@@ -2,7 +2,6 @@
 # Standard library imports
 from typing import Any
 from typing import Dict
-from typing import List
 from typing import Optional
 
 # Local imports
@@ -14,6 +13,9 @@ class ActivityResource(BaseResource):
     """
     Handles Fitbit Activity API endpoints for recording, retrieving and managing
     user activities and goals.
+
+    Scope: activity; `get_activity_tcx' also requires and location.
+
     API Reference: https://dev.fitbit.com/build/reference/web-api/activity/
     """
 
@@ -22,6 +24,8 @@ class ActivityResource(BaseResource):
     ) -> Dict[str, Any]:
         """
         Creates or updates a user's daily or weekly activity goal.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/activity/create-activity-goals/
 
         Args:
             period: 'daily' or 'weekly'
@@ -33,8 +37,10 @@ class ActivityResource(BaseResource):
         return self._make_request(
             f"activities/goals/{period}.json", params, user_id=user_id, http_method="POST"
         )
+    
+    create_activity_goals = create_activity_goal # alias to match docs
 
-    def log_activity(
+    def create_activity_log(
         self,
         activity_id: Optional[int] = None,
         activity_name: Optional[str] = None,
@@ -49,6 +55,8 @@ class ActivityResource(BaseResource):
         """
         Records an activity to the user's log. Can either log a predefined activity by ID
         or a custom activity by name with manual calorie entry.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/activity/create-activity-log/
 
         Args:
             activity_id: ID of a predefined activity
@@ -93,6 +101,8 @@ class ActivityResource(BaseResource):
         """
         Retrieves a list of user's activity log entries before or after a given day.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/activity/get-activity-log-list/
+
         Args:
             before_date: Get entries before this date (YYYY-MM-DD)
             after_date: Get entries after this date (YYYY-MM-DD)
@@ -109,10 +119,12 @@ class ActivityResource(BaseResource):
 
         return self._make_request("activities/list.json", params=params, user_id=user_id)
 
-    def add_favorite_activity(self, activity_id: str, user_id: str = "-") -> Dict[str, Any]:
+    def create_favorite_activity(self, activity_id: str, user_id: str = "-") -> Dict[str, Any]:
         """
         Adds an activity to the user's list of favorite activities.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/activity/create-favorite-activity/
+        
         Args:
             activity_id: ID of the activity to favorite
             user_id: Optional user ID, defaults to current user
@@ -124,6 +136,8 @@ class ActivityResource(BaseResource):
     def delete_activity_log(self, activity_log_id: str, user_id: str = "-") -> Dict[str, Any]:
         """
         Deletes a specific activity log entry from the user's activity history.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/activity/delete-activity-log/
 
         Args:
             activity_log_id: ID of the activity log to delete
@@ -137,6 +151,8 @@ class ActivityResource(BaseResource):
         """
         Removes an activity from the user's list of favorite activities.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/activity/delete-favorite-activity/
+
         Args:
             activity_id: ID of the activity to unfavorite
             user_id: Optional user ID, defaults to current user
@@ -149,15 +165,19 @@ class ActivityResource(BaseResource):
         """
         Retrieves the user's current activity goals for the specified period.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/activity/get-activity-goals/
+
         Args:
             period: 'daily' or 'weekly'
             user_id: Optional user ID, defaults to current user
         """
         return self._make_request(f"activities/goals/{period}.json", user_id=user_id)
 
-    def get_activity_summary(self, date: str, user_id: str = "-") -> Dict[str, Any]:
+    def get_daily_activity_summary(self, date: str, user_id: str = "-") -> Dict[str, Any]:
         """
         Retrieves a summary of the user's activities for a specific date.
+
+        API Referene: https://dev.fitbit.com/build/reference/web-api/activity/get-daily-activity-summary/
 
         Args:
             date: Date to get summary for (YYYY-MM-DD)
@@ -169,18 +189,26 @@ class ActivityResource(BaseResource):
         """
         Gets the details of a single activity type from Fitbit's activity database.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/activity/get-activity-type/
+        
         Args:
             activity_id: ID of the activity type to retrieve
         """
         return self._make_request(f"activities/{activity_id}.json", requires_user_id=False)
 
-    def get_activity_types(self) -> Dict[str, Any]:
-        """Retrieves the complete list of available activities and their details."""
+    def get_all_activity_types(self) -> Dict[str, Any]:
+        """
+        Retrieves the complete list of available activities and their details.
+        
+        API Reference: https://dev.fitbit.com/build/reference/web-api/activity/get-all-activity-types/
+        """
         return self._make_request("activities.json", requires_user_id=False)
 
     def get_favorite_activities(self, user_id: str = "-") -> Dict[str, Any]:
         """
         Gets the list of activities that the user has marked as favorite.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/activity/get-favorite-activities/
 
         Args:
             user_id: Optional user ID, defaults to current user
@@ -191,6 +219,8 @@ class ActivityResource(BaseResource):
         """
         Gets the list of activities that the user logs most frequently.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/activity/get-frequent-activities/
+
         Args:
             user_id: Optional user ID, defaults to current user
         """
@@ -200,14 +230,20 @@ class ActivityResource(BaseResource):
         """
         Gets the list of activities that the user has logged recently.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/activity/get-recent-activity-types/
+
         Args:
             user_id: Optional user ID, defaults to current user
         """
         return self._make_request("activities/recent.json", user_id=user_id)
+    
+    get_recent_activity_types = get_recent_activities # alias to match docs
 
     def get_lifetime_stats(self, user_id: str = "-") -> Dict[str, Any]:
         """
         Retrieves the user's lifetime activity statistics and personal records.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/activity/get-lifetime-stats/
 
         Args:
             user_id: Optional user ID, defaults to current user
@@ -220,6 +256,8 @@ class ActivityResource(BaseResource):
         """
         Retrieves the TCX (Training Center XML) data for a specific activity log. TCX files
         contain GPS, heart rate, and lap data recorded during the logged exercise.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/activity/get-activity-tcx/
 
         Args:
             log_id: ID of the activity log to retrieve

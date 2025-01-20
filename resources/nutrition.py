@@ -19,18 +19,24 @@ class NutritionResource(BaseResource):
     Handles Fitbit Nutrition API endpoints for managing food logs, meals, and nutritional goals.
 
     API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/
-
-    This resource provides functionality for:
-    - Managing food and meal logs
-    - Setting and retrieving nutritional goals
-    - Managing favorite foods
-    - Tracking water consumption
-
-    Note:
-        This resource requires the 'nutrition' scope.
-        Food entries can be either PUBLIC (from Fitbit's database) or PRIVATE (user-created).
-        When logging foods, prefer using food_id from Fitbit's database when possible.
     """
+
+    def add_favorite_food(self, food_id: str, user_id: str = "-") -> Dict[str, Any]:
+        """
+        Adds a food with the given ID to the user's list of favorite foods.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/add-favorite-foods/
+
+        Args:
+            food_id: ID of the food to add to favorites
+            user_id: Optional user ID, defaults to current user
+
+        Returns:
+            Response indicating success
+        """
+        return self._make_request(
+            f"foods/log/favorite/{food_id}.json", user_id=user_id, http_method="POST"
+        )
 
     def create_food(
         self,
@@ -244,7 +250,8 @@ class NutritionResource(BaseResource):
             Created water log entry details
 
         Note:
-            If unit is not specified, uses unit system from Accept-Language header.
+            If unit is not specified, uses unit system from Accept-Language
+            header. This can be specified when the client is initialized.
         """
         params = {"amount": amount, "date": date}
         if unit:
@@ -508,7 +515,8 @@ class NutritionResource(BaseResource):
 
         Note:
             Results include both PUBLIC (Fitbit database) and PRIVATE (user-created) foods.
-            Search uses the locale specified in accept-language header.
+            Search uses the locale specified in accept-language header.  This can be
+            specified when the client is initialized.
         """
         return self._make_request(
             "foods/search.json", params={"query": query}, requires_user_id=False
@@ -603,7 +611,8 @@ class NutritionResource(BaseResource):
             Updated water log entry
 
         Note:
-            If unit is not specified, uses unit system from Accept-Language header.
+            If unit is not specified, uses unit system from Accept-Language
+            header.  This can be specified when the client is initialized.
         """
         params = {"amount": amount}
         if unit:
