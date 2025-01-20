@@ -7,6 +7,7 @@ from typing import Optional
 # Third party imports
 from requests import Response
 from requests_oauthlib import OAuth2Session
+from requests import HTTPError
 
 
 class BaseResource:
@@ -76,6 +77,10 @@ class BaseResource:
         response: Response = self.oauth.request(
             http_method, url, data=data, json=json, params=params, headers=self.headers
         )
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except HTTPError as e:
+            e.add_note(response.text)
+            raise
         full_response = {"headers": dict(response.headers), "content": response.json()}
         return full_response
