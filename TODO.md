@@ -12,15 +12,24 @@
 - [x] Implement `accept-language` and `add-locale`
 - [x] Add a note to the README that IntraDate is not implemented
 - [x] Have isort add comments about imports
+- [ ] add `body.txt` to the message when we `raise_for_status()` in base.by
+- [ ] can we add other units when using `create_food`? see note under `create_food_log`.
 - [ ] Add input validation for update methods
 - [ ] More robust and error handling; consider custom exceptions. Do everything
   we can to encapsulate HTTP errors
 - [ ] Local logging since we can't implement intraday. In JSON?
 - [ ] PyPI deployment
+- [ ] ?PRIVATE filters on methods that return PUBLIC and PRIVATE stuff (API doesn't seem to have this) 
+- [ ] Enum for units (it'll be big)
+- [ ] ?`helpers` module. Things it could do:
+  - Delete all history before a certain date
+  - More detailed food reports (e.g. all nutrition for one day or week or last n days)
+  - Different formats 
 
 ## Testing
 
-TBD
+TBD - the most useful thing would be to test that the requests are built 
+correctly - the correct method, params, body etc.
 
 - Is this worth it since it's all API? If so:
 
