@@ -57,6 +57,9 @@ predictable.
 
 ## Authentication Methods
 
+_Note that you must be signed in to https://www.fitbit.com/dev before starting
+the authentication flow._
+
 ### 1. Automatic (Recommended)
 
 Uses a local callback server to automatically handle the OAuth2 flow:

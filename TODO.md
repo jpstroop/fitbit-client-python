@@ -2,50 +2,21 @@
 
 ## TODO
 
-- [ ] Move `client.py` into a folder so that no code is at the top of the
+- [x] `Move `client.py`` into a folder so that no code is at the top of the
   project.
-  - Should it go into `client/__init__.py`?
-- [ ] Check how data is sent and that we're using params= vs json= in
-  create/POST methods
-- [ ] Implement `all` in `__init__.py`s?
-- [ ] Remove "Note" from docstrings; they mostly just repeat the fitbit API docs
 - [x] Refactor BaseResource to just have one request method and parameterize the
   header. They all do the same thing otherwise.
 - [x] Make all responses a `{ }` with two keys: `headers` and `response`
   - Allows for complete isolation of HTTP
-  - Makee typing more reliable.
-- [ ] Check that all methods are implemented
-  - [ ] Implement "Add Favorite Food" in nutrition
+  - Makes typing more reliable.
 - [x] Implement `accept-language` and `add-locale`
-- [ ] Map scopes to classes for documentation (this is not done consistently)
-  _AND_ link to documentation at the method level:
-  - [ ] activezone.py
-  - [ ] activity.py
-  - [ ] activity_timeseries.py
-  - [ ] base.py
-  - [ ] body.py
-  - [ ] body_timeseries.py
-  - [ ] breathingrate.py
-  - [ ] cardio_fitness.py
-  - [ ] constants.py
-  - [ ] device.py
-  - [ ] ecg.py
-  - [ ] friends.py
-  - [ ] heartrate_timeseries.py
-  - [ ] heartrate_variability.py
-  - [ ] irregular_rhythm.py
-  - [x] nutrition.py
-  - [ ] nutrition_timeseries.py
-  - [ ] sleep.py
-  - [ ] spo2.py
-  - [ ] subscription.py
-  - [ ] temperature.py
-  - [ ] user.py
 - [x] Add a note to the README that IntraDate is not implemented
 - [x] Have isort add comments about imports
 - [ ] Add input validation for update methods
-- [ ] More robust error handling; consider custom exceptions
-- [ ] local logging since we can't implement intraday. In JSON?
+- [ ] More robust and error handling; consider custom exceptions. Do everything
+  we can to encapsulate HTTP errors
+- [ ] Local logging since we can't implement intraday. In JSON?
+- [ ] PyPI deployment
 
 ## Testing
 
@@ -55,7 +26,7 @@ TBD
 
   - [ ] Add pytest configuration
   - [ ] Add test fixtures
-  - [ ] Setup VCR.py for API mocking
+  - [ ] Set up VCR.py for API mocking
 
 - Test Coverage
 
@@ -64,41 +35,29 @@ TBD
   - [ ] Authentication flow tests
   - [ ] Error handling tests
 
-## CI/CD
+## CI/CD/Linting
+
+- [ ] Linting
+  - [x] black
+  - [x] isort
+  - [x] mdformat
+  - [ ] mypy
 
 - GitHub Actions Setup
   - [ ] Linting
-    - [x] black
-    - [x] isort
-    - [x] mdformat
+    - [ ] black
+    - [ ] isort
+    - [ ] mdformat
     - [ ] mypy
   - [ ] Test running (TBD)
   - [ ] Coverage reporting (TBD)
   - [ ] Automated PyPI deployment
 
-## Documentation
-
-- API Documentation
-
-  - [x] Document request payloads for each endpoint
-  - [ ] Document response payloads for each endpoint
-  - [ ] Add examples for complex operations
-  - [ ] Document rate limiting behavior
-  - [x] Badges
-    - [x] Black
-    - [x] Python 3.13
-    - [x] License
-
-- Development Documentation
-
-  - [x] Contributing guidelines
-  - [x] Development environment setup
-  - [ ] Testing guide TBD
-
 ## CLI Tool
 
 - Basic Implementation
 
+  - [ ] Configuration
   - [ ] Command structure design
   - [ ] Authentication handling
   - [ ] Output formatting
@@ -109,3 +68,154 @@ TBD
   - [ ] Data export capabilities
   - [ ] Configuration management
   - [ ] Profile switching?
+
+## Documentation:
+  - [ ] `activezone.py`
+    - [ ] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `activity.py`
+    - [x] Add scope to class docstring
+    - [x] Link to documentation at the method level
+    - [x] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [x] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [x] Ensure method names match endpoint name
+  - [ ] `activity_timeseries.py`
+    - [ ] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `base.py`
+    - [ ] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `body.py`
+    - [ ] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `body_timeseries.py`
+    - [ ] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `breathingrate.py`
+    - [ ] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `cardio_fitness.py`
+    - [ ] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `constants.py`
+    - [ ] Note which classes/methods use each Enum
+  - [ ] `device.py`
+    - [ ] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `ecg.py`
+    - [ ] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `friends.py`
+    - [ ] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `heartrate_timeseries.py`
+    - [ ] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `heartrate_variability.py`
+    - [ ] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `irregular_rhythm.py`
+    - [ ] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `nutrition.py`
+    - [x] Add scope to class docstring
+    - [x] Link to documentation at the method level
+    - [x] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [x] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `nutrition_timeseries.py`
+    - [ ] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `sleep.py`
+    - [ ] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `spo2.py`
+    - [ ] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `subscription.py`
+    - [ ] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `temperature.py`
+    - [ ] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
+  - [ ] `user.py`
+    - [x] Add scope to class docstring
+    - [ ] Link to documentation at the method level
+    - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API docs
+    - [ ] Double Check that all methods are implemented
+    - [ ] Document response payloads, or at least what to expect, for each endpoint
+    - [ ] Ensure method names match endpoint name
