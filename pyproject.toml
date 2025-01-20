@@ -68,8 +68,8 @@ codeformatters = [
 
 [tool.pdm.scripts]
 fmt = { composite = [
-    "black --quiet .", 
-    "isort . --only-modified",
+    "black .", 
+    "isort .",
     "mdformat ."
 ] }
 

@@ -17,6 +17,8 @@ class UserResource(BaseResource):
     Handles Fitbit User API endpoints for managing user profile information,
     regional/language settings, and achievement badges.
 
+    Scope: profile
+
     API Reference: https://dev.fitbit.com/build/reference/web-api/user/
     """
 
