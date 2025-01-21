@@ -88,7 +88,7 @@ class SubscriptionResource(BaseResource):
         if subscriber_id:
             headers["X-Fitbit-Subscriber-Id"] = subscriber_id
 
-        self._make_request(endpoint, user_id=user_id, headers=headers, http_method="DELETE")
+        return self._make_request(endpoint, user_id=user_id, headers=headers, http_method="DELETE")
 
     def get_subscription_list(
         self,

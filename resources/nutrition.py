@@ -21,7 +21,7 @@ class NutritionResource(BaseResource):
     API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/
     """
 
-    def add_favorite_food(self, food_id: str, user_id: str = "-") -> Dict[str, Any]:
+    def add_favorite_food(self, food_id: int, user_id: str = "-") -> Dict[str, Any]:
         """
         Adds a food with the given ID to the user's list of favorite foods.
 
@@ -144,7 +144,9 @@ class NutritionResource(BaseResource):
             if nutritional_values:
                 params.update({k.value: v for k, v in nutritional_values.items()})
 
-        return self._make_request("foods/log.json", params=params, user_id=user_id, http_method="POST")
+        return self._make_request(
+            "foods/log.json", params=params, user_id=user_id, http_method="POST"
+        )
 
     def create_food_goal(
         self,
@@ -183,7 +185,9 @@ class NutritionResource(BaseResource):
             if personalized is not None:
                 params["personalized"] = personalized
 
-        return self._make_request("foods/log/goal.json", params=params, user_id=user_id, http_method="POST")
+        return self._make_request(
+            "foods/log/goal.json", params=params, user_id=user_id, http_method="POST"
+        )
 
     def create_meal(
         self,
@@ -263,7 +267,7 @@ class NutritionResource(BaseResource):
             "foods/log/water.json", params=params, user_id=user_id, http_method="POST"
         )
 
-    def delete_custom_food(self, food_id: str, user_id: str = "-") -> Dict[str, Any]:
+    def delete_custom_food(self, food_id: int, user_id: str = "-") -> Dict[str, Any]:
         """
         Deletes a custom food created by the user.
 
@@ -273,9 +277,9 @@ class NutritionResource(BaseResource):
             food_id: ID of the food to delete
             user_id: Optional user ID, defaults to current user
         """
-        self._make_request(f"foods/{food_id}.json", user_id=user_id, http_method="DELETE")
+        return self._make_request(f"foods/{food_id}.json", user_id=user_id, http_method="DELETE")
 
-    def delete_favorite_food(self, food_id: str, user_id: str = "-") -> Dict[str, Any]:
+    def delete_favorite_food(self, food_id: int, user_id: str = "-") -> Dict[str, Any]:
         """
         Removes a food from user's list of favorite foods.
 
@@ -285,9 +289,11 @@ class NutritionResource(BaseResource):
             food_id: ID of the food to remove from favorites
             user_id: Optional user ID, defaults to current user
         """
-        self._make_request(
+        return self._make_request(
             f"foods/log/favorite/{food_id}.json", user_id=user_id, http_method="DELETE"
         )
+
+    delete_favorite_foods = delete_favorite_food  # alias to match docs
 
     def delete_food_log(self, food_log_id: str, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -299,7 +305,9 @@ class NutritionResource(BaseResource):
             food_log_id: ID of the food log to delete
             user_id: Optional user ID, defaults to current user
         """
-        self._make_request(f"foods/log/{food_log_id}.json", user_id=user_id, http_method="DELETE")
+        return self._make_request(
+            f"foods/log/{food_log_id}.json", user_id=user_id, http_method="DELETE"
+        )
 
     def delete_meal(self, meal_id: str, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -311,7 +319,7 @@ class NutritionResource(BaseResource):
             meal_id: ID of the meal to delete
             user_id: Optional user ID, defaults to current user
         """
-        self._make_request(f"meals/{meal_id}.json", user_id=user_id, http_method="DELETE")
+        return self._make_request(f"meals/{meal_id}.json", user_id=user_id, http_method="DELETE")
 
     def delete_water_log(self, water_log_id: str, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -323,11 +331,11 @@ class NutritionResource(BaseResource):
             water_log_id: ID of the water log to delete
             user_id: Optional user ID, defaults to current user
         """
-        self._make_request(
+        return self._make_request(
             f"foods/log/water/{water_log_id}.json", user_id=user_id, http_method="DELETE"
         )
 
-    def get_food(self, food_id: str) -> Dict[str, Any]:
+    def get_food(self, food_id: int) -> Dict[str, Any]:
         """
         Retrieves details of a specific food from Fitbit's database or user's private foods.
 

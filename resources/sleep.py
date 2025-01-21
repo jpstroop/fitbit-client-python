@@ -84,7 +84,7 @@ class SleepResource(BaseResource):
             log_id: ID of the sleep log to delete
             user_id: Optional user ID, defaults to current user
         """
-        self._make_request(f"sleep/{log_id}.json", user_id=user_id, http_method="DELETE")
+        return self._make_request(f"sleep/{log_id}.json", user_id=user_id, http_method="DELETE")
 
     def get_sleep_goal(self, user_id: str = "-") -> Dict[str, Any]:
         """
