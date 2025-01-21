@@ -130,7 +130,7 @@ class MealType(int, Enum):
     LUNCH = 3
     AFTERNOON_SNACK = 4
     DINNER = 5
-    EVENING_SNACK = 6 # this works even though it is not documented
+    EVENING_SNACK = 6  # this works even though it is not documented
     ANYTIME = 7
 
 

@@ -1,13 +1,14 @@
 # resources/base.py
 # Standard library imports
+from json import JSONDecodeError
 from typing import Any
 from typing import Dict
 from typing import Optional
 
 # Third party imports
+from requests import HTTPError
 from requests import Response
 from requests_oauthlib import OAuth2Session
-from requests import HTTPError
 
 
 class BaseResource:
@@ -71,7 +72,7 @@ class BaseResource:
             http_method: GET (default), POST, or DELETE
 
         Returns:
-            JSON with two keys: "headers" and "content"
+            JSON with three keys: "status", "headers", and "content"
         """
         url: str = self._build_url(endpoint, user_id, requires_user_id)
         response: Response = self.oauth.request(
@@ -79,8 +80,20 @@ class BaseResource:
         )
         try:
             response.raise_for_status()
-        except HTTPError as e:
-            e.add_note(response.text)
+        except HTTPError:
+            if response.status_code < 500:
+                raise
+            # Swallow the errors we think will give us a manageable response
+            else:
+                pass
+        try:
+            full_response = {
+                "status": response.status_code,
+                "headers": dict(response.headers),
+                "content": response.json(),
+            }
+            return full_response
+        except JSONDecodeError as e:
+            e.add_note(f"Response Body: {response.text}")
+            e.add_note(f"Headers: {str(response.headers)}")
             raise
-        full_response = {"headers": dict(response.headers), "content": response.json()}
-        return full_response

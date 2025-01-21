@@ -65,7 +65,7 @@ class DeviceResource(BaseResource):
             alarm_id: ID of the alarm to delete
             user_id: Optional user ID, defaults to current user
         """
-        self._make_request(
+        return self._make_request(
             f"devices/tracker/{tracker_id}/alarms/{alarm_id}.json",
             user_id=user_id,
             http_method="DELETE",

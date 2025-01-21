@@ -110,7 +110,7 @@ class BodyResource(BaseResource):
             body_fat_log_id: ID of the log entry to delete
             user_id: Optional user ID, defaults to current user
         """
-        self._make_request(
+        return self._make_request(
             f"body/log/fat/{body_fat_log_id}.json", user_id=user_id, http_method="DELETE"
         )
 
@@ -122,7 +122,7 @@ class BodyResource(BaseResource):
             weight_log_id: ID of the log entry to delete
             user_id: Optional user ID, defaults to current user
         """
-        self._make_request(
+        return self._make_request(
             f"body/log/weight/{weight_log_id}.json", user_id=user_id, http_method="DELETE"
         )
 
