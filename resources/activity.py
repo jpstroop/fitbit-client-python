@@ -37,8 +37,8 @@ class ActivityResource(BaseResource):
         return self._make_request(
             f"activities/goals/{period}.json", params, user_id=user_id, http_method="POST"
         )
-    
-    create_activity_goals = create_activity_goal # alias to match docs
+
+    create_activity_goals = create_activity_goal  # alias to match docs
 
     def create_activity_log(
         self,
@@ -124,7 +124,7 @@ class ActivityResource(BaseResource):
         Adds an activity to the user's list of favorite activities.
 
         API Reference: https://dev.fitbit.com/build/reference/web-api/activity/create-favorite-activity/
-        
+
         Args:
             activity_id: ID of the activity to favorite
             user_id: Optional user ID, defaults to current user
@@ -143,7 +143,7 @@ class ActivityResource(BaseResource):
             activity_log_id: ID of the activity log to delete
             user_id: Optional user ID, defaults to current user
         """
-        self._make_request(
+        return self._make_request(
             f"activities/{activity_log_id}.json", user_id=user_id, http_method="DELETE"
         )
 
@@ -157,7 +157,7 @@ class ActivityResource(BaseResource):
             activity_id: ID of the activity to unfavorite
             user_id: Optional user ID, defaults to current user
         """
-        self._make_request(
+        return self._make_request(
             f"activities/favorite/{activity_id}.json", user_id=user_id, http_method="DELETE"
         )
 
@@ -190,7 +190,7 @@ class ActivityResource(BaseResource):
         Gets the details of a single activity type from Fitbit's activity database.
 
         API Reference: https://dev.fitbit.com/build/reference/web-api/activity/get-activity-type/
-        
+
         Args:
             activity_id: ID of the activity type to retrieve
         """
@@ -199,7 +199,7 @@ class ActivityResource(BaseResource):
     def get_all_activity_types(self) -> Dict[str, Any]:
         """
         Retrieves the complete list of available activities and their details.
-        
+
         API Reference: https://dev.fitbit.com/build/reference/web-api/activity/get-all-activity-types/
         """
         return self._make_request("activities.json", requires_user_id=False)
@@ -236,8 +236,8 @@ class ActivityResource(BaseResource):
             user_id: Optional user ID, defaults to current user
         """
         return self._make_request("activities/recent.json", user_id=user_id)
-    
-    get_recent_activity_types = get_recent_activities # alias to match docs
+
+    get_recent_activity_types = get_recent_activities  # alias to match docs
 
     def get_lifetime_stats(self, user_id: str = "-") -> Dict[str, Any]:
         """
