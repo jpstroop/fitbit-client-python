@@ -15,12 +15,13 @@ class IrregularRhythmResource(BaseResource):
 
     API Reference: https://dev.fitbit.com/build/reference/web-api/irregular-rhythm-notifications/
 
+    Scope: rregular_rhythm_notifications
+
     Important:
         The IRN API is for research use or investigational use only, and is not intended
         for clinical or diagnostic purposes.
 
     Note:
-        This resource requires the 'irregular_rhythm_notifications' scope.
         Only alerts that have been read by the user in the Fitbit app are accessible.
         IRN does not support subscription notifications (webhooks).
         Data is available after device sync and user interaction with notifications.
@@ -38,6 +39,8 @@ class IrregularRhythmResource(BaseResource):
         """
         Retrieves a paginated list of IRN alerts and their tachograms.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/irregular-rhythm-notifications/get-irn-alerts-list/
+
         Args:
             sort: Sort order of entries by date. Use 'asc' with after_date, 'desc' with before_date
             limit: Number of entries to return (max 10)
@@ -53,8 +56,6 @@ class IrregularRhythmResource(BaseResource):
 
         Note:
             Either before_date or after_date must be specified.
-            Only alerts that have been viewed in the Fitbit app are returned.
-            The offset parameter is not fully supported; use pagination URLs instead.
         """
         if offset != 0:
             raise ValueError("Only offset=0 is supported for IRN alerts pagination")
@@ -87,6 +88,8 @@ class IrregularRhythmResource(BaseResource):
         """
         Retrieves the user's IRN feature engagement status.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/irregular-rhythm-notifications/get-irn-profile/
+
         Args:
             user_id: The encoded ID of the user. Use "-" (dash) for current logged-in user.
 
@@ -95,9 +98,5 @@ class IrregularRhythmResource(BaseResource):
             - onboarded: Whether user has completed IRN feature onboarding
             - enrolled: Whether user is enrolled for IRN data processing
             - lastUpdated: Timestamp of last analyzable data sync
-
-        Note:
-            This endpoint provides information about the user's current engagement with
-            the IRN feature, including onboarding progress and algorithm processing state.
         """
         return self._make_request("irn/profile.json", user_id=user_id)

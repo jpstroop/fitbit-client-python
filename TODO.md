@@ -12,23 +12,29 @@
 - [x] Implement `accept-language` and `add-locale`
 - [x] Add a note to the README that IntraDate is not implemented
 - [x] Have isort add comments about imports
-- [x] Handle JSON-formatted error messages from `HTTPError` in `resources/base.py`
+- [x] Handle JSON-formatted error messages from `HTTPError` in
+  `resources/base.py`
+- [ ] Make sure all IDs (`water_log_id`, `food_id`, `unit_id`, etc.) are typed
+  as ints
+- [ ] Figure out throttling when making multiple requests. Can we make this more
+  elegant than just putting in explict `sleep(1.0)` statements as needed?
 - [ ] Why does `delete_custom_food` say "Invalid foodId: .." for my foods?
-  - Are _any_ delete methods working?
-    - `delete_custom_food` : 
-      ```json
-      {
-        "errorType": "validation",
-        "fieldName": "foodId",
-        "message": "Invalid foodId: 821136564"
-      }
-      ```
+  - Are _any_ delete methods working? - NOTE: they may have worked once. TRY
+    AGAIN
     - `delete_favorite_food` :
       ```json
       {
         "errorType": "validation",
         "fieldName": "foodId",
         "message": "Error removing food from favorites. Food is currently not a favorite: 821261353"
+      }
+      ```
+    - `delete_water_log` :
+      ```json
+      {
+        "errorType": "validation",
+        "fieldName": "waterId",
+        "message": "Invalid water id: 9988944308"
       }
       ```
 - [ ] Add input validation for update methods
@@ -222,10 +228,10 @@ correctly - the correct method, params, body etc.
   - [ ] Document response payloads, or at least what to expect, for each
     endpoint
   - [ ] Ensure method names match endpoint name
-- [ ] `irregular_rhythm.py`
-  - [ ] Add scope to class docstring
-  - [ ] Link to documentation at the method level
-  - [ ] Check "Notes" from docstrings; they mostly just repeat the fitbit API
+- [x] `irregular_rhythm.py`
+  - [x] Add scope to class docstring
+  - [x] Link to documentation at the method level
+  - [x] Check "Notes" from docstrings; they mostly just repeat the fitbit API
     docs
   - [ ] Double Check that all methods are implemented
   - [ ] Document response payloads, or at least what to expect, for each

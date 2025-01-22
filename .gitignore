@@ -51,6 +51,6 @@ secrets.json
 web-api-docs.tgz
 main.py
 units.json
-my_food_data
+data
 web-api
 methods_used.md

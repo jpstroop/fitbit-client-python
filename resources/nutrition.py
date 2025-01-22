@@ -74,8 +74,14 @@ class NutritionResource(BaseResource):
             "calories": calories,
             "description": description,
             "formType": form_type.value,
-            **{k.value: v for k, v in nutritional_values.items()},
         }
+        # Handle both enum and string nutritional values
+        for key, value in nutritional_values.items():
+            if isinstance(key, NutritionalValue):
+                params[key.value] = value
+            else:
+                params[key] = value
+
         return self._make_request("foods.json", params=params, user_id=user_id, http_method="POST")
 
     def create_food_log(
@@ -190,12 +196,7 @@ class NutritionResource(BaseResource):
         )
 
     def create_meal(
-        self,
-        meal_id: str,
-        name: str,
-        description: str,
-        foods: List[Dict[str, Any]],
-        user_id: str = "-",
+        self, name: str, description: str, foods: List[Dict[str, Any]], user_id: str = "-"
     ) -> Dict[str, Any]:
         """
         Creates a meal with the given foods.
@@ -295,7 +296,7 @@ class NutritionResource(BaseResource):
 
     delete_favorite_foods = delete_favorite_food  # alias to match docs
 
-    def delete_food_log(self, food_log_id: str, user_id: str = "-") -> Dict[str, Any]:
+    def delete_food_log(self, food_log_id: int, user_id: str = "-") -> Dict[str, Any]:
         """
         Deletes a food log entry.
 
@@ -309,7 +310,7 @@ class NutritionResource(BaseResource):
             f"foods/log/{food_log_id}.json", user_id=user_id, http_method="DELETE"
         )
 
-    def delete_meal(self, meal_id: str, user_id: str = "-") -> Dict[str, Any]:
+    def delete_meal(self, meal_id: int, user_id: str = "-") -> Dict[str, Any]:
         """
         Deletes a meal.
 
@@ -321,7 +322,7 @@ class NutritionResource(BaseResource):
         """
         return self._make_request(f"meals/{meal_id}.json", user_id=user_id, http_method="DELETE")
 
-    def delete_water_log(self, water_log_id: str, user_id: str = "-") -> Dict[str, Any]:
+    def delete_water_log(self, water_log_id: int, user_id: str = "-") -> Dict[str, Any]:
         """
         Deletes a water log entry.
 
@@ -451,7 +452,7 @@ class NutritionResource(BaseResource):
         """
         return self._make_request("foods/log/favorite.json", user_id=user_id)
 
-    def get_meal(self, meal_id: str, user_id: str = "-") -> Dict[str, Any]:
+    def get_meal(self, meal_id: int, user_id: str = "-") -> Dict[str, Any]:
         """
         Retrieves a single meal from user's food log.
 
@@ -535,7 +536,7 @@ class NutritionResource(BaseResource):
 
     def update_food_log(
         self,
-        food_log_id: str,
+        food_log_id: int,
         meal_type_id: MealType,
         unit_id: Optional[int] = None,
         amount: Optional[float] = None,
@@ -577,7 +578,7 @@ class NutritionResource(BaseResource):
 
     def update_meal(
         self,
-        meal_id: str,
+        meal_id: int,
         name: str,
         description: str,
         foods: List[Dict[str, Any]],
@@ -605,7 +606,7 @@ class NutritionResource(BaseResource):
         )
 
     def update_water_log(
-        self, water_log_id: str, amount: float, unit: Optional[WaterUnit] = None, user_id: str = "-"
+        self, water_log_id: int, amount: float, unit: Optional[WaterUnit] = None, user_id: str = "-"
     ) -> Dict[str, Any]:
         """
         Updates an existing water log entry.
