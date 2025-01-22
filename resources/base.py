@@ -81,17 +81,24 @@ class BaseResource:
         try:
             response.raise_for_status()
         except HTTPError:
-            if response.status_code < 500:
+            if response.status_code >= 500:
                 raise
             # Swallow the errors we think will give us a manageable response
             else:
                 pass
         try:
-            full_response = {
-                "status": response.status_code,
-                "headers": dict(response.headers),
-                "content": response.json(),
-            }
+            if http_method == "DELETE":
+                full_response = {
+                    "status": response.status_code,
+                    "headers": dict(response.headers),
+                    "content": response.text,
+                }
+            else:
+                full_response = {
+                    "status": response.status_code,
+                    "headers": dict(response.headers),
+                    "content": response.json(),
+                }
             return full_response
         except JSONDecodeError as e:
             e.add_note(f"Response Body: {response.text}")
