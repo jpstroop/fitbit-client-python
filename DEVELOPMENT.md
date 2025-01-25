@@ -49,7 +49,7 @@ fitbit-client-python/
 ├── pyproject.toml
 ├── client
 │   ├── __init__.py (Client class implementation)
-│   └── resource_methods_mixin.py
+│   └── resource_methods_mixin.py (aliases for all method in the resources package)
 ├── auth
 │   ├── __init__.py (empty)
 │   ├── callback_handler.py

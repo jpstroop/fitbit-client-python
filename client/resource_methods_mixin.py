@@ -27,7 +27,28 @@ from resources.constants import WeekDay
 class ClientMethodsMixin():
     """
     Mixin class that provides direct access to resource methods on the client.
-    Method names are only changed when there are naming collisions across resources.
+
+    The following methods have been renamed from their original resource 
+    implementations to avoid naming collisions when exposed directly on the 
+    client:
+
+    Activity Time Series
+     - `get_time_series()` → `get_activity_time_series()`
+     - `get_time_series_by_date_range()` → `get_activity_time_series_by_date_range()`
+
+    Body Time Series
+     - `get_time_series_by_date()` → `get_body_time_series_by_date()`
+
+    Heart Rate Time Series  
+     - `get_time_series_by_date()` → `get_heartrate_by_date()`
+     - `get_time_series_by_date_range()` → `get_heartrate_by_date_range()`
+
+    Nutrition Time Series
+     - `get_time_series_by_date()` → `get_nutrition_time_series_by_date()`
+     - `get_time_series_by_date_range()` → `get_nutrition_time_series_by_date_range()`
+
+    All other methods maintain their original names from their respective 
+    resource classes.
     """
     # Active Zone Minutes Methods
     def get_azm_by_date(self, date: str, period: Period, user_id: str = "-") -> Dict[str, Any]:
