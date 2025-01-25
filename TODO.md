@@ -15,7 +15,10 @@
 - [x] Handle JSON-formatted error messages from `HTTPError` in
   `resources/base.py`
 - [ ] Make sure all IDs (`water_log_id`, `food_id`, `unit_id`, etc.) are typed
-  as ints
+  as ints across all resources
+- [x] Handle `Too Many Requests` in `base.py`
+- [ ] Do other (non-standard) nutrients show up in food_logs?
+- [ ] Parameterize where `tokens.json` is stored.
 - [ ] Figure out throttling when making multiple requests. Can we make this more
   elegant than just putting in explict `sleep(1.0)` statements as needed?
 - [ ] Why does `delete_custom_food` say "Invalid foodId: .." for my foods?
