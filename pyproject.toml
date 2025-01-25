@@ -31,6 +31,9 @@ dev = [
     "black>=24.10.0",
     "isort>=5.13.2",
     "mdformat-pyproject>=0.0.2",
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.11.1"
 ]
 
 [build-system]
@@ -55,16 +58,39 @@ import_heading_thirdparty = "Third party imports"
 import_heading_firstparty = "Local imports"
 import_heading_localfolder = "Local folder imports"
 
-
 [tool.mdformat]
 number = true
 wrap = 80
-extensions = [
-    "gfm"
-]
 codeformatters = [
      "python",
      "json"
+]
+extensions = [
+    "gfm"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+minversion = 6.0
+python_files = "test_*.py"
+addopts = "-ra -q --cov=fitbit_client --cov-report=term-missing:skip-covered"
+pythonpath = ["."]
+
+# https://pytest-cov.readthedocs.io/en/latest/config.html
+# https://coverage.readthedocs.io/en/latest/config.html 
+[tool.coverage.run]
+source = ["fitbit_client"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "pass",
+    "raise ImportError",
 ]
 
 [tool.pdm.scripts]
