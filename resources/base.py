@@ -101,6 +101,7 @@ class BaseResource:
                 }
             return full_response
         except JSONDecodeError as e:
-            e.add_note(f"Response Body: {response.text}")
-            e.add_note(f"Headers: {str(response.headers)}")
+            e.add_note(f"status: {response.status_code}")
+            e.add_note(f"Response Body: {response.text}")  # this is where the error happens.
+            e.add_note(f"Headers: {dict(response.headers)}")
             raise
