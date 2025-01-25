@@ -1,10 +1,11 @@
-# client.py
+# client/__init__.py
 # Standard library imports
 from typing import Optional
 from urllib.parse import urlparse
 
 # Local imports
 from auth.oauth import FitbitOAuth2
+from client.resource_methods_mixin import ClientMethodsMixin
 from resources.activezone import ActiveZoneResource
 from resources.activity import ActivityResource
 from resources.activity_timeseries import ActivityTimeSeriesResource
@@ -27,7 +28,7 @@ from resources.temperature import TemperatureResource
 from resources.user import UserResource
 
 
-class FitbitClient:
+class FitbitClient(ClientMethodsMixin):
     """Main client for interacting with Fitbit API"""
 
     def __init__(
