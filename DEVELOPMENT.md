@@ -40,19 +40,23 @@ pdm install -G lint
 ## Project Structure
 
 ```
-fitbit-client/
+fitbit-client-python/
 .
 ├── LICENSE
 ├── README.md
 ├── DEVELOPMENT.md
 ├── pdm.lock
 ├── pyproject.toml
-├── client.py
+├── client
+│   ├── __init__.py (Client class implementation)
+│   └── resource_methods_mixin.py
 ├── auth
+│   ├── __init__.py (empty)
 │   ├── callback_handler.py
 │   ├── callback_server.py
 │   └── oauth.py
 └── resources
+│   ├── __init__.py (empty)
     ├── activezone.py
     ├── activity.py
     ├── activity_timeseries.py

@@ -17,6 +17,9 @@
 - [ ] Make sure all IDs (`water_log_id`, `food_id`, `unit_id`, etc.) are typed
   as ints across all resources
 - [x] Handle `Too Many Requests` in `base.py`
+- [ ] Tests that all methods have an alias and that the signatures match
+- [ ] Alias all API methods in the client? Use mixins.
+  - [ ] Make direct access private?
 - [ ] Do other (non-standard) nutrients show up in food_logs?
 - [ ] Parameterize where `tokens.json` is stored.
 - [ ] Figure out throttling when making multiple requests. Can we make this more
