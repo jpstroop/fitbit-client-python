@@ -15,12 +15,14 @@ from typing import Optional
 from urllib.parse import urlparse
 
 # Third party imports
-from auth.callback_handler import CallbackHandler
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.rsa import generate_private_key
 from cryptography.x509.oid import NameOID
+
+# Local imports
+from fitbit_client.auth.callback_handler import CallbackHandler
 
 
 class CallbackServer:

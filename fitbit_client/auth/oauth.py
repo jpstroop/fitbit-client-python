@@ -17,9 +17,11 @@ from urllib.parse import urlparse
 from webbrowser import open as browser_open
 
 # Third party imports
-from auth.callback_server import CallbackServer
 from requests.auth import HTTPBasicAuth
 from requests_oauthlib.oauth2_session import OAuth2Session
+
+# Local imports
+from fitbit_client.auth.callback_server import CallbackServer
 
 
 class FitbitOAuth2:

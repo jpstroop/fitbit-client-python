@@ -2,7 +2,8 @@
 from json import JSONDecodeError
 
 # Third party imports
-import pytest
+from pytest import fixture
+from pytest import raises
 from requests import HTTPError
 from requests import Response
 
@@ -11,7 +12,7 @@ from fitbit_client.resources.base import BaseResource
 
 
 class TestBaseResource:
-    @pytest.fixture
+    @fixture
     def base_resource(self, mock_oauth_session):
         """Fixture to provide a BaseResource instance with standard locale settings"""
         return BaseResource(oauth_session=mock_oauth_session, locale="en_US", language="en_US")
@@ -85,7 +86,7 @@ class TestBaseResource:
         mock_response.raise_for_status.side_effect = HTTPError("Server Error")
         mock_oauth_session.request.return_value = mock_response
 
-        with pytest.raises(HTTPError):
+        with raises(HTTPError):
             base_resource._make_request("test/endpoint")
 
     def test_make_request_client_error(self, base_resource, mock_oauth_session, mock_response):
@@ -108,7 +109,7 @@ class TestBaseResource:
         mock_response.headers = {"Content-Type": "application/json", "X-Request-Id": "123"}
         mock_oauth_session.request.return_value = mock_response
 
-        with pytest.raises(JSONDecodeError) as exc_info:
+        with raises(JSONDecodeError) as exc_info:
             base_resource._make_request("test/endpoint")
 
         # Verify the error includes additional context

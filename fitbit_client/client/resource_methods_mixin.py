@@ -5,23 +5,23 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
-# Third party imports
-from resources.constants import ActivityGoalType
-from resources.constants import BodyGoalType
-from resources.constants import BodyResourceType
-from resources.constants import BodyTimePeriod
-from resources.constants import ClockTimeFormat
-from resources.constants import FoodFormType
-from resources.constants import FoodPlanIntensity
-from resources.constants import Gender
-from resources.constants import MealType
-from resources.constants import NutritionResource as NutritionResourceType
-from resources.constants import Period
-from resources.constants import SleepType
-from resources.constants import StartDayOfWeek
-from resources.constants import SubscriptionCategory
-from resources.constants import WaterUnit
-from resources.constants import WeekDay
+# Local imports
+from fitbit_client.resources.constants import ActivityGoalType
+from fitbit_client.resources.constants import BodyGoalType
+from fitbit_client.resources.constants import BodyResourceType
+from fitbit_client.resources.constants import BodyTimePeriod
+from fitbit_client.resources.constants import ClockTimeFormat
+from fitbit_client.resources.constants import FoodFormType
+from fitbit_client.resources.constants import FoodPlanIntensity
+from fitbit_client.resources.constants import Gender
+from fitbit_client.resources.constants import MealType
+from fitbit_client.resources.constants import NutritionResource as NutritionResourceType
+from fitbit_client.resources.constants import Period
+from fitbit_client.resources.constants import SleepType
+from fitbit_client.resources.constants import StartDayOfWeek
+from fitbit_client.resources.constants import SubscriptionCategory
+from fitbit_client.resources.constants import WaterUnit
+from fitbit_client.resources.constants import WeekDay
 
 
 class ClientMethodsMixin:

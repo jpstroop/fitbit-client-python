@@ -3,29 +3,29 @@
 from typing import Optional
 from urllib.parse import urlparse
 
-# Third party imports
-from auth.oauth import FitbitOAuth2
-from client.resource_methods_mixin import ClientMethodsMixin
-from resources.activezone import ActiveZoneResource
-from resources.activity import ActivityResource
-from resources.activity_timeseries import ActivityTimeSeriesResource
-from resources.body import BodyResource
-from resources.body_timeseries import BodyTimeSeriesResource
-from resources.breathingrate import BreathingRateResource
-from resources.cardio_fitness import CardioFitnessResource
-from resources.device import DeviceResource
-from resources.ecg import ECGResource
-from resources.friends import FriendsResource
-from resources.heartrate_timeseries import HeartRateTimeSeriesResource
-from resources.heartrate_variability import HeartRateVariabilityResource
-from resources.irregular_rhythm import IrregularRhythmResource
-from resources.nutrition import NutritionResource
-from resources.nutrition_timeseries import NutritionTimeSeriesResource
-from resources.sleep import SleepResource
-from resources.spo2 import SpO2Resource
-from resources.subscription import SubscriptionResource
-from resources.temperature import TemperatureResource
-from resources.user import UserResource
+# Local imports
+from fitbit_client.auth.oauth import FitbitOAuth2
+from fitbit_client.client.resource_methods_mixin import ClientMethodsMixin
+from fitbit_client.resources.activezone import ActiveZoneResource
+from fitbit_client.resources.activity import ActivityResource
+from fitbit_client.resources.activity_timeseries import ActivityTimeSeriesResource
+from fitbit_client.resources.body import BodyResource
+from fitbit_client.resources.body_timeseries import BodyTimeSeriesResource
+from fitbit_client.resources.breathingrate import BreathingRateResource
+from fitbit_client.resources.cardio_fitness import CardioFitnessResource
+from fitbit_client.resources.device import DeviceResource
+from fitbit_client.resources.ecg import ECGResource
+from fitbit_client.resources.friends import FriendsResource
+from fitbit_client.resources.heartrate_timeseries import HeartRateTimeSeriesResource
+from fitbit_client.resources.heartrate_variability import HeartRateVariabilityResource
+from fitbit_client.resources.irregular_rhythm import IrregularRhythmResource
+from fitbit_client.resources.nutrition import NutritionResource
+from fitbit_client.resources.nutrition_timeseries import NutritionTimeSeriesResource
+from fitbit_client.resources.sleep import SleepResource
+from fitbit_client.resources.spo2 import SpO2Resource
+from fitbit_client.resources.subscription import SubscriptionResource
+from fitbit_client.resources.temperature import TemperatureResource
+from fitbit_client.resources.user import UserResource
 
 
 class FitbitClient(ClientMethodsMixin):
