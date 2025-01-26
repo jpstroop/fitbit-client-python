@@ -3,10 +3,10 @@
 from typing import Any
 from typing import Dict
 
-# Third party imports
-from resources.base import BaseResource
-from resources.constants import ActivityTimeSeriesPath
-from resources.constants import Period
+# Local imports
+from fitbit_client.resources.base import BaseResource
+from fitbit_client.resources.constants import ActivityTimeSeriesPath
+from fitbit_client.resources.constants import Period
 
 
 class ActivityTimeSeriesResource(BaseResource):

@@ -1,11 +1,9 @@
 # Standard library imports
 from typing import Any
 from typing import Dict
-from typing import List
-from typing import Optional
 
-# Third party imports
-from resources.base import BaseResource
+# Local imports
+from fitbit_client.resources.base import BaseResource
 
 
 class TemperatureResource(BaseResource):

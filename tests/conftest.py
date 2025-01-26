@@ -22,3 +22,11 @@ def mock_response(mocker):
     response.headers = {}
     response.raise_for_status.return_value = None
     return response
+
+
+@fixture
+def mock_server():
+    """Provide a mock server instance"""
+    server = Mock()
+    server.last_callback = None
+    return server
