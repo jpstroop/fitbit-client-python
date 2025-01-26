@@ -47,16 +47,17 @@ fitbit-client-python/
 ├── DEVELOPMENT.md
 ├── pdm.lock
 ├── pyproject.toml
-├── client
-│   ├── __init__.py (Client class implementation)
+├── client/
+│   ├── __init__.py
+│   ├── client.py
 │   └── resource_methods_mixin.py (aliases for all method in the resources package)
-├── auth
+├── auth/
 │   ├── __init__.py (empty)
 │   ├── callback_handler.py
 │   ├── callback_server.py
 │   └── oauth.py
-└── resources
-│   ├── __init__.py (empty)
+└── resources/
+    ├── __init__.py (empty)
     ├── activezone.py
     ├── activity.py
     ├── activity_timeseries.py
