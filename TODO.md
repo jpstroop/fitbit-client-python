@@ -16,17 +16,18 @@
   `resources/base.py`
 - [ ] Make sure all IDs (`water_log_id`, `food_id`, `unit_id`, etc.) are typed
   as ints across all resources
+- [ ] Consider adding `_` to `resources` package, indicating that it's private?
 - [x] Handle `Too Many Requests` in `base.py`
 - [ ] Tests that all methods have an alias and that the signatures match
 - [ ] Alias all API methods in the client? Use mixins.
   - [ ] Make direct access private?
 - [ ] Do other (non-standard) nutrients show up in food_logs?
+- [ ] `raise NotImplementedError` for intraday methods (add stubs)
 - [ ] Parameterize where `tokens.json` is stored.
 - [ ] Figure out throttling when making multiple requests. Can we make this more
   elegant than just putting in explict `sleep(1.0)` statements as needed?
 - [ ] Why does `delete_custom_food` say "Invalid foodId: .." for my foods?
-  - Are _any_ delete methods working? - NOTE: they may have worked once. TRY
-    AGAIN
+  - Are _any_ delete methods working? NOTE: they may have worked once. TRY AGAIN
     - `delete_favorite_food` :
       ```json
       {
