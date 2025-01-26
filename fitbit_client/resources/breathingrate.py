@@ -3,8 +3,8 @@
 from typing import Any
 from typing import Dict
 
-# Third party imports
-from resources.base import BaseResource
+# Local imports
+from fitbit_client.resources.base import BaseResource
 
 
 class BreathingRateResource(BaseResource):

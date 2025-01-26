@@ -2,14 +2,13 @@
 # Standard library imports
 from typing import Any
 from typing import Dict
-from typing import List
 from typing import Optional
 
-# Third party imports
-from resources.base import BaseResource
-from resources.constants import ClockTimeFormat
-from resources.constants import Gender
-from resources.constants import StartDayOfWeek
+# Local imports
+from fitbit_client.resources.base import BaseResource
+from fitbit_client.resources.constants import ClockTimeFormat
+from fitbit_client.resources.constants import Gender
+from fitbit_client.resources.constants import StartDayOfWeek
 
 
 class UserResource(BaseResource):

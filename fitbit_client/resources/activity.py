@@ -4,9 +4,9 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 
-# Third party imports
-from resources.base import BaseResource
-from resources.constants import ActivityGoalType
+# Local imports
+from fitbit_client.resources.base import BaseResource
+from fitbit_client.resources.constants import ActivityGoalType
 
 
 class ActivityResource(BaseResource):

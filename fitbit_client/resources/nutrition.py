@@ -5,13 +5,13 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
-# Third party imports
-from resources.base import BaseResource
-from resources.constants import FoodFormType
-from resources.constants import FoodPlanIntensity
-from resources.constants import MealType
-from resources.constants import NutritionalValue
-from resources.constants import WaterUnit
+# Local imports
+from fitbit_client.resources.base import BaseResource
+from fitbit_client.resources.constants import FoodFormType
+from fitbit_client.resources.constants import FoodPlanIntensity
+from fitbit_client.resources.constants import MealType
+from fitbit_client.resources.constants import NutritionalValue
+from fitbit_client.resources.constants import WaterUnit
 
 
 class NutritionResource(BaseResource):
