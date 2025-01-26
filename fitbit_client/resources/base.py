@@ -11,6 +11,9 @@ from requests import HTTPError
 from requests import Response
 from requests_oauthlib import OAuth2Session
 
+# Local imports
+from fitbit_client.log_utils import log_response
+
 
 class BaseResource:
     """
@@ -51,6 +54,7 @@ class BaseResource:
             return f"{self.API_BASE}/user/{user_id}/{endpoint}"
         return f"{self.API_BASE}/{endpoint}"
 
+    @log_response
     def _make_request(
         self,
         endpoint: str,
@@ -103,6 +107,6 @@ class BaseResource:
             return full_response
         except JSONDecodeError as e:
             e.add_note(f"status: {response.status_code}")
-            e.add_note(f"Response Body: {response.text}")  # this is where the error happens.
+            e.add_note(f"Response Body: {response.text}")
             e.add_note(f"Headers: {dict(response.headers)}")
             raise

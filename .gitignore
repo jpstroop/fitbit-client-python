@@ -54,3 +54,6 @@ units.json
 data
 web-api
 methods_used.md
+nutrition_manager.py
+logs
+*.log
