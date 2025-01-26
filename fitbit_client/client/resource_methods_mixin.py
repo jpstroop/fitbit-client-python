@@ -1,4 +1,5 @@
-# client/resource_methods_mixin.py
+# fitbit_client/client/resource_methods_mixin.py
+
 # Standard library imports
 from typing import Any
 from typing import Dict

@@ -1,3 +1,5 @@
+# fitbit_client/resources/nutrition_timeseries.py
+
 # Standard library imports
 from enum import Enum
 from typing import Any

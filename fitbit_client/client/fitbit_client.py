@@ -1,4 +1,5 @@
-# client/__init__.py
+# fitbit_client/client/fitbit_client.py
+
 # Standard library imports
 from typing import Optional
 from urllib.parse import urlparse

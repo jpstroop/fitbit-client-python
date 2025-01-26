@@ -1,3 +1,5 @@
+# fitbit_client/resources/spo2.py
+
 # Standard library imports
 from typing import Any
 from typing import Dict

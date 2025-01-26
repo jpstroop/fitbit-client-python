@@ -1,4 +1,5 @@
-# resources/heartrate_timeseries.py
+# fitbit_client/resources/heartrate_timeseries.py
+
 # Standard library imports
 from typing import Any
 from typing import Dict

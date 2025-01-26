@@ -1,4 +1,5 @@
-# resources/ecg.py
+# fitbit_client/resources/ecg.py
+
 # Standard library imports
 from typing import Any
 from typing import Dict

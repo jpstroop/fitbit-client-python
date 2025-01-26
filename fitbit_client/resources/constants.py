@@ -1,4 +1,5 @@
-# resources/constants.py
+# fitbit_client/resources/constants.py
+
 # Standard library imports
 from enum import Enum
 

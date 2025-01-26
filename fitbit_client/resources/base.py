@@ -1,4 +1,5 @@
-# resources/base.py
+# fitbit_client/resources/base.py
+
 # Standard library imports
 from json import JSONDecodeError
 from typing import Any
