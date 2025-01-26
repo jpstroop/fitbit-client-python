@@ -5,7 +5,7 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
-# Local imports
+# Third party imports
 from resources.constants import ActivityGoalType
 from resources.constants import BodyGoalType
 from resources.constants import BodyResourceType
@@ -24,12 +24,12 @@ from resources.constants import WaterUnit
 from resources.constants import WeekDay
 
 
-class ClientMethodsMixin():
+class ClientMethodsMixin:
     """
     Mixin class that provides direct access to resource methods on the client.
 
-    The following methods have been renamed from their original resource 
-    implementations to avoid naming collisions when exposed directly on the 
+    The following methods have been renamed from their original resource
+    implementations to avoid naming collisions when exposed directly on the
     client:
 
     Activity Time Series
@@ -39,7 +39,7 @@ class ClientMethodsMixin():
     Body Time Series
      - `get_time_series_by_date()` → `get_body_time_series_by_date()`
 
-    Heart Rate Time Series  
+    Heart Rate Time Series
      - `get_time_series_by_date()` → `get_heartrate_by_date()`
      - `get_time_series_by_date_range()` → `get_heartrate_by_date_range()`
 
@@ -47,9 +47,10 @@ class ClientMethodsMixin():
      - `get_time_series_by_date()` → `get_nutrition_time_series_by_date()`
      - `get_time_series_by_date_range()` → `get_nutrition_time_series_by_date_range()`
 
-    All other methods maintain their original names from their respective 
+    All other methods maintain their original names from their respective
     resource classes.
     """
+
     # Active Zone Minutes Methods
     def get_azm_by_date(self, date: str, period: Period, user_id: str = "-") -> Dict[str, Any]:
         """Gets Active Zone Minutes data for a specific date. See ActiveZoneResource.get_azm_by_date() for full documentation."""
