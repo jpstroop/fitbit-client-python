@@ -1,8 +1,5 @@
 # scripts/add_file_headers.py
 
-#!/usr/bin/env python3
-# scripts/add_file_headers.py
-
 # Standard library imports
 from os import getcwd
 from pathlib import Path
