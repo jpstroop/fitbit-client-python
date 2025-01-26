@@ -1,3 +1,5 @@
+# tests/auth/test_callback_handler.py
+
 # Standard library imports
 from http.server import BaseHTTPRequestHandler
 from io import BytesIO

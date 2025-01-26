@@ -1,4 +1,5 @@
-# auth/callback_server.py
+# fitbit_client/auth/callback_server.py
+
 # Standard library imports
 from datetime import datetime
 from datetime import timedelta

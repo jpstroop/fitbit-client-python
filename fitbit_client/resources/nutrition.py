@@ -1,4 +1,5 @@
-# resources/nutrition.py
+# fitbit_client/resources/nutrition.py
+
 # Standard library imports
 from typing import Any
 from typing import Dict

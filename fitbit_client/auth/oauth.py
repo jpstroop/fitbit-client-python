@@ -1,4 +1,5 @@
-# auth/oauth.py
+# fitbit_client/auth/oauth.py
+
 # Standard library imports
 from base64 import urlsafe_b64encode
 from datetime import datetime
