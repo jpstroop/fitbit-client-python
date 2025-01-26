@@ -4,29 +4,53 @@
 
 - [x] `Move `client.py\`\` into a folder so that no code is at the top of the
   project.
+
 - [x] Refactor BaseResource to just have one request method and parameterize the
   header. They all do the same thing otherwise.
+
 - [x] Make all responses a `{ }` with two keys: `headers` and `response`
+
   - Allows for complete isolation of HTTP
   - Makes typing more reliable.
+
 - [x] Implement `accept-language` and `add-locale`
+
 - [x] Add a note to the README that IntraDate is not implemented
+
 - [x] Have isort add comments about imports
+
 - [x] Handle JSON-formatted error messages from `HTTPError` in
   `resources/base.py`
+
 - [ ] Make sure all IDs (`water_log_id`, `food_id`, `unit_id`, etc.) are typed
   as ints across all resources
+
 - [ ] Consider adding `_` to `resources` package, indicating that it's private?
+
 - [x] Handle `Too Many Requests` in `base.py`
+
 - [ ] Tests that all methods have an alias and that the signatures match
+
 - [ ] Alias all API methods in the client? Use mixins.
+
   - [ ] Make direct access private?
+
 - [ ] Do other (non-standard) nutrients show up in food_logs?
+
 - [ ] `raise NotImplementedError` for intraday methods (add stubs)
+
 - [ ] Parameterize where `tokens.json` is stored.
-- [ ] Figure out throttling when making multiple requests. Can we make this more
-  elegant than just putting in explict `sleep(1.0)` statements as needed?
+
+- [ ] Figure out throttling when making multiple requests. * Can we make this
+  more elegant than just putting in explict `sleep(1.0)` statements as needed?
+  \* Can we handle it and retry a few times before erroring out?
+
+- [ ] If we are logging HTTP headers and status, maybe we should go back to the
+  API response without wrapping it in a dict? * Could have two \_make_request
+  methods to handle typing between [] and {} ?
+
 - [ ] Why does `delete_custom_food` say "Invalid foodId: .." for my foods?
+
   - Are _any_ delete methods working? NOTE: they may have worked once. TRY AGAIN
     - `delete_favorite_food` :
       ```json
@@ -44,17 +68,26 @@
         "message": "Invalid water id: 9988944308"
       }
       ```
+
 - [ ] Add input validation for update methods
+
 - [ ] Response validation? Accidentally doing a GET instead of a POST on, e.g.
   `food.json` will yield a response, but not the one you want!
+
 - [ ] More robust and error handling; consider custom exceptions. Do everything
   we can to encapsulate HTTP errors
+
 - [ ] Local logging since we can't implement intraday. In JSON?
+
 - [ ] PyPI deployment
+
 - [ ] Extension: ?PRIVATE filters on methods that return PUBLIC and PRIVATE
   stuff (API doesn't seem to have this)
+
 - [ ] Enum for units (it'll be big)
+
 - [ ] ?`helpers` module. Things it could do:
+
   - Delete all history before a certain date
   - More detailed food reports (e.g. all nutrition for one day or week or last n
     days)

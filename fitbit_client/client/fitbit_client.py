@@ -1,7 +1,7 @@
 # fitbit_client/client/fitbit_client.py
 
 # Standard library imports
-from typing import Optional
+from logging import getLogger
 from urllib.parse import urlparse
 
 # Local imports
@@ -48,15 +48,27 @@ class FitbitClient(ClientMethodsMixin):
             client_secret: Your Fitbit API client secret
             redirect_uri: Complete OAuth redirect URI (e.g. "https://localhost:8080")
             use_callback_server: Whether to use local callback server
+            language: Language for API responses
+            locale: Locale for API responses
         """
-        self.redirect_uri: str = redirect_uri
+        self.logger = getLogger("fitbit_client")
+        self.logger.debug("Initializing Fitbit client")
 
+        self.redirect_uri: str = redirect_uri
+        parsed_uri = urlparse(redirect_uri)
+        self.logger.debug(
+            f"Using redirect URI: {redirect_uri} on {parsed_uri.hostname}:{parsed_uri.port}"
+        )
+
+        self.logger.debug("Initializing OAuth handler")
         self.auth: FitbitOAuth2 = FitbitOAuth2(
             client_id=client_id,
             client_secret=client_secret,
             redirect_uri=redirect_uri,
             use_callback_server=use_callback_server,
         )
+
+        self.logger.debug(f"Initializing API resources with language={language}, locale={locale}")
 
         # Initialize API resources
         self.active_zone: ActiveZoneResource = ActiveZoneResource(
@@ -110,6 +122,8 @@ class FitbitClient(ClientMethodsMixin):
         )
         self.user: UserResource = UserResource(self.auth.oauth, language=language, locale=locale)
 
+        self.logger.info("Fitbit client initialized successfully")
+
     def authenticate(self, force_new: bool = False) -> bool:
         """
         Authenticate with Fitbit API
@@ -120,4 +134,11 @@ class FitbitClient(ClientMethodsMixin):
         Returns:
             bool: True if authenticated successfully
         """
-        return self.auth.authenticate(force_new=force_new)
+        self.logger.debug(f"Starting authentication (force_new={force_new})")
+        try:
+            result = self.auth.authenticate(force_new=force_new)
+            self.logger.info("Authentication successful")
+            return result
+        except Exception as e:
+            self.logger.error(f"Authentication failed: {str(e)}")
+            raise
