@@ -1,4 +1,4 @@
-# resources/friends.py
+# fitbit_client/resources/friends.py
 
 # Standard library imports
 from typing import Any

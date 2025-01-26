@@ -1,4 +1,5 @@
-# resources/cardio_fitness.py
+# fitbit_client/resources/cardio_fitness.py
+
 # Standard library imports
 from typing import Any
 from typing import Dict

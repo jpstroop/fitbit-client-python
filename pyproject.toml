@@ -94,9 +94,6 @@ exclude_lines = [
 ]
 
 [tool.pdm.scripts]
-fmt = { composite = [
-    "black .", 
-    "isort .",
-    "mdformat ."
-] }
+headers = { cmd = "python scripts/add_file_headers.py" }
+format = { composite = [ "headers", "black .", "isort .", "mdformat ." ] }
 

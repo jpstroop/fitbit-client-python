@@ -1,4 +1,5 @@
-# resources/heartrate_variability.py
+# fitbit_client/resources/heartrate_variability.py
+
 # Standard library imports
 from typing import Any
 from typing import Dict

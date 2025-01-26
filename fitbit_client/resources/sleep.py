@@ -1,4 +1,5 @@
-# resources/sleep.py
+# fitbit_client/resources/sleep.py
+
 # Standard library imports
 from typing import Any
 from typing import Dict

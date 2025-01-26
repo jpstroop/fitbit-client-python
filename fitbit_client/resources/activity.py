@@ -1,4 +1,5 @@
-# resources/activity.py
+# fitbit_client/resources/activity.py
+
 # Standard library imports
 from typing import Any
 from typing import Dict

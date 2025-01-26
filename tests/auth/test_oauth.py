@@ -1,3 +1,5 @@
+# tests/auth/test_oauth.py
+
 # Standard library imports
 from json import dump
 from tempfile import NamedTemporaryFile
