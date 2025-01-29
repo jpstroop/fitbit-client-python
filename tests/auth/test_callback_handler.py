@@ -39,7 +39,7 @@ class TestCallbackHandler:
         handler.wfile.seek(0)
         response = handler.wfile.getvalue().decode("utf-8")
         assert "Authentication Successful" in response
-        assert "window.close();" in response
+        assert "setTimeout(() => window.close(), 5000);" in response
         assert handler.server.last_callback == handler.path
 
     def test_callback_with_error(self, handler):
