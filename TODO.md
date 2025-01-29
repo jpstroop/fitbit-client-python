@@ -2,9 +2,11 @@
 
 ## TODO
 
+- [ ] `test_resource_aliases.py` screws up coverage report. Can we use marks in
+  pytest to only have these tests counted as covering the mixin and not the
+  resources themselves?
 - [ ] Make sure all IDs (`water_log_id`, `food_id`, `unit_id`, etc.) are typed
   as ints across all resources
-- [ ] Consider adding `_` to `resources` package, indicating that it's private?
 - [ ] Tests that all methods have an alias and that the signatures match
 - [ ] Do other (non-standard) nutrients show up in food_logs?
 - [ ] `raise NotImplementedError` for intraday methods (add stubs)

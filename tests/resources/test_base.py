@@ -94,7 +94,9 @@ class TestBaseResource:
     def test_make_request_client_error(self, base_resource, mock_oauth_session, mock_response):
         """Test client error (400) handling"""
         mock_response.status_code = 400
-        mock_response.json.return_value = {"errors": [{"message": "Bad Request"}]}
+        mock_response.json.return_value = {
+            "errors": [{"errorType": "validation", "fieldName": "test", "message": "Bad Request"}]
+        }
         mock_response.headers = {"Content-Type": "application/json"}
         mock_response.raise_for_status.side_effect = HTTPError("Client Error")
         mock_oauth_session.request.return_value = mock_response
