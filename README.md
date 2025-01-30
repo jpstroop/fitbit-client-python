@@ -85,10 +85,13 @@ client = FitbitClient(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
     redirect_uri="YOUR_REGISTERED_REDIRECT_URI",
-    use_callback_server=False
+    token_cache_path="/tmp/fb_tokens.json",
+    use_callback_server=True
 )
 
-# Will prompt you on the command line to copy/paste the callback URL
+# Will open a browser and start a server to complete the flow (default), or 
+# prompt you on the command line to copy/paste the callback URL from the 
+# browser (see `use_callback_server`)
 client.authenticate()
 ```
 
