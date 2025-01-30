@@ -72,55 +72,57 @@ class FitbitClient(ClientMethodsMixin):
 
         # Initialize API resources
         self.active_zone: ActiveZoneResource = ActiveZoneResource(
-            self.auth.oauth, language=language, locale=locale
+            self.auth.session, language=language, locale=locale
         )
         self.activity_timeseries: ActivityTimeSeriesResource = ActivityTimeSeriesResource(
-            self.auth.oauth, language=language, locale=locale
+            self.auth.session, language=language, locale=locale
         )
         self.activity: ActivityResource = ActivityResource(
-            self.auth.oauth, language=language, locale=locale
+            self.auth.session, language=language, locale=locale
         )
         self.body_timeseries: BodyTimeSeriesResource = BodyTimeSeriesResource(
-            self.auth.oauth, language=language, locale=locale
+            self.auth.session, language=language, locale=locale
         )
-        self.body: BodyResource = BodyResource(self.auth.oauth, language=language, locale=locale)
+        self.body: BodyResource = BodyResource(self.auth.session, language=language, locale=locale)
         self.breathingrate: BreathingRateResource = BreathingRateResource(
-            self.auth.oauth, language=language, locale=locale
+            self.auth.session, language=language, locale=locale
         )
         self.cardiofitness: CardioFitnessResource = CardioFitnessResource(
-            self.auth.oauth, language=language, locale=locale
+            self.auth.session, language=language, locale=locale
         )
         self.device: DeviceResource = DeviceResource(
-            self.auth.oauth, language=language, locale=locale
+            self.auth.session, language=language, locale=locale
         )
-        self.ecg: ECGResource = ECGResource(self.auth.oauth, language=language, locale=locale)
+        self.ecg: ECGResource = ECGResource(self.auth.session, language=language, locale=locale)
         self.friends: FriendsResource = FriendsResource(
-            self.auth.oauth, language=language, locale=locale
+            self.auth.session, language=language, locale=locale
         )
         self.heartrate_timeseries: HeartRateTimeSeriesResource = HeartRateTimeSeriesResource(
-            self.auth.oauth, language=language, locale=locale
+            self.auth.session, language=language, locale=locale
         )
         self.heartrate_variability: HeartRateVariabilityResource = HeartRateVariabilityResource(
-            self.auth.oauth, language=language, locale=locale
+            self.auth.session, language=language, locale=locale
         )
         self.irregular_rhythm: IrregularRhythmResource = IrregularRhythmResource(
-            self.auth.oauth, language=language, locale=locale
+            self.auth.session, language=language, locale=locale
         )
         self.nutrition_timeseries: NutritionTimeSeriesResource = NutritionTimeSeriesResource(
-            self.auth.oauth, language=language, locale=locale
+            self.auth.session, language=language, locale=locale
         )
         self.nutrition: NutritionResource = NutritionResource(
-            self.auth.oauth, language=language, locale=locale
+            self.auth.session, language=language, locale=locale
         )
-        self.sleep: SleepResource = SleepResource(self.auth.oauth, language=language, locale=locale)
-        self.spo2: SpO2Resource = SpO2Resource(self.auth.oauth, language=language, locale=locale)
+        self.sleep: SleepResource = SleepResource(
+            self.auth.session, language=language, locale=locale
+        )
+        self.spo2: SpO2Resource = SpO2Resource(self.auth.session, language=language, locale=locale)
         self.subscription: SubscriptionResource = SubscriptionResource(
-            self.auth.oauth, language=language, locale=locale
+            self.auth.session, language=language, locale=locale
         )
         self.temperature: TemperatureResource = TemperatureResource(
-            self.auth.oauth, language=language, locale=locale
+            self.auth.session, language=language, locale=locale
         )
-        self.user: UserResource = UserResource(self.auth.oauth, language=language, locale=locale)
+        self.user: UserResource = UserResource(self.auth.session, language=language, locale=locale)
 
         self.logger.info("Fitbit client initialized successfully")
 
