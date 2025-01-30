@@ -38,7 +38,6 @@ class FitbitOAuth2:
 
     AUTH_URL: str = "https://www.fitbit.com/oauth2/authorize"
     TOKEN_URL: str = "https://api.fitbit.com/oauth2/token"
-    TOKEN_FILE: str = "/tmp/tokens.json"
 
     DEFAULT_SCOPES: List[str] = [
         "activity",
@@ -63,6 +62,7 @@ class FitbitOAuth2:
         client_id: str,
         client_secret: str,
         redirect_uri: str,
+        token_cache_path: str,
         use_callback_server: bool = True,
     ) -> None:
         """Initialize OAuth2 flow
@@ -72,11 +72,13 @@ class FitbitOAuth2:
             client_secret: Your Fitbit API client secret
             redirect_uri: Complete OAuth redirect URI (e.g. "https://localhost:8080")
             use_callback_server: Whether to use local callback server
+            token_cache_path: Path to file where auth tokens should be stored (default: /tmp/fitbit_tokens.json)
         """
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
         self.use_callback_server = use_callback_server
+        self.token_cache_path = token_cache_path
 
         environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
@@ -111,8 +113,8 @@ class FitbitOAuth2:
     def _load_token(self) -> Optional[Dict[str, Any]]:
         """Load token from file if it exists and is valid"""
         try:
-            if exists(self.TOKEN_FILE):
-                with open(self.TOKEN_FILE, "r") as f:
+            if exists(self.token_cache_path):
+                with open(self.token_cache_path, "r") as f:
                     token = load(f)
 
                 # Check if token is expired or will expire soon
@@ -132,7 +134,7 @@ class FitbitOAuth2:
 
     def _save_token(self, token: Dict[str, Any]) -> None:
         """Save token to file"""
-        with open(self.TOKEN_FILE, "w") as f:
+        with open(self.token_cache_path, "w") as f:
             dump(token, f)
         self.token = token
 
