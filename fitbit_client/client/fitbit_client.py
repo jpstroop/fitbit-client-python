@@ -38,6 +38,7 @@ class FitbitClient(ClientMethodsMixin):
         client_secret: str,
         redirect_uri: str,
         use_callback_server: bool = True,
+        token_cache_path: str = "/tmp/fitbit_tokens.json",
         language: str = "en_US",
         locale: str = "en_US",
     ) -> None:
@@ -48,6 +49,7 @@ class FitbitClient(ClientMethodsMixin):
             client_secret: Your Fitbit API client secret
             redirect_uri: Complete OAuth redirect URI (e.g. "https://localhost:8080")
             use_callback_server: Whether to use local callback server
+            token_cache_path: Path to file where auth tokens should be stored (default: /tmp/fitbit_tokens.json)
             language: Language for API responses
             locale: Locale for API responses
         """
@@ -65,6 +67,7 @@ class FitbitClient(ClientMethodsMixin):
             client_id=client_id,
             client_secret=client_secret,
             redirect_uri=redirect_uri,
+            token_cache_path=token_cache_path,
             use_callback_server=use_callback_server,
         )
 
