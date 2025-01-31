@@ -2,15 +2,23 @@
 
 ## TODO
 
+- [ ] Review and add link to
+  https://dev.fitbit.com/build/reference/web-api/developer-guide/best-practices/
+  in README--they still apply!
 - [ ] `test_resource_aliases.py` screws up coverage report. Can we use marks in
   pytest to only have these tests counted as covering the mixin and not the
   resources themselves?
 - [ ] Make sure all IDs (`water_log_id`, `food_id`, `unit_id`, etc.) are typed
   as ints across all resources
+- [ ] More robust and error handling; consider custom exceptions. Do everything
+  we can to encapsulate HTTP errors. See
+  https://dev.fitbit.com/build/reference/web-api/troubleshooting-guide/error-handling/
+- [ ] Response validation? Accidentally doing a GET instead of a POST on, e.g.
+  `food.json` will yield a response, but not the one you want!
+- [ ] Confront MyPy
 - [ ] Tests that all methods have an alias and that the signatures match
 - [ ] Do other (non-standard) nutrients show up in food_logs?
 - [ ] `raise NotImplementedError` for intraday methods (add stubs)
-- [ ] Parameterize where `tokens.json` is stored.
 - [ ] Figure out throttling when making multiple requests.
   - Can we make this more elegant than just putting in explict `sleep(1.0)`
     statements as needed?
@@ -37,10 +45,6 @@
       }
       ```
 - [ ] Add input validation for update methods
-- [ ] Response validation? Accidentally doing a GET instead of a POST on, e.g.
-  `food.json` will yield a response, but not the one you want!
-- [ ] More robust and error handling; consider custom exceptions. Do everything
-  we can to encapsulate HTTP errors
 - [ ] PyPI deployment
 - [ ] Extension: ?PRIVATE filters on methods that return PUBLIC and PRIVATE
   stuff (API doesn't seem to have this)
