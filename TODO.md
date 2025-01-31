@@ -5,9 +5,11 @@
 - [ ] Review and add link to
   https://dev.fitbit.com/build/reference/web-api/developer-guide/best-practices/
   in README--they still apply!
-- [ ] `test_resource_aliases.py` screws up coverage report. Can we use marks in
-  pytest to only have these tests counted as covering the mixin and not the
-  resources themselves?
+- [ ] Why does the auth flow log this twice:
+  ```log
+  [2025-01-30 21:24:53,958] INFO [fitbit_client] Authentication successful
+  [2025-01-30 21:24:53,958] INFO [fitbit_client] Authentication successful
+  ```
 - [ ] Make sure all IDs (`water_log_id`, `food_id`, `unit_id`, etc.) are typed
   as ints across all resources
 - [ ] More robust and error handling; consider custom exceptions. Do everything
