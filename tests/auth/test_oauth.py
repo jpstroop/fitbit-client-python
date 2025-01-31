@@ -19,14 +19,14 @@ class TestFitbitOAuth2:
     def oauth(self):
         """Create a FitbitOAuth2 instance with test configuration"""
         with NamedTemporaryFile() as temp_token_file:
-            with patch.object(FitbitOAuth2, "TOKEN_FILE", temp_token_file.name):
-                oauth = FitbitOAuth2(
-                    client_id="test_client_id",
-                    client_secret="test_client_secret",
-                    redirect_uri="https://localhost:8080",
-                    use_callback_server=False,
-                )
-                yield oauth
+            oauth = FitbitOAuth2(
+                client_id="test_client_id",
+                client_secret="test_client_secret",
+                redirect_uri="https://localhost:8080",
+                token_cache_path=temp_token_file.name,
+                use_callback_server=False,
+            )
+            yield oauth
 
     def test_pkce_challenge_generation(self, oauth):
         """Test PKCE code challenge generation"""
@@ -59,7 +59,7 @@ class TestFitbitOAuth2:
             "expires_at": time() - 3600,
         }
 
-        with open(oauth.TOKEN_FILE, "w") as f:
+        with open(oauth.token_cache_path, "w") as f:
             dump(expired_token, f)
 
         with patch.object(oauth, "refresh_token") as mock_refresh:
@@ -84,7 +84,7 @@ class TestFitbitOAuth2:
 
     def test_token_refresh(self, oauth):
         """Test token refresh functionality"""
-        with patch.object(oauth.oauth, "refresh_token") as mock_refresh:
+        with patch.object(oauth.session, "refresh_token") as mock_refresh:
             mock_refresh.return_value = {
                 "access_token": "refreshed_token",
                 "expires_at": time() + 3600,
