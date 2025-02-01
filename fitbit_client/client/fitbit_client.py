@@ -73,61 +73,7 @@ class FitbitClient(ClientMethodsMixin):
 
         self.logger.debug(f"Initializing API resources with language={language}, locale={locale}")
 
-        # Initialize API resources
-        self.active_zone: ActiveZoneResource = ActiveZoneResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.activity_timeseries: ActivityTimeSeriesResource = ActivityTimeSeriesResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.activity: ActivityResource = ActivityResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.body_timeseries: BodyTimeSeriesResource = BodyTimeSeriesResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.body: BodyResource = BodyResource(self.auth.session, language=language, locale=locale)
-        self.breathingrate: BreathingRateResource = BreathingRateResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.cardiofitness: CardioFitnessResource = CardioFitnessResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.device: DeviceResource = DeviceResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.ecg: ECGResource = ECGResource(self.auth.session, language=language, locale=locale)
-        self.friends: FriendsResource = FriendsResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.heartrate_timeseries: HeartRateTimeSeriesResource = HeartRateTimeSeriesResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.heartrate_variability: HeartRateVariabilityResource = HeartRateVariabilityResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.irregular_rhythm: IrregularRhythmResource = IrregularRhythmResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.nutrition_timeseries: NutritionTimeSeriesResource = NutritionTimeSeriesResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.nutrition: NutritionResource = NutritionResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.sleep: SleepResource = SleepResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.spo2: SpO2Resource = SpO2Resource(self.auth.session, language=language, locale=locale)
-        self.subscription: SubscriptionResource = SubscriptionResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.temperature: TemperatureResource = TemperatureResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.user: UserResource = UserResource(self.auth.session, language=language, locale=locale)
-
-        self.logger.info("Fitbit client initialized successfully")
+    # API aliases will be re-implemented after resource methods have been refactored.
 
     def authenticate(self, force_new: bool = False) -> bool:
         """
