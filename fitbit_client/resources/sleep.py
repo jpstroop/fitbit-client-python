@@ -16,7 +16,12 @@ class SleepResource(BaseResource):
     user sleep data and goals.
 
     API Reference: https://dev.fitbit.com/build/reference/web-api/sleep/
+
+    Note:
+        All Sleep endpoints use API version 1.2
     """
+
+    API_VERSION: str = "1.2"
 
     def create_sleep_goal(self, min_duration: int, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -37,6 +42,7 @@ class SleepResource(BaseResource):
             data={"minDuration": min_duration},
             user_id=user_id,
             http_method="POST",
+            api_version=SleepResource.API_VERSION,
         )
 
     def log_sleep(
@@ -75,7 +81,13 @@ class SleepResource(BaseResource):
             "date": date,
             "type": sleep_type.value,
         }
-        return self._make_request("sleep.json", params=params, user_id=user_id, http_method="POST")
+        return self._make_request(
+            "sleep.json",
+            params=params,
+            user_id=user_id,
+            http_method="POST",
+            api_version=SleepResource.API_VERSION,
+        )
 
     def delete_sleep_log(self, log_id: str, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -85,7 +97,12 @@ class SleepResource(BaseResource):
             log_id: ID of the sleep log to delete
             user_id: Optional user ID, defaults to current user
         """
-        return self._make_request(f"sleep/{log_id}.json", user_id=user_id, http_method="DELETE")
+        return self._make_request(
+            f"sleep/{log_id}.json",
+            user_id=user_id,
+            http_method="DELETE",
+            api_version=SleepResource.API_VERSION,
+        )
 
     def get_sleep_goal(self, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -100,9 +117,11 @@ class SleepResource(BaseResource):
             - consistency: Sleep goal consistency flow status
             - updatedOn: Last update timestamp
         """
-        return self._make_request("sleep/goal.json", user_id=user_id)
+        return self._make_request(
+            "sleep/goal.json", user_id=user_id, api_version=SleepResource.API_VERSION
+        )
 
-    def get_sleep_logs(self, date: str, user_id: str = "-") -> Dict[str, Any]:
+    def get_sleep_log_by_date(self, date: str, user_id: str = "-") -> Dict[str, Any]:
         """
         Gets sleep logs for a specific date.
 
@@ -120,9 +139,11 @@ class SleepResource(BaseResource):
             date. For example, requesting logs for 2021-12-22 may return a log entry
             that began on 2021-12-21 but ended on 2021-12-22.
         """
-        return self._make_request(f"sleep/date/{date}.json", user_id=user_id)
+        return self._make_request(
+            f"sleep/date/{date}.json", user_id=user_id, api_version=SleepResource.API_VERSION
+        )
 
-    def get_sleep_logs_by_date_range(
+    def get_sleep_log_by_date_range(
         self, start_date: str, end_date: str, user_id: str = "-"
     ) -> Dict[str, Any]:
         """
@@ -139,9 +160,13 @@ class SleepResource(BaseResource):
         Note:
             Maximum date range is 100 days
         """
-        return self._make_request(f"sleep/date/{start_date}/{end_date}.json", user_id=user_id)
+        return self._make_request(
+            f"sleep/date/{start_date}/{end_date}.json",
+            user_id=user_id,
+            api_version=SleepResource.API_VERSION,
+        )
 
-    def get_sleep_logs_list(
+    def get_sleep_log_list(
         self,
         before_date: Optional[str] = None,
         after_date: Optional[str] = None,
@@ -191,4 +216,6 @@ class SleepResource(BaseResource):
         if after_date:
             params["afterDate"] = after_date
 
-        return self._make_request("sleep/list.json", params=params, user_id=user_id)
+        return self._make_request(
+            "sleep/list.json", params=params, user_id=user_id, api_version=SleepResource.API_VERSION
+        )

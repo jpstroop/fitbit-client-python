@@ -1,0 +1,12 @@
+[
+  {
+    "attributes": {
+      "name": "XXXXX",
+      "friend": true,
+      "avatar": "https://static0.fitbit.com/images/profile/defaultProfile_150.png",
+      "child": false
+    },
+    "id": "YYYYY",
+    "type": "person"
+  }
+]

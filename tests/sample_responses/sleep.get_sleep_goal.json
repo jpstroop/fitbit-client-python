@@ -1,0 +1,15 @@
+{
+  "consistency": {
+    "awakeRestlessPercentage": 0.035207041992895656,
+    "flowId": 1,
+    "recommendedSleepGoal": 420,
+    "typicalDuration": 400,
+    "typicalWakeupTime": "05:49"
+  },
+  "goal": {
+    "bedtime": "22:30",
+    "minDuration": 450,
+    "updatedOn": "2023-07-16T11:45:49.485Z",
+    "wakeupTime": "06:00"
+  }
+}

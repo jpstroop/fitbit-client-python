@@ -1,0 +1,13 @@
+[2025-02-01 11:38:16,596] INFO [fitbit_client] Fitbit client initialized successfully
+[2025-02-01 11:38:16,596] INFO [fitbit_client] Authentication successful
+[2025-02-01 11:38:17,063] ERROR [fitbit_client.ECGResource] Request failed for ecg/list.json (status 404): [not_found] n/a: The API you are requesting could not be found.
+{
+  "errors": [
+    {
+      "errorType": "not_found",
+      "fieldName": "n/a",
+      "message": "The API you are requesting could not be found."
+    }
+  ],
+  "success": false
+}

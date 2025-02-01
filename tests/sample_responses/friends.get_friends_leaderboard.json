@@ -1,0 +1,61 @@
+{
+  "data": [
+    {
+      "relationships": {
+        "user": {
+          "data": {
+            "id": "XXXXXX",
+            "type": "person"
+          }
+        }
+      },
+      "attributes": {
+        "visibleActivity": true,
+        "step-summary": 46191.0,
+        "step-rank": 1,
+        "step-average": 7001.666666666667
+      },
+      "id": "XXXXXX",
+      "type": "ranked-user"
+    },
+    {
+      "relationships": {
+        "user": {
+          "data": {
+            "id": "YYYYYY",
+            "type": "person"
+          }
+        }
+      },
+      "attributes": {
+        "visibleActivity": true,
+        "step-summary": 2900.0,
+        "step-rank": 2,
+        "step-average": 1450.0
+      },
+      "id": "YYYYYY",
+      "type": "ranked-user"
+    }
+  ],
+  "included": [
+    {
+      "attributes": {
+        "name": "BBBBBBB",
+        "avatar": "https://asset-service.fitbit.com/ZZZZZZZZ_profile_150_square.jpg",
+        "child": false
+      },
+      "id": "XXXXXX",
+      "type": "person"
+    },
+    {
+      "attributes": {
+        "name": "AAAAAA",
+        "friend": true,
+        "avatar": "https://static0.fitbit.com/images/profile/defaultProfile_150.png",
+        "child": false
+      },
+      "id": "YYYYYY",
+      "type": "person"
+    }
+  ]
+}

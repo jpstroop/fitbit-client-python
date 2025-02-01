@@ -52,19 +52,40 @@ class TestBaseResource:
         url = base_resource._build_url("friends", api_version="1.1")
         assert url == "https://api.fitbit.com/1.1/user/-/friends"
 
+    def test_get_calling_method(self, base_resource):
+        """Test getting the calling method name skips internal methods"""
+
+        def wrapper_method():
+            def _make_request():
+                return base_resource._get_calling_method()
+
+            return _make_request()
+
+        method_name = wrapper_method()
+        assert method_name == "wrapper_method"
+
     @patch("fitbit_client.resources.base.currentframe")
-    def test_get_calling_method(self, mock_frame, base_resource):
-        """Test getting the calling method name"""
-        # Set up frame mocks
-        caller_frame = Mock()
-        caller_frame.f_code.co_name = "test_caller"
+    def test_get_calling_method_with_frames(self, mock_frame, base_resource):
+        """Test getting the calling method name with specific frame setup"""
+        # Set up the frame chain:
+        # api_method -> _make_request -> _get_calling_method
+
+        api_frame = Mock()
+        api_frame.f_code.co_name = "api_method"
+        api_frame.f_back = None
+
         make_request_frame = Mock()
         make_request_frame.f_code.co_name = "_make_request"
-        make_request_frame.f_back = caller_frame
-        mock_frame.return_value = make_request_frame
+        make_request_frame.f_back = api_frame
 
-        method_name = base_resource._get_calling_method()
-        assert method_name == "test_caller"
+        get_calling_frame = Mock()
+        get_calling_frame.f_code.co_name = "_get_calling_method"
+        get_calling_frame.f_back = make_request_frame
+
+        mock_frame.return_value = get_calling_frame
+
+        result = base_resource._get_calling_method()
+        assert result == "api_method"
 
     def test_log_response_error_with_field(self, base_resource, mock_logger):
         """Test error logging with field name"""
