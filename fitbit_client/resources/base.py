@@ -107,7 +107,8 @@ class BaseResource:
         """Get the name of the method that called _make_request."""
         frame = currentframe()
         while frame:
-            if frame.f_code.co_name != "_make_request":
+            # Skip our internal methods when looking for the caller
+            if frame.f_code.co_name not in ("_make_request", "_get_calling_method"):
                 return frame.f_code.co_name
             frame = frame.f_back
         return "unknown"

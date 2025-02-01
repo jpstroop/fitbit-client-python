@@ -51,7 +51,6 @@ secrets.json
 main.py
 units.json
 data
-methods_used.md
 nutrition_manager.py
 logs
 *.log
