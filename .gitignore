@@ -48,13 +48,11 @@ htmlcov/
 # Project specific
 tokens.json 
 secrets.json
-web-api-docs.tgz
 main.py
 units.json
 data
-web-api
 methods_used.md
 nutrition_manager.py
 logs
 *.log
-api_docs.html
+api_docs.md
