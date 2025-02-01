@@ -3,7 +3,6 @@
 # Standard library imports
 from typing import Any
 from typing import Dict
-from typing import List
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
@@ -22,6 +21,8 @@ class FriendsResource(BaseResource):
         This scope does not provide access to friends' Fitbit data - those users need to
         individually consent to share their data.
     """
+
+    API_VERSION: str = "1.1"
 
     def get_friends(self, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -44,7 +45,9 @@ class FriendsResource(BaseResource):
             The user's privacy settings ('My Friends') determine whether this data is accessible.
             Access may be restricted based on whether the setting is Private, Friends Only, or Public.
         """
-        return self._make_request("friends.json", user_id=user_id)["data"]
+        return self._make_request(
+            "friends.json", user_id=user_id, api_version=FriendsResource.API_VERSION
+        )["data"]
 
     def get_friends_leaderboard(self, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -73,4 +76,6 @@ class FriendsResource(BaseResource):
             - The 'Average Daily Step Count' privacy setting affects leaderboard inclusion
             - Both active (ranked-user) and inactive (inactive-user) friends are included
         """
-        return self._make_request("leaderboard/friends.json", user_id=user_id)
+        return self._make_request(
+            "leaderboard/friends.json", user_id=user_id, api_version=FriendsResource.API_VERSION
+        )
