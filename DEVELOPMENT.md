@@ -109,7 +109,7 @@ For now these are just in [TODO.md](TODO.md)
   from typing import Optional
   from datetime import datetime
 
-  # Avoid
+  # Bad
   from os.path import exists, join
   from typing import Optional, Dict, List
   import os
@@ -120,7 +120,7 @@ For now these are just in [TODO.md](TODO.md)
 Run all formatters:
 
 ```bash
-pdm run fmt
+pdm run format
 ```
 
 ### Resource Implementation Guidelines
@@ -179,13 +179,13 @@ The OAuth callback mechanism is implemented using two main classes:
 
 ## Testing
 
-TODO/TBD
+TODO
 
 ## Git Workflow
 
 1. Create a new branch for your feature/fix
 2. Make your changes, following the style guidelines
-3. Run formatting checks (`pdm fmt`)
+3. Run formatting checks (`pdm format`)
 4. Submit a pull request with a clear description of changes
 
 ## Release Process
@@ -212,6 +212,4 @@ heart rate, steps, etc). These endpoints:
 If you need intraday data access:
 
 1. Apply through Fitbit's developer portal
-2. Document your research use case
-3. Obtain necessary approvals
-4. Pull requests welcome!
+2. Pull requests welcome!
