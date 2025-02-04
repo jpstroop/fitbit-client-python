@@ -1,0 +1,74 @@
+[
+  {
+    "activityId": 90013,
+    "calories": 0,
+    "description": "Walking less than 2 mph, strolling very slowly",
+    "distance": 0,
+    "duration": 3056000,
+    "name": "Walk"
+  },
+  {
+    "activityId": 90009,
+    "calories": 0,
+    "description": "Running - 5 mph (12 min/mile)",
+    "distance": 0,
+    "duration": 970000,
+    "name": "Run"
+  },
+  {
+    "activityId": 20047,
+    "calories": 0,
+    "description": "",
+    "distance": 0,
+    "duration": 2051000,
+    "name": "Elliptical"
+  },
+  {
+    "activityId": 15000,
+    "calories": 0,
+    "description": "",
+    "distance": 0,
+    "duration": 922000,
+    "name": "Sport"
+  },
+  {
+    "activityId": 3001,
+    "calories": 0,
+    "description": "",
+    "distance": 0,
+    "duration": 1024000,
+    "name": "Aerobic Workout"
+  },
+  {
+    "activityId": 1071,
+    "calories": 0,
+    "description": "",
+    "distance": 0,
+    "duration": 1690000,
+    "name": "Outdoor Bike"
+  },
+  {
+    "activityId": 112288410,
+    "calories": 42,
+    "description": "",
+    "distance": 0.38,
+    "duration": 499000,
+    "name": "WalkFit: Free Walk."
+  },
+  {
+    "activityId": 91041,
+    "calories": 0,
+    "description": "",
+    "distance": 0,
+    "duration": 912000,
+    "name": "Rowing machine"
+  },
+  {
+    "activityId": 91047,
+    "calories": 0,
+    "description": "",
+    "distance": 0,
+    "duration": 2638000,
+    "name": "Aerobics"
+  }
+]

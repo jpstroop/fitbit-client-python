@@ -1,0 +1,10 @@
+{
+  "activity": {
+    "id": 11330,
+    "name": "Sawing by hand",
+    "hasSpeed": false,
+    "accessLevel": "PUBLIC",
+    "activityLevels": [],
+    "mets": 7.0
+  }
+}

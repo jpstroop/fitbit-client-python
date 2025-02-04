@@ -12,19 +12,19 @@ work as expected.
 
 - [ ] create_activity_goal [ ] Captured? Type:
 - [ ] create_activity_log [ ] Captured? Type:
-- [ ] get_activity_logs [ ] Captured? Type:
-- [ ] create_favorite_activity [ ] Captured? Type:
+- [x] create_favorite_activity [x] Captured? Type: `{}`(empty)
 - [ ] delete_activity_log [ ] Captured? Type:
 - [ ] delete_favorite_activity [ ] Captured? Type:
-- [ ] get_activity_goals [ ] Captured? Type:
-- [ ] get_daily_activity_summary [ ] Captured? Type:
-- [ ] get_activity_type [ ] Captured? Type:
-- [ ] get_all_activity_types [ ] Captured? Type:
-- [ ] get_favorite_activities [ ] Captured? Type:
-- [ ] get_frequent_activities [ ] Captured? Type:
-- [ ] get_recent_activities [ ] Captured? Type:
-- [ ] get_lifetime_stats [ ] Captured? Type:
-- [ ] get_activity_tcx [ ] Captured? Type:
+- [x] get_activity_goals [x] Captured? Type: `{}`
+- [x] get_activity_tcx [x] Captured? Type: `XML` (as `str`)
+- [x] get_activity_type [x] Captured? Type: `{}`
+- [x] get_all_activity_types [x] Captured? Type: `{}`
+- [x] get_daily_activity_summary [x] Captured? Type: `{}`
+- [x] get_favorite_activities [x] Captured? Type: `[]`
+- [x] get_frequent_activities [x] Captured? Type: `[]`
+- [x] get_lifetime_stats [x] Captured? Type: `{}`
+- [x] get_recent_activities [x] Captured? Type: `[]`
+- [x] get_activity_logs [x] Captured? Type: `{}`
 
 ## ActivityTimeSeriesResource
 

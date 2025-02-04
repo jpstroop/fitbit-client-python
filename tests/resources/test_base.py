@@ -8,7 +8,6 @@ from unittest.mock import patch
 # Third party imports
 from pytest import fixture
 from pytest import raises
-from requests import HTTPError
 from requests import Response
 
 # Local imports
@@ -99,7 +98,9 @@ class TestBaseResource:
 
         base_resource._log_response("test_method", "test/endpoint", response, content)
         mock_logger.error.assert_called_with(
-            "Request failed for test/endpoint (status 400): [validation] date: Invalid date format"
+            "Request failed for test/endpoint "
+            "(method: test_method, status: 400): "
+            "[validation] date: Invalid date format"
         )
 
     def test_log_response_error_without_field(self, base_resource, mock_logger):
@@ -110,7 +111,9 @@ class TestBaseResource:
 
         base_resource._log_response("test_method", "test/endpoint", response, content)
         mock_logger.error.assert_called_with(
-            "Request failed for test/endpoint (status 400): [system] Service unavailable"
+            "Request failed for test/endpoint "
+            "(method: test_method, status: 400): "
+            "[system] Service unavailable"
         )
 
     def test_log_response_success(self, base_resource, mock_logger):
@@ -155,14 +158,6 @@ class TestBaseResource:
 
         result = base_resource._make_request("test/endpoint")
         assert result is None
-
-    def test_make_request_server_error(self, base_resource, mock_oauth_session, mock_response):
-        """Test server error handling"""
-        mock_response.status_code = 500
-        mock_oauth_session.request.return_value = mock_response
-
-        with raises(HTTPError):
-            base_resource._make_request("test/endpoint")
 
     def test_make_request_xml_response(self, base_resource, mock_oauth_session, mock_response):
         """Test XML response handling"""

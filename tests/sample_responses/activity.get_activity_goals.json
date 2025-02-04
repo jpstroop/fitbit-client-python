@@ -1,0 +1,10 @@
+{
+  "goals": {
+    "activeMinutes": 30,
+    "activeZoneMinutes": 22,
+    "caloriesOut": 2964,
+    "distance": 5.0,
+    "floors": 10,
+    "steps": 10000
+  }
+}
