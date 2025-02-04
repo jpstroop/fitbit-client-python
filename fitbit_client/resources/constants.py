@@ -74,6 +74,13 @@ class ActivityTimeSeriesPath(str, Enum):
     TRACKER_STEPS = "tracker/steps"
 
 
+class ActivityGoalPeriod(str, Enum):
+    """Periods for the user's specified current activity goals."""
+
+    WEEKLY = "weekly"
+    DAILY = "daily"
+
+
 class GoalType(str, Enum):
     """Goal types for body weight goals."""
 
