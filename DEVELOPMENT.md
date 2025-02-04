@@ -1,14 +1,40 @@
-# Development Guide
+# Conventions, Patterns, and Development Guide
 
-This guide covers everything you need to know to set up your development
-environment and contribute to the Fitbit API Client project.
+## Contents
+
+- [Development Environment Setup](#development-environment-setup)
+  - [Prerequisites](#prerequisites)
+  - [Initial Setup](#initial-setup)
+- [Project Structure](#project-structure)
+- [Goals, Notes, and TODOs](#goals-notes-and-todos)
+- [Development Tools and Standards](#development-tools-and-standards)
+  - [Code Formatting and Style](#code-formatting-and-style)
+  - [Import Style](#import-style)
+  - [Resource Implementation Guidelines](#resource-implementation-guidelines)
+  - [Error Handling](#error-handling)
+  - [Enum Usage](#enum-usage)
+- [Logging System](#logging-system)
+  - [Application Logger](#application-logger)
+  - [Data Logger](#data-logger)
+- [Testing](#testing)
+  - [Test Organization](#test-organization)
+  - [Standard Test Fixtures](#standard-test-fixtures)
+  - [Error Handling Tests](#error-handling-tests)
+  - [Response Mocking](#response-mocking)
+- [OAuth Callback Implementation](#oauth-callback-implementation)
+  - [Implementation Flow](#implementation-flow)
+  - [Security Notes](#security-notes)
+- [Git Workflow](#git-workflow)
+- [Release Process](#release-process)
+- [Getting Help](#getting-help)
+- [Scope and Limitations - Intraday Data Support](#scope-and-limitations---intraday-data-support)
 
 ## Development Environment Setup
 
 ### Prerequisites
 
-- Python 3.13+ (managed via asdf)
-- PDM (managed via asdf)
+- Python 3.12+
+- PDM
 - Git
 
 ### Initial Setup
@@ -25,66 +51,49 @@ cd fitbit-client
 ```bash
 asdf plugin add python
 asdf plugin add pdm
-asdf install python 3.13.0
+asdf install python 3.12.0
 asdf install pdm latest
-asdf local python 3.13.0
+asdf local python 3.12.0
 asdf local pdm latest
 ```
 
 3. Install project dependencies:
 
 ```bash
-pdm install -G lint
+pdm install -G:all
 ```
 
 ## Project Structure
 
 ```
-fitbit-client-python/
-.
-├── LICENSE
-├── README.md
-├── DEVELOPMENT.md
-├── pdm.lock
-├── pyproject.toml
-├── client/
-│   ├── __init__.py
-│   ├── client.py
-│   └── resource_methods_mixin.py (aliases for all method in the resources package)
-├── auth/
-│   ├── __init__.py (empty)
-│   ├── callback_handler.py
-│   ├── callback_server.py
-│   └── oauth.py
-└── resources/
-    ├── __init__.py (empty)
-    ├── activezone.py
-    ├── activity.py
-    ├── activity_timeseries.py
-    ├── base.py
-    ├── body.py
-    ├── body_timeseries.py
-    ├── breathingrate.py
-    ├── cardio_fitness.py
-    ├── constants.py
-    ├── device.py
-    ├── ecg.py
-    ├── friends.py
-    ├── heartrate_timeseries.py
-    ├── heartrate_variability.py
-    ├── irregular_rhythm.py
-    ├── nutrition.py
-    ├── nutrition_timeseries.py
-    ├── sleep.py
-    ├── spo2.py
-    ├── subscription.py
-    ├── temperature.py
-    └── user.py
+fitbit-client/
+├── fitbit_client/
+│   ├── __init__.py
+│   ├── auth/
+│   │   ├── __init__.py
+│   │   ├── callback_handler.py
+│   │   ├── callback_server.py
+│   │   └── oauth.py
+│   ├── client/
+│   │   ├── __init__.py
+│   │   ├── fitbit_client.py
+│   │   └── resource_methods_mixin.py
+│   ├── resources/
+│   │   ├── __init__.py
+│   │   ├── [resource files]
+│   │   └── constants.py
+│   └── exceptions.py
+├── tests/
+│   ├── auth/
+│   ├── client/
+│   └── resources/
+└── [project files]
 ```
 
 ## Goals, Notes, and TODOs
 
-For now these are just in [TODO.md](TODO.md)
+For now these are just in [TODO.md](TODO.md); bigger work will eventually move
+to Github tickets.
 
 ## Development Tools and Standards
 
@@ -97,27 +106,32 @@ For now these are just in [TODO.md](TODO.md)
 
 ### Import Style
 
-- Always import specific names rather than entire modules
-- One import per line
-- Examples:
-  ```
-  # Good
-  from os.path import join
-  from os.path import exists
-  from typing import Dict
-  from typing import List
-  from typing import Optional
-  from datetime import datetime
+Prefer importing specific names rather than entire modules, one import per line.
+Examples:
 
-  # Bad
-  from os.path import exists, join
-  from typing import Optional, Dict, List
-  import os
-  import typing
-  import datetime
-  ```
+```
+# Good
+from os.path import join
+from os.path import exists
+from typing import Dict
+from typing import List
+from typing import Optional
+from datetime import datetime
 
-Run all formatters:
+# Bad
+from os.path import exists, join
+from typing import Optional, Dict, List
+import os
+import typing
+import datetime
+```
+
+The one excpetion to this rule is when an entire module needs to be `mock`ed for
+testing, in which case, at least for the `json` package from the standare
+library, the entire package has to be imported. So `import json` is ok when that
+circumstance arises.
+
+### Run all formatters:
 
 ```bash
 pdm run format
@@ -135,17 +149,152 @@ Follow your nose from `client.py` and the structure should be very clear.
 - Return Dict[str, Any] for most methods that return data
 - Return None for delete operations
 
-#### Error Handling
+### Error Handling
 
-- Include basic ValueError checks for required parameters
-- Let the base class handle HTTP errors and authentication
-- Document expected exceptions in docstrings
+The codebase implements a comprehensive error handling system through
+[`exceptions.py`](fitbit_client/exceptions.py):
+
+1. A base FitbitAPIException that captures:
+
+   - HTTP status code
+   - Error type
+   - Error message
+   - Field name (when applicable)
+
+2. Specialized exceptions for different error scenarios:
+
+   - InvalidRequestException for malformed requests
+   - ValidationException for parameter validation failures
+   - AuthorizationException for authentication issues
+   - RateLimitExceededException for API throttling
+   - SystemException for server-side errors
+
+3. Mapping from HTTP status codes and API error types to appropriate exception
+   classes
 
 ### Enum Usage
 
 - Only use enums for validating request parameters, not responses
 - Place all enums in constants.py
 - Only import enums that are actively used in the class
+
+## Logging System
+
+The project implements dual logging through the BaseResource class: application
+logging for API interactions and data logging for tracking important response
+fields.
+
+### Application Logger
+
+Each resource class inherits logging functionality from BaseResource, which
+initializes a logger with the resource's class name:
+
+```python
+self.logger = getLogger(f"fitbit_client.{self.__class__.__name__}")
+```
+
+The application logger handles:
+
+- Success responses at INFO level
+- Error responses at ERROR level
+- Debug information about requests and responses
+- Internal server logging
+
+The BaseResource.\_log_response method standardizes log message formats:
+
+- For errors: "[error_type] field_name: message" (if field name available)
+- For success: "method succeeded for endpoint (status code)"
+
+### Data Logger
+
+The data logger specifically tracks important fields from API responses.
+BaseResource defines these fields in IMPORTANT_RESPONSE_FIELDS:
+
+```python
+IMPORTANT_RESPONSE_FIELDS: Set[str] = {
+    "access",   # PUBLIC/PRIVATE/SHARED
+    "date",     # Dates
+    "dateTime", # Timestamps
+    "deviceId", # Device IDs
+    "foodId",   # Food resource IDs
+    "logId",    # Log entry IDs
+    "name",     # Resource names
+    "subscriptionId"  # Subscription IDs
+}
+```
+
+The BaseResource.\_log_data method extracts and logs these fields when present
+in API responses.
+
+Data log entries contain:
+
+- Timestamp (ISO format)
+- Method name
+- Important fields found in the response
+
+This logging system provides both operational visibility through the application
+logger and structured data capture through the data logger.
+
+## Testing
+
+The project uses pytest for testing and follows a consistent testing approach
+across all components.
+
+### Test Organization
+
+The test directory mirrors the main package structure, with corresponding test
+modules for each component:
+
+- auth/: Tests for authentication and OAuth functionality
+- client/: Tests for the main client implementation
+- resources/: Tests for individual API resource implementations
+
+### Standard Test Fixtures
+
+The test suite provides several standard fixtures for use across test modules:
+
+```python
+@fixture
+def mock_oauth_session():
+    """Provides a mock OAuth session for testing resources"""
+    return Mock()
+
+@fixture
+def mock_logger():
+    """Provides a mock logger for testing logging behavior"""
+    return Mock()
+
+@fixture
+def base_resource(mock_oauth_session, mock_logger):
+    """Creates a resource instance with mocked dependencies"""
+    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+        return BaseResource(mock_oauth_session, "en_US", "en_US")
+```
+
+### Error Handling Tests
+
+Tests verify proper error handling across the codebase. Common patterns include:
+
+```python
+def test_http_error_handling(resource):
+    """Tests that HTTP errors are properly converted to exceptions"""
+    with raises(InvalidRequestException) as exc_info:
+        # Test code that should raise the exception
+        pass
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.error_type == "validation"
+```
+
+### Response Mocking
+
+The test suite uses consistent patterns for mocking API responses:
+
+```python
+mock_response = Mock()
+mock_response.json.return_value = {"data": "test"}
+mock_response.headers = {"content-type": "application/json"}
+mock_response.status_code = 200
+```
 
 ## OAuth Callback Implementation
 
@@ -170,14 +319,6 @@ The OAuth callback mechanism is implemented using two main classes:
    - Clearing internal state
 
 ### Security Notes
-
-- Uses HTTPS with a temporary self-signed certificate
-- Certificate and private key are stored in temporary files and cleaned up on
-  server shutdown
-- Server runs only for the duration of the OAuth flow and automatically shuts
-  down
-
-## Testing
 
 TODO
 
