@@ -6,6 +6,7 @@ from typing import Dict
 from typing import Optional
 
 # Local imports
+from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import SubscriptionCategory
 
@@ -41,15 +42,23 @@ class SubscriptionResource(BaseResource):
         Returns:
             Subscription details including category and owner info
 
+        Raises:
+            ValidationException: If subscription_id exceeds 50 characters
+            InvalidRequestException: If subscriber_id is invalid
+
         Note:
             Each subscriber can only have one subscription per user's category.
             If no category is specified, all categories will be subscribed,
             but this requires all relevant OAuth scopes.
         """
         if len(subscription_id) > 50:
-            raise ValueError("subscription_id must not exceed 50 characters")
+            raise ValidationException(
+                message="subscription_id must not exceed 50 characters",
+                status_code=400,
+                error_type="validation",
+                field_name="subscription_id",
+            )
 
-        # Build the endpoint URL based on whether a category is specified
         endpoint = (
             f"{category.value}/apiSubscriptions/{subscription_id}.json"
             if category
@@ -78,7 +87,6 @@ class SubscriptionResource(BaseResource):
             subscriber_id: Optional subscriber ID from dev.fitbit.com
             user_id: Optional user ID, defaults to current user
         """
-        # Build the endpoint URL based on whether a category is specified
         endpoint = (
             f"{category.value}/apiSubscriptions/{subscription_id}.json"
             if category
@@ -112,7 +120,6 @@ class SubscriptionResource(BaseResource):
             For best practice, maintain this list in your application and only use
             this endpoint periodically to ensure data consistency.
         """
-        # Build the endpoint URL based on whether a category is specified
         endpoint = (
             f"{category.value}/apiSubscriptions.json" if category else "apiSubscriptions.json"
         )

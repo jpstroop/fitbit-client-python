@@ -1,11 +1,13 @@
 # fitbit_client/resources/sleep.py
 
 # Standard library imports
+from datetime import datetime
 from typing import Any
 from typing import Dict
 from typing import Optional
 
 # Local imports
+from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import SleepType
 
@@ -134,11 +136,25 @@ class SleepResource(BaseResource):
             - Classic logs: asleep, restless, awake levels (60-sec granularity)
             - Stages logs: deep, light, rem, wake levels (30-sec granularity)
 
+        Raises:
+            ValidationException: If date format is invalid
+
         Note:
             The data returned can include a sleep period that began on the previous
             date. For example, requesting logs for 2021-12-22 may return a log entry
             that began on 2021-12-21 but ended on 2021-12-22.
         """
+        try:
+            if date != "today":
+                datetime.strptime(date, "%Y-%m-%d")
+        except ValueError as e:
+            raise ValidationException(
+                message=f"Invalid date format: {str(e)}",
+                status_code=400,
+                error_type="validation",
+                field_name="date",
+            )
+
         return self._make_request(
             f"sleep/date/{date}.json", user_id=user_id, api_version=SleepResource.API_VERSION
         )
@@ -157,9 +173,35 @@ class SleepResource(BaseResource):
         Returns:
             Sleep logs for the specified date range
 
+        Raises:
+            ValidationException: If date format is invalid or date range exceeds 100 days
+
         Note:
             Maximum date range is 100 days
         """
+        try:
+            if start_date != "today":
+                start = datetime.strptime(start_date, "%Y-%m-%d")
+            if end_date != "today":
+                end = datetime.strptime(end_date, "%Y-%m-%d")
+
+            if start_date != "today" and end_date != "today":
+                date_diff = (end - start).days
+                if date_diff > 100:
+                    raise ValidationException(
+                        message="Maximum date range is 100 days",
+                        status_code=400,
+                        error_type="validation",
+                        field_name="date_range",
+                    )
+        except ValueError as e:
+            raise ValidationException(
+                message=f"Invalid date format: {str(e)}",
+                status_code=400,
+                error_type="validation",
+                field_name="date",
+            )
+
         return self._make_request(
             f"sleep/date/{start_date}/{end_date}.json",
             user_id=user_id,

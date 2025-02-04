@@ -12,9 +12,13 @@ from typing import Optional
 from typing import Set
 
 # Third party imports
-from requests import HTTPError
 from requests import Response
 from requests_oauthlib import OAuth2Session
+
+# Local imports
+from fitbit_client.exceptions import ERROR_TYPE_EXCEPTIONS
+from fitbit_client.exceptions import FitbitAPIException
+from fitbit_client.exceptions import STATUS_CODE_EXCEPTIONS
 
 # Constants for important fields to track in logging
 IMPORTANT_RESPONSE_FIELDS: Set[str] = {
@@ -68,7 +72,7 @@ class BaseResource:
         for public endpoints that operate on Fitbit's global database rather than
         user-specific data.
 
-        Parameters:
+        Args:
             endpoint: API endpoint path
             user_id: User ID, defaults to '-' for authenticated user
             requires_user_id: Whether the endpoint requires user_id in the path
@@ -108,7 +112,11 @@ class BaseResource:
         frame = currentframe()
         while frame:
             # Skip our internal methods when looking for the caller
-            if frame.f_code.co_name not in ("_make_request", "_get_calling_method"):
+            if frame.f_code.co_name not in (
+                "_make_request",
+                "_get_calling_method",
+                "_handle_error_response",
+            ):
                 return frame.f_code.co_name
             frame = frame.f_back
         return "unknown"
@@ -120,14 +128,21 @@ class BaseResource:
         if response.status_code >= 400:
             if isinstance(content, dict) and "errors" in content:
                 error = content["errors"][0]
-                msg = f"Request failed for {endpoint} (status {response.status_code}): "
+                msg = (
+                    f"Request failed for {endpoint} "
+                    f"(method: {calling_method}, status: {response.status_code}): "
+                    f"[{error['errorType']}] "
+                )
                 if "fieldName" in error:
-                    msg += f"[{error['errorType']}] {error['fieldName']}: {error['message']}"
+                    msg += f"{error['fieldName']}: {error['message']}"
                 else:
-                    msg += f"[{error['errorType']}] {error['message']}"
+                    msg += f"{error['message']}"
                 self.logger.error(msg)
             else:
-                self.logger.error(f"Request failed for {endpoint} (status {response.status_code})")
+                self.logger.error(
+                    f"Request failed for {endpoint} "
+                    f"(method: {calling_method}, status: {response.status_code})"
+                )
         else:
             self.logger.info(
                 f"{calling_method} succeeded for {endpoint} (status {response.status_code})"
@@ -148,7 +163,7 @@ class BaseResource:
         """Handle a JSON response, including parsing and logging."""
         try:
             content = response.json()
-        except JSONDecodeError:
+        except JSONDecodeError as e:
             self.logger.error(f"Invalid JSON response from {endpoint}")
             raise
 
@@ -156,6 +171,43 @@ class BaseResource:
         if isinstance(content, dict):
             self._log_data(calling_method, content)
         return content
+
+    def _handle_error_response(self, response: Response) -> None:
+        """Parse error response and raise appropriate exception"""
+        try:
+            error_data = response.json()
+        except (JSONDecodeError, ValueError):
+            error_data = {
+                "errors": [
+                    {
+                        "errorType": "system",
+                        "message": response.text or f"HTTP {response.status_code}",
+                    }
+                ]
+            }
+
+        error = error_data.get("errors", [{}])[0]
+        error_type = error.get("errorType", "system")
+        message = error.get("message", "Unknown error")
+        field_name = error.get("fieldName")
+
+        exception_class = ERROR_TYPE_EXCEPTIONS.get(
+            error_type, STATUS_CODE_EXCEPTIONS.get(response.status_code, FitbitAPIException)
+        )
+
+        self.logger.error(
+            f"{exception_class.__name__}: {message} "
+            f"[Type: {error_type}, Status: {response.status_code}]"
+            f"{f', Field: {field_name}' if field_name else ''}"
+        )
+
+        raise exception_class(
+            message=message,
+            status_code=response.status_code,
+            error_type=error_type,
+            raw_response=error_data,
+            field_name=field_name,
+        )
 
     def _make_request(
         self,
@@ -171,7 +223,7 @@ class BaseResource:
         """
         Make a request to Fitbit API
 
-        Parameters:
+        Args:
             endpoint: API endpoint path
             data: Optional form data
             json: Optional JSON data
@@ -183,6 +235,17 @@ class BaseResource:
 
         Returns:
             The API response content (typically Dict[str, Any] or None for DELETE)
+
+        Raises:
+            FitbitAPIException: Base class for all Fitbit API exceptions
+            AuthorizationException: When there are authorization errors
+            ExpiredTokenException: When the OAuth token has expired
+            InsufficientPermissionsException: When the app lacks required permissions
+            InvalidRequestException: When the request syntax is invalid
+            NotFoundException: When the requested resource doesn't exist
+            RateLimitExceededException: When rate limits are exceeded
+            ValidationException: When request parameters are invalid
+            SystemException: When there are server-side errors
         """
         calling_method = self._get_calling_method()
         url = self._build_url(endpoint, user_id, requires_user_id, api_version)
@@ -192,28 +255,34 @@ class BaseResource:
                 http_method, url, data=data, json=json, params=params, headers=self.headers
             )
 
-            if response.status_code >= 500:
-                self.logger.error(f"Server error for {endpoint} (status {response.status_code})")
-                raise HTTPError(response=response)
+            # Handle error responses
+            if response.status_code >= 400:
+                self._handle_error_response(response)
 
             content_type = response.headers.get("content-type", "").lower()
 
+            # Handle empty responses
             if response.status_code == 204 or not content_type:
                 self.logger.info(
                     f"{calling_method} succeeded for {endpoint} (status {response.status_code})"
                 )
                 return None
 
+            # Handle JSON responses
             if "application/json" in content_type:
                 return self._handle_json_response(calling_method, endpoint, response)
 
+            # Handle XML/TCX responses
             elif "application/vnd.garmin.tcx+xml" in content_type or "text/xml" in content_type:
                 self._log_response(calling_method, endpoint, response)
                 return response.text
 
+            # Handle unexpected content types
             self.logger.error(f"Unexpected content type {content_type} for {endpoint}")
             return response.text
 
         except Exception as e:
-            self.logger.exception(f"Unexpected error in {calling_method} for {endpoint}: {str(e)}")
+            self.logger.error(
+                f"{e.__class__.__name__} in {calling_method} for {endpoint}: {str(e)}"
+            )
             raise

@@ -1,11 +1,12 @@
 # fitbit_client/resources/nutrition_timeseries.py
 
 # Standard library imports
-from enum import Enum
+from datetime import datetime
 from typing import Any
 from typing import Dict
 
 # Local imports
+from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import NutritionResource
 from fitbit_client.resources.constants import Period
@@ -37,10 +38,24 @@ class NutritionTimeSeriesResource(BaseResource):
         Returns:
             Dictionary containing daily summary values for the specified period
 
+        Raises:
+            ValidationException: If date format is invalid
+
         Note:
             Returns data using units corresponding to Accept-Language header.
             Only returns data since user's join date or first log entry.
         """
+        try:
+            if date != "today":
+                datetime.strptime(date, "%Y-%m-%d")
+        except ValueError as e:
+            raise ValidationException(
+                message=f"Invalid date format: {str(e)}",
+                status_code=400,
+                error_type="validation",
+                field_name="date",
+            )
+
         return self._make_request(
             f"foods/log/{resource.value}/date/{date}/{period.value}.json", user_id=user_id
         )
@@ -60,11 +75,37 @@ class NutritionTimeSeriesResource(BaseResource):
         Returns:
             Dictionary containing daily summary values for the date range
 
+        Raises:
+            ValidationException: If date format is invalid or date range exceeds 1095 days
+
         Note:
             Maximum range is 1095 days (~3 years).
             Returns data using units corresponding to Accept-Language header.
             Only returns data since user's join date or first log entry.
         """
+        try:
+            if start_date != "today":
+                start = datetime.strptime(start_date, "%Y-%m-%d")
+            if end_date != "today":
+                end = datetime.strptime(end_date, "%Y-%m-%d")
+
+            if start_date != "today" and end_date != "today":
+                date_diff = (end - start).days
+                if date_diff > 1095:
+                    raise ValidationException(
+                        message="Maximum date range is 1095 days (~3 years)",
+                        status_code=400,
+                        error_type="validation",
+                        field_name="date_range",
+                    )
+        except ValueError as e:
+            raise ValidationException(
+                message=f"Invalid date format: {str(e)}",
+                status_code=400,
+                error_type="validation",
+                field_name="date",
+            )
+
         return self._make_request(
             f"foods/log/{resource.value}/date/{start_date}/{end_date}.json", user_id=user_id
         )
