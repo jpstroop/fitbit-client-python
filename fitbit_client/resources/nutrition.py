@@ -22,7 +22,7 @@ class NutritionResource(BaseResource):
     API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/
     """
 
-    def add_favorite_food(self, food_id: int, user_id: str = "-") -> Dict[str, Any]:
+    def add_favorite_foods(self, food_id: int, user_id: str = "-") -> Dict[str, Any]:
         """
         Adds a food with the given ID to the user's list of favorite foods.
 

@@ -13,15 +13,8 @@
   [2025-01-30 21:24:53,958] INFO [fitbit_client] Authentication successful
   ```
 
-- [ ] !!ACK! Some API requests have /1.1/ and /1.2/ and who knows what else in
-  the URL instead of just /1/
-
-- [ ] Why do 404 results look and log like this: [2025-01-31 21:28:07,095] INFO
-  [fitbit_client.NutritionResource] delete_custom_food succeeded for
-  foods/821390227.json (status 404) response looks like this when we print it,
-  and it says "success"
-  "{"errors":\[{"errorType":"validation","fieldName":"foodId","message":"Invalid
-  foodId: 821390227"}\]}"
+- [ ] Validation to NutritionResource - Calories must be ints, not floats like
+  everything else
 
 - [ ] Make sure all IDs (`water_log_id`, `food_id`, `unit_id`, etc.) are typed
   as ints across all resources
