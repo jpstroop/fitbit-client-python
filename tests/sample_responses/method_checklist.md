@@ -246,20 +246,8 @@ remain for referece.
 
 ## BreathingRateResource
 
-- get_breathing_rate_summary_by_date
-  - [ ] Used
-  - [ ] Captured?
-  - [ ] Type:
-  - [ ] API Reference link
-  - [ ] Name Check
-  - [ ] Test Coverage
-- get_breathing_rate_summary_by_interval
-  - [ ] Used
-  - [ ] Captured?
-  - [ ] Type:
-  - [ ] API Reference link
-  - [ ] Name Check
-  - [ ] Test Coverage
+- get_breathing_rate_summary_by_date -> `{}`
+- get_breathing_rate_summary_by_interval -> `{}`
 
 ## CardioFitnessResource
 

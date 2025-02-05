@@ -1,0 +1,44 @@
+[2025-02-04 22:40:46,588] INFO [fitbit_client] Fitbit client initialized successfully
+[2025-02-04 22:40:46,588] INFO [fitbit_client] Authentication successful
+[2025-02-04 22:40:46,588] INFO [fitbit_client] Authentication successful
+[2025-02-04 22:40:46,778] INFO [fitbit_client.BreathingRateResource] get_breathing_rate_summary_by_interval succeeded for br/date/2025-01-29/2025-02-04.json (status 200)
+{
+  "br": [
+    {
+      "value": {
+        "breathingRate": 11.2
+      },
+      "dateTime": "2025-01-29"
+    },
+    {
+      "value": {
+        "breathingRate": 11.2
+      },
+      "dateTime": "2025-01-30"
+    },
+    {
+      "value": {
+        "breathingRate": 11.2
+      },
+      "dateTime": "2025-01-31"
+    },
+    {
+      "value": {
+        "breathingRate": 11.4
+      },
+      "dateTime": "2025-02-01"
+    },
+    {
+      "value": {
+        "breathingRate": 10.8
+      },
+      "dateTime": "2025-02-03"
+    },
+    {
+      "value": {
+        "breathingRate": 10.8
+      },
+      "dateTime": "2025-02-04"
+    }
+  ]
+}

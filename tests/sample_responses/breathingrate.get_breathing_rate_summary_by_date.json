@@ -1,0 +1,14 @@
+[2025-02-04 22:31:05,960] INFO [fitbit_client] Fitbit client initialized successfully
+[2025-02-04 22:31:05,960] INFO [fitbit_client] Authentication successful
+[2025-02-04 22:31:05,960] INFO [fitbit_client] Authentication successful
+[2025-02-04 22:31:06,144] INFO [fitbit_client.BreathingRateResource] get_breathing_rate_summary_by_date succeeded for br/date/2025-02-04.json (status 200)
+{
+  "br": [
+    {
+      "value": {
+        "breathingRate": 10.8
+      },
+      "dateTime": "2025-02-04"
+    }
+  ]
+}
