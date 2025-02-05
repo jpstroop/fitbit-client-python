@@ -1,0 +1,36 @@
+[2025-02-04 21:51:02,081] INFO [fitbit_client] Fitbit client initialized successfully
+[2025-02-04 21:51:02,081] INFO [fitbit_client] Authentication successful
+[2025-02-04 21:51:02,081] INFO [fitbit_client] Authentication successful
+[2025-02-04 21:51:02,645] INFO [fitbit_client.ActivityTimeSeriesResource] get_time_series_by_date succeeded for activities/steps/date/2025-02-04/1w.json (status 200)
+{
+  "activities-steps": [
+    {
+      "dateTime": "2025-01-29",
+      "value": "7434"
+    },
+    {
+      "dateTime": "2025-01-30",
+      "value": "4780"
+    },
+    {
+      "dateTime": "2025-01-31",
+      "value": "7661"
+    },
+    {
+      "dateTime": "2025-02-01",
+      "value": "8843"
+    },
+    {
+      "dateTime": "2025-02-02",
+      "value": "7235"
+    },
+    {
+      "dateTime": "2025-02-03",
+      "value": "8129"
+    },
+    {
+      "dateTime": "2025-02-04",
+      "value": "7283"
+    }
+  ]
+}

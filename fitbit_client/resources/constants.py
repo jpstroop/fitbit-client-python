@@ -45,7 +45,10 @@ class MaxRanges(int, Enum):
 
 
 class ActivityTimeSeriesPath(str, Enum):
-    """Resource paths available for activity time series data"""
+    """Resource paths available for activity time series data
+
+    API Reference: https://dev.fitbit.com/build/reference/web-api/activity-timeseries/get-activity-timeseries-by-date/#Resource-Options
+    """
 
     # All activity paths
     ACTIVITY_CALORIES = "activityCalories"

@@ -1,165 +1,759 @@
-# Methods Used
+# Method Implementation Checklist
 
-Absent test coverage, this is checklist of methods that I've used and seem to
-work as expected.
+Checkboxes are removed when all boxes are complete. Method names and return type
+remain for referece.
 
 ## ActiveZoneResource
 
-- [ ] get_azm_by_date [ ] Captured? Type:
-- [ ] get_azm_by_date_range [ ] Captured? Type:
+- get_azm_by_date
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_azm_by_date_range
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
 
 ## ActivityResource
 
-- [ ] create_activity_goal [ ] Captured? Type:
-- [ ] create_activity_log [ ] Captured? Type:
-- [x] create_favorite_activity [x] Captured? Type: `{}`(empty)
-- [ ] delete_activity_log [ ] Captured? Type:
-- [ ] delete_favorite_activity [ ] Captured? Type:
-- [x] get_activity_goals [x] Captured? Type: `{}`
-- [x] get_activity_tcx [x] Captured? Type: `XML` (as `str`)
-- [x] get_activity_type [x] Captured? Type: `{}`
-- [x] get_all_activity_types [x] Captured? Type: `{}`
-- [x] get_daily_activity_summary [x] Captured? Type: `{}`
-- [x] get_favorite_activities [x] Captured? Type: `[]`
-- [x] get_frequent_activities [x] Captured? Type: `[]`
-- [x] get_lifetime_stats [x] Captured? Type: `{}`
-- [x] get_recent_activities [x] Captured? Type: `[]`
-- [x] get_activity_logs [x] Captured? Type: `{}`
+- create_activity_goal
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- create_activity_log
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- create_favorite_activity
+  - [x] Used
+  - [x] Captured?
+  - [x] Type: `{}`(empty)
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
+- delete_activity_log
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- delete_favorite_activity
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_activity_goals
+  - [x] Used
+  - [x] Captured?
+  - [x] Type: `{}`
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
+- get_activity_tcx
+  - [x] Used
+  - [x] Captured?
+  - [x] Type: `XML` (as `str`)
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
+- get_activity_type
+  - [x] Used
+  - [x] Captured?
+  - [x] Type: `{}`
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
+- get_all_activity_types
+  - [x] Used
+  - [x] Captured?
+  - [x] Type: `{}`
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
+- get_daily_activity_summary
+  - [x] Used
+  - [x] Captured?
+  - [x] Type: `{}`
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
+- get_favorite_activities
+  - [x] Used
+  - [x] Captured?
+  - [x] Type: `[]`
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
+- get_frequent_activities
+  - [x] Used
+  - [x] Captured?
+  - [x] Type: `[]`
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
+- get_lifetime_stats
+  - [x] Used
+  - [x] Captured?
+  - [x] Type: `{}`
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
+- get_recent_activities
+  - [x] Used
+  - [x] Captured?
+  - [x] Type: `[]`
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
+- get_activity_logs
+  - [x] Used
+  - [x] Captured?
+  - [x] Type: `{}`
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
 
 ## ActivityTimeSeriesResource
 
-- [ ] get_time_series [ ] Captured? Type:
-- [ ] get_time_series_by_date_range [ ] Captured? Type:
+- get_time_series_by_date -> `{}`
+- get_time_series_by_date_range -> `{}`
 
 ## BodyResource
 
-- [ ] create_body_fat_goal [ ] Captured? Type:
-- [ ] create_body_fat_log [ ] Captured? Type:
-- [ ] create_weight_goal [ ] Captured? Type:
-- [ ] create_weight_log [ ] Captured? Type:
-- [ ] delete_body_fat_log [ ] Captured? Type:
-- [ ] delete_weight_log [ ] Captured? Type:
-- [ ] get_body_goals [ ] Captured? Type:
-- [ ] get_body_fat_logs [ ] Captured? Type:
-- [ ] get_weight_logs [ ] Captured? Type:
+- create_body_fat_goal
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- create_body_fat_log
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- create_weight_goal
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- create_weight_log
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- delete_body_fat_log
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- delete_weight_log
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_body_goals
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_body_fat_logs
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_weight_logs
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
 
 ## BodyTimeSeriesResource
 
-- [ ] get_time_series_by_date [ ] Captured? Type:
-- [ ] get_time_series_by_date_range [ ] Captured? Type:
-- [ ] get_body_fat_time_series_by_date [ ] Captured? Type:
-- [ ] get_body_fat_time_series_by_date_range [ ] Captured? Type:
-- [ ] get_weight_time_series_by_date [ ] Captured? Type:
-- [ ] get_weight_time_series_by_date_range [ ] Captured? Type:
+- get_time_series_by_date
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_time_series_by_date_range
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_body_fat_time_series_by_date
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_body_fat_time_series_by_date_range
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_weight_time_series_by_date
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_weight_time_series_by_date_range
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
 
 ## BreathingRateResource
 
-- [ ] get_breathing_rate_summary_by_date [ ] Captured? Type:
-- [ ] get_breathing_rate_summary_by_interval [ ] Captured? Type:
+- get_breathing_rate_summary_by_date
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_breathing_rate_summary_by_interval
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
 
 ## CardioFitnessResource
 
-- [ ] get_vo2_max_summary_by_date [ ] Captured? Type:
-- [ ] get_vo2_max_summary_by_interval [ ] Captured? Type:
+- get_vo2_max_summary_by_date
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_vo2_max_summary_by_interval
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
 
 ## DeviceResource
 
-- [ ] create_alarm [ ] Captured? Type:
-- [ ] delete_alarm [ ] Captured? Type:
-- [ ] get_alarms [ ] Captured? Type:
-- [ ] get_devices [ ] Captured? Type:
-- [ ] update_alarm [ ] Captured? Type:
+- create_alarm
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- delete_alarm
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_alarms
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_devices
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- update_alarm
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
 
 ## ECGResource
 
-- [x] get_ecg_log_list [x] Captured? Type: `{}`
+- get_ecg_log_list
+  - [x] Used
+  - [x] Captured?
+  - [x] Type: `{}`
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
 
 ## FriendsResource
 
-- [x] get_friends [x] Captured? Type: `[]`
-- [x] get_friends_leaderboard [x] Captured? Type: `{}`
+- get_friends
+  - [x] Used
+  - [x] Captured?
+  - [x] Type: `[]`
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
+- get_friends_leaderboard
+  - [x] Used
+  - [x] Captured?
+  - [x] Type: `{}`
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
 
 ## HeartRateTimeSeriesResource
 
-- [ ] get_time_series_by_date [ ] Captured? Type:
-- [ ] get_time_series_by_date_range [ ] Captured? Type:
+- get_time_series_by_date
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_time_series_by_date_range
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
 
 ## HeartRateVariabilityResource
 
-- [ ] get_hrv_summary_by_date [ ] Captured? Type:
-- [ ] get_hrv_summary_by_interval [ ] Captured? Type:
+- get_hrv_summary_by_date
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_hrv_summary_by_interval
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
 
 ## IrregularRhythmResource
 
-- [x] get_alerts_list [ ] Captured? Type:
-- [x] get_profile [ ] Captured? Type:
+- get_alerts_list
+  - [x] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_profile
+  - [x] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
 
 ## NutritionResource
 
-- [x] add_favorite_food [ ] Captured? Type:
-- [x] create_food [ ] Captured? Type:
-- [x] create_food_log [ ] Captured? Type:
-- [ ] create_food_goal [ ] Captured? Type:
-- [ ] create_meal [ ] Captured? Type:
-- [ ] create_water_goal [ ] Captured? Type:
-- [x] create_water_log [ ] Captured? Type:
-- [x] delete_custom_food [ ] Captured? Type:
-- [ ] delete_favorite_food [ ] Captured? Type:
-- [ ] delete_food_log [ ] Captured? Type:
-- [ ] delete_meal [ ] Captured? Type:
-- [x] delete_water_log [ ] Captured? Type:
-- [x] get_food [ ] Captured? Type:
-- [ ] get_food_goals [ ] Captured? Type:
-- [x] get_food_log [ ] Captured? Type:
-- [ ] get_food_locales [ ] Captured? Type:
-- [x] get_food_units [ ] Captured? Type:
-- [x] get_frequent_foods [ ] Captured? Type:
-- [x] get_recent_foods [ ] Captured? Type:
-- [x] get_favorite_foods [ ] Captured? Type:
-- [ ] get_meal [ ] Captured? Type:
-- [ ] get_meals [ ] Captured? Type:
-- [ ] get_water_goal [ ] Captured? Type:
-- [x] get_water_log [ ] Captured? Type:
-- [x] search_foods [ ] Captured? Type:
-- [ ] update_food_log [ ] Captured? Type:
-- [ ] update_meal [ ] Captured? Type:
-- [ ] update_water_log [ ] Captured? Type:
+- add_favorite_food
+  - [x] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- create_food
+  - [x] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- create_food_log
+  - [x] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- create_food_goal
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- create_meal
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- create_water_goal
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- create_water_log
+  - [x] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- delete_custom_food
+  - [x] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- delete_favorite_food
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- delete_food_log
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- delete_meal
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- delete_water_log
+  - [x] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_food
+  - [x] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_food_goals
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_food_log
+  - [x] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_food_locales
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_food_units
+  - [x] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_frequent_foods
+  - [x] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_recent_foods
+  - [x] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_favorite_foods
+  - [x] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_meal
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_meals
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_water_goal
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_water_log
+  - [x] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- search_foods
+  - [x] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- update_food_log
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- update_meal
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- update_water_log
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
 
 ## NutritionTimeSeriesResource
 
-- [ ] get_time_series_by_date [ ] Captured? Type:
-- [ ] get_time_series_by_date_range [ ] Captured? Type:
+- get_time_series_by_date
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_time_series_by_date_range
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
 
 ## SleepResource
 
-- [ ] create_sleep_goal [ ] Captured? Type:
-- [ ] log_sleep [ ] Captured? Type:
-- [ ] delete_sleep_log [ ] Captured? Type: `{}`
-- [x] get_sleep_goal [x] Captured? Type: `{}`
-- [x] get_sleep_log_by_date [x] Captured? Type: `{}`
-- [x] get_sleep_log_by_date_range [x] Captured? Type: `{}`
-- [x] get_sleep_log_list [x] Captured? Type: `{}`
+- create_sleep_goal
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- log_sleep
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- delete_sleep_log
+  - [ ] Used
+  - [ ] Captured?
+  - [x] Type: `{}`
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
+- get_sleep_goal
+  - [x] Used
+  - [x] Captured?
+  - [x] Type: `{}`
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
+- get_sleep_log_by_date
+  - [x] Used
+  - [x] Captured?
+  - [x] Type: `{}`
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
+- get_sleep_log_by_date_range
+  - [x] Used
+  - [x] Captured?
+  - [x] Type: `{}`
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
+- get_sleep_log_list
+  - [x] Used
+  - [x] Captured?
+  - [x] Type: `{}`
+  - [ ] API Reference link
+  - [x] Name Check
+  - [ ] Test Coverage
 
 ## SpO2Resource
 
-- [ ] get_summary_by_date [ ] Captured? Type:
-- [ ] get_summary_by_interval [ ] Captured? Type:
+- get_summary_by_date
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_summary_by_interval
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
 
 ## SubscriptionResource
 
-- [ ] create_subscription [ ] Captured? Type:
-- [ ] delete_subscription [ ] Captured? Type:
-- [ ] get_subscription_list [ ] Captured? Type:
+- create_subscription
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- delete_subscription
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_subscription_list
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
 
 ## TemperatureResource
 
-- [ ] get_core_summary_by_date [ ] Captured? Type:
-- [ ] get_core_summary_by_interval [ ] Captured? Type:
-- [ ] get_skin_summary_by_date [ ] Captured? Type:
-- [ ] get_skin_summary_by_interval [ ] Captured? Type:
+- get_core_summary_by_date
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_core_summary_by_interval
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_skin_summary_by_date
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_skin_summary_by_interval
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
 
 ## UserResource
 
-- [ ] get_profile [ ] Captured? Type:
-- [ ] update_profile [ ] Captured? Type:
-- [ ] get_badges [ ] Captured? Type:
+- get_profile
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- update_profile
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
+- get_badges
+  - [ ] Used
+  - [ ] Captured?
+  - [ ] Type:
+  - [ ] API Reference link
+  - [ ] Name Check
+  - [ ] Test Coverage
