@@ -16,11 +16,13 @@ class ActivityTimeSeriesResource(BaseResource):
     API Reference: https://dev.fitbit.com/build/reference/web-api/activity-timeseries/
     """
 
-    def get_time_series(
+    def get_time_series_by_date(
         self, resource_path: ActivityTimeSeriesPath, date: str, period: Period, user_id: str = "-"
     ) -> Dict[str, Any]:
         """
         Get activity time series data for a period starting from the specified date.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/activity-timeseries/get-activity-timeseries-by-date/
 
         Parameters:
             resource_path: The resource path from ActivityTimeSeriesPath enum
@@ -41,6 +43,8 @@ class ActivityTimeSeriesResource(BaseResource):
     ) -> Dict[str, Any]:
         """
         Get activity time series data for a specified date range.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/activity-timeseries/get-activity-timeseries-by-date-range/
 
         Parameters:
             resource_path: The resource path from ActivityTimeSeriesPath enum
