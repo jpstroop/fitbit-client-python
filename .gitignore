@@ -54,4 +54,5 @@ data
 nutrition_manager.py
 logs
 *.log
+api-docs/
 api_docs.md
