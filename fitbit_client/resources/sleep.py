@@ -1,15 +1,14 @@
 # fitbit_client/resources/sleep.py
 
 # Standard library imports
-from datetime import datetime
 from typing import Any
 from typing import Dict
 from typing import Optional
 
 # Local imports
-from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources.base import BaseResource
-from fitbit_client.resources.constants import SleepType
+from fitbit_client.utils.date_validation import validate_date_param
+from fitbit_client.utils.date_validation import validate_date_range_params
 
 
 class SleepResource(BaseResource):
@@ -25,13 +24,18 @@ class SleepResource(BaseResource):
 
     API_VERSION: str = "1.2"
 
-    def create_sleep_goal(self, min_duration: int, user_id: str = "-") -> Dict[str, Any]:
+    def create_sleep_goals(
+        self, min_duration: int, user_id: str = "-", debug: bool = False
+    ) -> Dict[str, Any]:
         """
         Creates or updates a user's sleep goal.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/sleep/create-sleep-goals/
 
         Args:
             min_duration: Length of sleep goal in minutes
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Sleep goal details including min duration and update timestamp
@@ -45,28 +49,38 @@ class SleepResource(BaseResource):
             user_id=user_id,
             http_method="POST",
             api_version=SleepResource.API_VERSION,
+            debug=debug,
         )
 
-    def log_sleep(
+    create_sleep_goal = create_sleep_goals  # semantically correct name
+
+    @validate_date_param(field_name="date")
+    def create_sleep_log(
         self,
-        start_time: str,
-        duration_millis: int,
         date: str,
-        sleep_type: SleepType = SleepType.CLASSIC,
+        duration_millis: int,
+        start_time: str,
         user_id: str = "-",
+        debug: bool = False,
     ) -> Dict[str, Any]:
         """
         Creates a log entry for a sleep event.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/sleep/create-sleep-log/
+
         Args:
-            start_time: Activity start time (HH:mm)
-            duration_millis: Duration in milliseconds
             date: Log date in YYYY-MM-DD format
-            sleep_type: Type of sleep log (classic or stages)
+            duration_millis: Duration in milliseconds
+            start_time: Activity start time (HH:mm)
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Created sleep log entry details
+
+        Raises:
+            ValueError: If duration_millis is not positive
+            InvalidDateException: If date format is invalid
 
         Note:
             - It is NOT possible to create overlapping log entries
@@ -77,41 +91,46 @@ class SleepResource(BaseResource):
         if duration_millis <= 0:
             raise ValueError("duration_millis must be positive")
 
-        params = {
-            "startTime": start_time,
-            "duration": duration_millis,
-            "date": date,
-            "type": sleep_type.value,
-        }
+        params = {"startTime": start_time, "duration": duration_millis, "date": date}
         return self._make_request(
             "sleep.json",
             params=params,
             user_id=user_id,
             http_method="POST",
             api_version=SleepResource.API_VERSION,
+            debug=debug,
         )
 
-    def delete_sleep_log(self, log_id: str, user_id: str = "-") -> Dict[str, Any]:
+    def delete_sleep_log(
+        self, log_id: int, user_id: str = "-", debug: bool = False
+    ) -> Dict[str, Any]:
         """
         Deletes a specific sleep log entry.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/sleep/delete-sleep-log/
 
         Args:
             log_id: ID of the sleep log to delete
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
         """
         return self._make_request(
             f"sleep/{log_id}.json",
             user_id=user_id,
             http_method="DELETE",
             api_version=SleepResource.API_VERSION,
+            debug=debug,
         )
 
-    def get_sleep_goal(self, user_id: str = "-") -> Dict[str, Any]:
+    def get_sleep_goals(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
         """
         Gets a user's current sleep goal.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/sleep/get-sleep-goals/
+
         Args:
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Sleep goal details including:
@@ -120,16 +139,24 @@ class SleepResource(BaseResource):
             - updatedOn: Last update timestamp
         """
         return self._make_request(
-            "sleep/goal.json", user_id=user_id, api_version=SleepResource.API_VERSION
+            "sleep/goal.json", user_id=user_id, api_version=SleepResource.API_VERSION, debug=debug
         )
 
-    def get_sleep_log_by_date(self, date: str, user_id: str = "-") -> Dict[str, Any]:
+    get_sleep_goal = get_sleep_goals  # semantically correct name
+
+    @validate_date_param(field_name="date")
+    def get_sleep_log_by_date(
+        self, date: str, user_id: str = "-", debug: bool = False
+    ) -> Dict[str, Any]:
         """
         Gets sleep logs for a specific date.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/sleep/get-sleep-log-by-date/
 
         Args:
             date: The date in YYYY-MM-DD format
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Sleep logs and summary for the specified date including:
@@ -137,77 +164,54 @@ class SleepResource(BaseResource):
             - Stages logs: deep, light, rem, wake levels (30-sec granularity)
 
         Raises:
-            ValidationException: If date format is invalid
+            InvalidDateException: If date format is invalid
 
         Note:
             The data returned can include a sleep period that began on the previous
             date. For example, requesting logs for 2021-12-22 may return a log entry
             that began on 2021-12-21 but ended on 2021-12-22.
         """
-        try:
-            if date != "today":
-                datetime.strptime(date, "%Y-%m-%d")
-        except ValueError as e:
-            raise ValidationException(
-                message=f"Invalid date format: {str(e)}",
-                status_code=400,
-                error_type="validation",
-                field_name="date",
-            )
-
         return self._make_request(
-            f"sleep/date/{date}.json", user_id=user_id, api_version=SleepResource.API_VERSION
+            f"sleep/date/{date}.json",
+            user_id=user_id,
+            api_version=SleepResource.API_VERSION,
+            debug=debug,
         )
 
+    @validate_date_range_params(max_days=100)
     def get_sleep_log_by_date_range(
-        self, start_date: str, end_date: str, user_id: str = "-"
+        self, start_date: str, end_date: str, user_id: str = "-", debug: bool = False
     ) -> Dict[str, Any]:
         """
         Gets sleep logs for a date range.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/sleep/get-sleep-log-by-date-range/
 
         Args:
             start_date: Start date in YYYY-MM-DD format
             end_date: End date in YYYY-MM-DD format
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Sleep logs for the specified date range
 
         Raises:
-            ValidationException: If date format is invalid or date range exceeds 100 days
+            InvalidDateException: If date format is invalid
+            InvalidDateRangeException: If start_date is after end_date or date range exceeds 100 days
 
         Note:
             Maximum date range is 100 days
         """
-        try:
-            if start_date != "today":
-                start = datetime.strptime(start_date, "%Y-%m-%d")
-            if end_date != "today":
-                end = datetime.strptime(end_date, "%Y-%m-%d")
-
-            if start_date != "today" and end_date != "today":
-                date_diff = (end - start).days
-                if date_diff > 100:
-                    raise ValidationException(
-                        message="Maximum date range is 100 days",
-                        status_code=400,
-                        error_type="validation",
-                        field_name="date_range",
-                    )
-        except ValueError as e:
-            raise ValidationException(
-                message=f"Invalid date format: {str(e)}",
-                status_code=400,
-                error_type="validation",
-                field_name="date",
-            )
-
         return self._make_request(
             f"sleep/date/{start_date}/{end_date}.json",
             user_id=user_id,
             api_version=SleepResource.API_VERSION,
+            debug=debug,
         )
 
+    @validate_date_param(field_name="before_date")
+    @validate_date_param(field_name="after_date")
     def get_sleep_log_list(
         self,
         before_date: Optional[str] = None,
@@ -216,9 +220,12 @@ class SleepResource(BaseResource):
         limit: int = 100,
         offset: int = 0,
         user_id: str = "-",
+        debug: bool = False,
     ) -> Dict[str, Any]:
         """
         Gets a list of sleep logs before or after a given date.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/sleep/get-sleep-log-list/
 
         Args:
             before_date: Get entries before this date (YYYY-MM-DD)
@@ -227,9 +234,17 @@ class SleepResource(BaseResource):
             limit: Number of records to return (max 100)
             offset: Offset for pagination (use 0)
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Paginated list of sleep logs
+
+        Raises:
+            ValueError: If neither before_date nor after_date is specified
+            ValueError: If limit > 100
+            ValueError: If sort is not 'asc' or 'desc'
+            ValueError: If sort direction doesn't match date parameter
+            InvalidDateException: If date format is invalid
 
         Note:
             - Either before_date or after_date must be specified
@@ -259,5 +274,9 @@ class SleepResource(BaseResource):
             params["afterDate"] = after_date
 
         return self._make_request(
-            "sleep/list.json", params=params, user_id=user_id, api_version=SleepResource.API_VERSION
+            "sleep/list.json",
+            params=params,
+            user_id=user_id,
+            api_version=SleepResource.API_VERSION,
+            debug=debug,
         )

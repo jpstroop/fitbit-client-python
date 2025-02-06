@@ -59,8 +59,8 @@ class TestFriendsResource:
         result = friends_resource.get_friends()
 
         assert len(result) == 1
-        assert result[0]["type"] == "person"
-        assert result[0]["id"] == "ABC123"
+        assert result["data"][0]["type"] == "person"
+        assert result["data"][0]["id"] == "ABC123"
         mock_oauth_session.request.assert_called_once_with(
             "GET",
             "https://api.fitbit.com/1.1/user/-/friends.json",

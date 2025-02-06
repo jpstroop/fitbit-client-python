@@ -10,6 +10,8 @@ from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import ActivityGoalPeriod
 from fitbit_client.resources.constants import ActivityGoalType
+from fitbit_client.utils.date_validation import validate_date_format
+from fitbit_client.utils.date_validation import validate_date_param
 
 
 class ActivityResource(BaseResource):
@@ -22,30 +24,52 @@ class ActivityResource(BaseResource):
     API Reference: https://dev.fitbit.com/build/reference/web-api/activity/
     """
 
-    def create_activity_goal(
-        self, period: str, type: ActivityGoalType, value: int, user_id: str = "-"
+    def create_activity_goals(
+        self,
+        period: ActivityGoalPeriod,
+        type: ActivityGoalType,
+        value: int,
+        user_id: str = "-",
+        debug: bool = False,
     ) -> Dict[str, Any]:
         """
         Creates or updates a user's daily or weekly activity goal.
 
-        API Reference: https://dev.fitbit.com/build/reference/web-api/activity/create-activity-goals/
+        API Reference: https://dev.fitbit.com/build/reference/web-api/activity/create-activity-goal/
 
         Args:
             period: 'daily' or 'weekly'
             type: Goal type from ActivityGoalType enum
-            value: Target value for the goal
+            value: Target value for the goal (must be positive)
             user_id: Optional user ID, defaults to current user
+            debug: If True, prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
-            Response contains goal object with the fat value
+            Response contains goal object with the updated value
+
+        Raises:
+            ValidationException: If value is not a positive integer
         """
+        if value <= 0:
+            raise ValidationException(
+                message="Goal value must be positive",
+                status_code=400,
+                error_type="validation",
+                field_name="value",
+            )
+
         params = {"type": type.value, "value": value}
         return self._make_request(
-            f"activities/goals/{period}.json", params=params, user_id=user_id, http_method="POST"
+            f"activities/goals/{period.value}.json",
+            params=params,
+            user_id=user_id,
+            http_method="POST",
+            debug=debug,
         )
 
-    create_activity_goals = create_activity_goal  # alias to match docs
+    create_activity_goal = create_activity_goals  # alias to match docs
 
+    @validate_date_param(field_name="date")
     def create_activity_log(
         self,
         activity_id: Optional[int] = None,
@@ -57,6 +81,7 @@ class ActivityResource(BaseResource):
         distance: Optional[float] = None,
         distance_unit: Optional[str] = None,
         user_id: str = "-",
+        debug: bool = False,
     ) -> Dict[str, Any]:
         """
         Records an activity to the user's log. Can either log a predefined activity by ID
@@ -74,31 +99,44 @@ class ActivityResource(BaseResource):
             distance: Optional distance value
             distance_unit: Optional unit for distance
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Response contains the created activity log entry with details
-        """
-        params = {"startTime": start_time, "durationMillis": duration_millis, "date": date}
 
+        Raises:
+            ValueError: If neither activity_id nor activity_name/manual_calories pair is provided
+            InvalidDateException: If date format is invalid
+        """
         if activity_id:
-            params["activityId"] = activity_id
+            params = {
+                "activityId": activity_id,
+                "startTime": start_time,
+                "durationMillis": duration_millis,
+                "date": date,
+            }
             if distance is not None:
                 params["distance"] = distance
                 if distance_unit:
                     params["distanceUnit"] = distance_unit
         elif activity_name and manual_calories:
-            params["activityName"] = activity_name
-            params["manualCalories"] = manual_calories
+            params = {
+                "activityName": activity_name,
+                "manualCalories": manual_calories,
+                "startTime": start_time,
+                "durationMillis": duration_millis,
+                "date": date,
+            }
         else:
             raise ValueError(
                 "Must provide either activity_id or (activity_name and manual_calories)"
             )
 
         return self._make_request(
-            "activities.json", params=params, user_id=user_id, http_method="POST"
+            "activities.json", params=params, user_id=user_id, http_method="POST", debug=debug
         )
 
-    def get_activity_logs(
+    def get_activity_log_list(
         self,
         before_date: Optional[str] = None,
         after_date: Optional[str] = None,
@@ -106,6 +144,7 @@ class ActivityResource(BaseResource):
         limit: int = 100,
         offset: int = 0,
         user_id: str = "-",
+        debug: bool = False,
     ) -> Dict[str, Any]:
         """
         Retrieves a list of user's activity log entries before or after a given day.
@@ -119,12 +158,14 @@ class ActivityResource(BaseResource):
             limit: Number of records to return (max 100)
             offset: Offset for pagination
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Dict containing activity logs matching the criteria
 
         Raises:
             ValidationException: If limit exceeds 100 or sort order is invalid
+            InvalidDateException: If date format is invalid
         """
         if limit > 100:
             raise ValidationException(
@@ -142,15 +183,25 @@ class ActivityResource(BaseResource):
                 field_name="sort",
             )
 
+        # Validate dates if provided
+        if before_date:
+            validate_date_format(before_date, "before_date")
+        if after_date:
+            validate_date_format(after_date, "after_date")
+
         params = {"sort": sort, "limit": limit, "offset": offset}
         if before_date:
             params["beforeDate"] = before_date
         if after_date:
             params["afterDate"] = after_date
 
-        return self._make_request("activities/list.json", params=params, user_id=user_id)
+        return self._make_request(
+            "activities/list.json", params=params, user_id=user_id, debug=debug
+        )
 
-    def create_favorite_activity(self, activity_id: int, user_id: str = "-") -> Dict[str, Any]:
+    def create_favorite_activity(
+        self, activity_id: int, user_id: str = "-", debug: bool = False
+    ) -> Dict[str, Any]:
         """
         Adds an activity to the user's list of favorite activities.
 
@@ -159,15 +210,21 @@ class ActivityResource(BaseResource):
         Args:
             activity_id: ID of the activity to favorite
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Response indicating success
         """
         return self._make_request(
-            f"activities/favorite/{activity_id}.json", user_id=user_id, http_method="POST"
+            f"activities/favorite/{activity_id}.json",
+            user_id=user_id,
+            http_method="POST",
+            debug=debug,
         )
 
-    def delete_activity_log(self, activity_log_id: int, user_id: str = "-") -> Dict[str, Any]:
+    def delete_activity_log(
+        self, activity_log_id: int, user_id: str = "-", debug: bool = False
+    ) -> Dict[str, Any]:
         """
         Deletes a specific activity log entry from the user's activity history.
 
@@ -176,15 +233,18 @@ class ActivityResource(BaseResource):
         Args:
             activity_log_id: ID of the activity log to delete
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Response indicating success
         """
         return self._make_request(
-            f"activities/{activity_log_id}.json", user_id=user_id, http_method="DELETE"
+            f"activities/{activity_log_id}.json", user_id=user_id, http_method="DELETE", debug=debug
         )
 
-    def delete_favorite_activity(self, activity_id: int, user_id: str = "-") -> Dict[str, Any]:
+    def delete_favorite_activity(
+        self, activity_id: int, user_id: str = "-", debug: bool = False
+    ) -> Dict[str, Any]:
         """
         Removes an activity from the user's list of favorite activities.
 
@@ -193,15 +253,17 @@ class ActivityResource(BaseResource):
         Args:
             activity_id: ID of the activity to unfavorite
             user_id: Optional user ID, defaults to current user
-
-        Returns:
-            Response indicating success
         """
         return self._make_request(
-            f"activities/favorite/{activity_id}.json", user_id=user_id, http_method="DELETE"
+            f"activities/favorite/{activity_id}.json",
+            user_id=user_id,
+            http_method="DELETE",
+            debug=debug,
         )
 
-    def get_activity_goals(self, period: ActivityGoalPeriod, user_id: str = "-") -> Dict[str, Any]:
+    def get_activity_goals(
+        self, period: ActivityGoalPeriod, user_id: str = "-", debug: bool = False
+    ) -> Dict[str, Any]:
         """
         Retrieves the user's current activity goals for the specified period.
 
@@ -210,13 +272,19 @@ class ActivityResource(BaseResource):
         Args:
             period: 'daily' or 'weekly'
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Response contains the current activity goals
         """
-        return self._make_request(f"activities/goals/{period.value}.json", user_id=user_id)
+        return self._make_request(
+            f"activities/goals/{period.value}.json", user_id=user_id, debug=debug
+        )
 
-    def get_daily_activity_summary(self, date: str, user_id: str = "-") -> Dict[str, Any]:
+    @validate_date_param()
+    def get_daily_activity_summary(
+        self, date: str, user_id: str = "-", debug: bool = False
+    ) -> Dict[str, Any]:
         """
         Retrieves a summary of the user's activities for a specific date.
 
@@ -225,13 +293,17 @@ class ActivityResource(BaseResource):
         Args:
             date: Date to get summary for (YYYY-MM-DD)
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Response contains activity summary for the specified date
-        """
-        return self._make_request(f"activities/date/{date}.json", user_id=user_id)
 
-    def get_activity_type(self, activity_id: int) -> Dict[str, Any]:
+        Raises:
+            InvalidDateException: If date format is invalid
+        """
+        return self._make_request(f"activities/date/{date}.json", user_id=user_id, debug=debug)
+
+    def get_activity_type(self, activity_id: int, debug: bool = False) -> Dict[str, Any]:
         """
         Gets the details of a single activity type from Fitbit's activity database.
 
@@ -239,24 +311,28 @@ class ActivityResource(BaseResource):
 
         Args:
             activity_id: ID of the activity type to retrieve
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Response contains activity type details
         """
-        return self._make_request(f"activities/{activity_id}.json", requires_user_id=False)
+        return self._make_request(
+            f"activities/{activity_id}.json", requires_user_id=False, debug=debug
+        )
 
-    def get_all_activity_types(self) -> Dict[str, Any]:
+    def get_all_activity_types(self, debug: bool = False) -> Dict[str, Any]:
         """
         Retrieves the complete list of available activities and their details.
 
         API Reference: https://dev.fitbit.com/build/reference/web-api/activity/get-all-activity-types/
+        debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Response contains list of all activity types
         """
-        return self._make_request("activities.json", requires_user_id=False)
+        return self._make_request("activities.json", requires_user_id=False, debug=debug)
 
-    def get_favorite_activities(self, user_id: str = "-") -> Dict[str, Any]:
+    def get_favorite_activities(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
         """
         Gets the list of activities that the user has marked as favorite.
 
@@ -264,13 +340,14 @@ class ActivityResource(BaseResource):
 
         Args:
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Response contains list of favorite activities
         """
-        return self._make_request("activities/favorite.json", user_id=user_id)
+        return self._make_request("activities/favorite.json", user_id=user_id, debug=debug)
 
-    def get_frequent_activities(self, user_id: str = "-") -> Dict[str, Any]:
+    def get_frequent_activities(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
         """
         Gets the list of activities that the user logs most frequently.
 
@@ -278,13 +355,14 @@ class ActivityResource(BaseResource):
 
         Args:
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Response contains list of frequently logged activities
         """
-        return self._make_request("activities/frequent.json", user_id=user_id)
+        return self._make_request("activities/frequent.json", user_id=user_id, debug=debug)
 
-    def get_recent_activities(self, user_id: str = "-") -> Dict[str, Any]:
+    def get_recent_activity_types(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
         """
         Gets the list of activities that the user has logged recently.
 
@@ -292,15 +370,14 @@ class ActivityResource(BaseResource):
 
         Args:
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Response contains list of recent activities
         """
-        return self._make_request("activities/recent.json", user_id=user_id)
+        return self._make_request("activities/recent.json", user_id=user_id, debug=debug)
 
-    get_recent_activity_types = get_recent_activities  # alias to match docs
-
-    def get_lifetime_stats(self, user_id: str = "-") -> Dict[str, Any]:
+    def get_lifetime_stats(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
         """
         Retrieves the user's lifetime activity statistics and personal records.
 
@@ -308,14 +385,19 @@ class ActivityResource(BaseResource):
 
         Args:
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Response contains lifetime activity stats and records
         """
-        return self._make_request("activities.json", user_id=user_id)
+        return self._make_request("activities.json", user_id=user_id, debug=debug)
 
     def get_activity_tcx(
-        self, log_id: int, include_partial_tcx: bool = False, user_id: str = "-"
+        self,
+        log_id: int,
+        include_partial_tcx: bool = False,
+        user_id: str = "-",
+        debug: bool = False,
     ) -> Dict[str, Any]:
         """
         Retrieves the TCX (Training Center XML) data for a specific activity log. TCX files
@@ -327,6 +409,7 @@ class ActivityResource(BaseResource):
             log_id: ID of the activity log to retrieve
             include_partial_tcx: Include TCX points when GPS data is not available
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Response contains TCX data for the activity
@@ -335,4 +418,6 @@ class ActivityResource(BaseResource):
             Requires both 'activity' and 'location' scopes to be authorized.
         """
         params = {"includePartialTCX": include_partial_tcx} if include_partial_tcx else None
-        return self._make_request(f"activities/{log_id}.tcx", params=params, user_id=user_id)
+        return self._make_request(
+            f"activities/{log_id}.tcx", params=params, user_id=user_id, debug=debug
+        )

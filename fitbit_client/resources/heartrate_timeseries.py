@@ -5,12 +5,15 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 
+pass
 # Local imports
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import Period
+from fitbit_client.utils.date_validation import validate_date_param
+from fitbit_client.utils.date_validation import validate_date_range_params
 
 
-class HeartRateTimeSeriesResource(BaseResource):
+class HeartrateTimeSeriesResource(BaseResource):
     """
     Handles Fitbit Heart Rate Time Series API endpoints for retrieving time-series heart rate data.
 
@@ -23,11 +26,19 @@ class HeartRateTimeSeriesResource(BaseResource):
         For intraday resolution, see the IntradayResource class.
     """
 
-    def get_time_series_by_date(
-        self, date: str, period: Period, user_id: str = "-", timezone: Optional[str] = None
+    @validate_date_param(field_name="date")
+    def get_heartrate_timeseries_by_date(
+        self,
+        date: str,
+        period: Period,
+        user_id: str = "-",
+        timezone: Optional[str] = None,
+        debug: bool = False,
     ) -> Dict[str, Any]:
         """
         Retrieves heart rate time series data for a period starting from the specified date.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/heartrate-timeseries/get-heartrate-timeseries-by-date/
 
         Args:
             date: The end date in yyyy-MM-dd format or 'today'
@@ -35,6 +46,7 @@ class HeartRateTimeSeriesResource(BaseResource):
                    Supported values: 1d, 7d, 30d, 1w, 1m
             user_id: The encoded ID of the user. Use "-" (dash) for current logged-in user.
             timezone: Optional timezone (only 'UTC' supported)
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Heart rate data including:
@@ -42,6 +54,11 @@ class HeartRateTimeSeriesResource(BaseResource):
             - Custom heart rate zones with calories, ranges, and minutes
             - Standard heart rate zones (Out of Range, Fat Burn, Cardio, Peak)
             - Resting heart rate if available
+
+        Raises:
+            ValueError: If period is not supported
+            ValueError: If timezone is not 'UTC'
+            InvalidDateException: If date format is invalid
 
         Note:
             Resting heart rate is calculated from measurements throughout the day,
@@ -66,20 +83,32 @@ class HeartRateTimeSeriesResource(BaseResource):
 
         params = {"timezone": timezone} if timezone else None
         return self._make_request(
-            f"activities/heart/date/{date}/{period.value}.json", params=params, user_id=user_id
+            f"activities/heart/date/{date}/{period.value}.json",
+            params=params,
+            user_id=user_id,
+            debug=debug,
         )
 
-    def get_time_series_by_date_range(
-        self, start_date: str, end_date: str, user_id: str = "-", timezone: Optional[str] = None
+    @validate_date_range_params()
+    def get_heartrate_timeseries_by_date_range(
+        self,
+        start_date: str,
+        end_date: str,
+        user_id: str = "-",
+        timezone: Optional[str] = None,
+        debug: bool = False,
     ) -> Dict[str, Any]:
         """
         Retrieves heart rate time series data for a specified date range.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/heartrate-timeseries/get-heartrate-timeseries-by-date-range/
+
         Args:
-            start_date: The start date in yyyy-MM-dd format or 'today'
-            end_date: The end date in yyyy-MM-dd format or 'today'
+            start_date: Start date in yyyy-MM-dd format or 'today'
+            end_date: End date in yyyy-MM-dd format or 'today'
             user_id: The encoded ID of the user. Use "-" (dash) for current logged-in user.
             timezone: Optional timezone (only 'UTC' supported)
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Heart rate data including:
@@ -87,6 +116,11 @@ class HeartRateTimeSeriesResource(BaseResource):
             - Custom heart rate zones with calories, ranges, and minutes
             - Standard heart rate zones (Out of Range, Fat Burn, Cardio, Peak)
             - Resting heart rate if available
+
+        Raises:
+            ValueError: If timezone is not 'UTC'
+            InvalidDateException: If date format is invalid
+            InvalidDateRangeException: If start_date is after end_date
 
         Note:
             Maximum date range is 1 year.
@@ -99,5 +133,8 @@ class HeartRateTimeSeriesResource(BaseResource):
 
         params = {"timezone": timezone} if timezone else None
         return self._make_request(
-            f"activities/heart/date/{start_date}/{end_date}.json", params=params, user_id=user_id
+            f"activities/heart/date/{start_date}/{end_date}.json",
+            params=params,
+            user_id=user_id,
+            debug=debug,
         )

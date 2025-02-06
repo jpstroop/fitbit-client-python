@@ -10,6 +10,7 @@ from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import ClockTimeFormat
 from fitbit_client.resources.constants import Gender
 from fitbit_client.resources.constants import StartDayOfWeek
+from fitbit_client.utils.date_validation import validate_date_param
 
 
 class UserResource(BaseResource):
@@ -22,12 +23,13 @@ class UserResource(BaseResource):
     API Reference: https://dev.fitbit.com/build/reference/web-api/user/
     """
 
-    def get_profile(self, user_id: str = "-") -> Dict[str, Any]:
+    def get_profile(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
         """
         Get user profile information.
 
         Args:
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             User profile data including personal info, preferences, and settings.
@@ -37,8 +39,9 @@ class UserResource(BaseResource):
             Numerical values are returned in units specified by Accept-Language header.
             The profile includes all badges visible in the user's badge locker.
         """
-        return self._make_request("profile.json", user_id=user_id)
+        return self._make_request("profile.json", user_id=user_id, debug=debug)
 
+    @validate_date_param(field_name="birthday")
     def update_profile(
         self,
         gender: Optional[Gender] = None,
@@ -63,6 +66,7 @@ class UserResource(BaseResource):
         stride_length_walking: Optional[str] = None,
         stride_length_running: Optional[str] = None,
         user_id: str = "-",
+        debug: bool = False,
     ) -> Dict[str, Any]:
         """
         Update user profile data.
@@ -90,9 +94,13 @@ class UserResource(BaseResource):
             stride_length_walking: Walking stride length in X.XX format
             stride_length_running: Running stride length in X.XX format
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             Updated user profile data
+
+        Raises:
+            InvalidDateException: If birthday format is invalid
 
         Note:
             All parameters are optional. Only specified fields will be updated.
@@ -125,14 +133,17 @@ class UserResource(BaseResource):
         }
 
         params = {key: value for key, value in updates.items() if value is not None}
-        return self._post("profile.json", params=params, user_id=user_id)
+        return self._make_request(
+            "profile.json", params=params, user_id=user_id, http_method="POST", debug=debug
+        )
 
-    def get_badges(self, user_id: str = "-") -> Dict[str, Any]:
+    def get_badges(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
         """
         Get list of user's earned achievement badges.
 
         Args:
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             List of badges earned by the user
@@ -142,4 +153,4 @@ class UserResource(BaseResource):
             to allow access. Weight badges are only included if "My Body" privacy
             setting allows access.
         """
-        return self._make_request("badges.json", user_id=user_id)
+        return self._make_request("badges.json", user_id=user_id, debug=debug)
