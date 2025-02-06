@@ -62,6 +62,7 @@ class FitbitOAuth2:
         token_cache_path: str,
         use_callback_server: bool = True,
     ) -> None:
+        self.logger = getLogger("fitbit_client.oauth")  # Add this line
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
@@ -139,6 +140,7 @@ class FitbitOAuth2:
     def authenticate(self, force_new: bool = False) -> bool:
         """Complete authentication flow if needed"""
         if not force_new and self.is_authenticated():
+            self.logger.debug("Authentication token exchange completed successfully")
             return True
 
         # Get authorization URL and open it in browser
@@ -203,7 +205,7 @@ class FitbitOAuth2:
             logger = getLogger("fitbit_client.oauth")
 
             if "invalid_client" in error_msg:
-                logger.error(
+                self.logger.error(
                     f"InvalidClientException: Authentication failed "
                     f"(Client ID: {self.client_id[:4]}..., Error: {str(e)})"
                 )
@@ -213,7 +215,7 @@ class FitbitOAuth2:
                     error_type="invalid_client",
                 ) from e
             if "invalid_token" in error_msg:
-                logger.error(
+                self.logger.error(
                     f"InvalidTokenException: Token validation failed " f"(Error: {str(e)})"
                 )
                 raise InvalidTokenException(
@@ -222,7 +224,7 @@ class FitbitOAuth2:
                     error_type="invalid_token",
                 ) from e
 
-            logger.error(f"OAuthException: {e.__class__.__name__}: {str(e)}")
+            self.logger.error(f"OAuthException: {e.__class__.__name__}: {str(e)}")
             raise
 
     def refresh_token(self, refresh_token: str) -> Dict[str, Any]:

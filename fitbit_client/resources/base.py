@@ -10,6 +10,7 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Set
+from urllib.parse import urlencode
 
 # Third party imports
 from requests import Response
@@ -22,36 +23,54 @@ from fitbit_client.exceptions import STATUS_CODE_EXCEPTIONS
 
 # Constants for important fields to track in logging
 IMPORTANT_RESPONSE_FIELDS: Set[str] = {
-    "access",  # PUBLIC/PRIVATE/SHARED
-    "date",  # Dates
-    "dateTime",  # Timestamps
-    "deviceId",  # Device IDs
-    "endTime",  # Activity/sleep end times
-    "foodId",  # Food resource IDs
-    "id",  # Generic resource IDs
-    "logId",  # Log entry IDs
-    "mealTypeId",  # Type of Meal
-    "name",  # Resource names
-    "startTime",  # Activity/sleep start times
-    "subscriptionId",  # Subscription IDs
-    "unitId",  # Measurement unit IDs
+    "access",
+    "date",
+    "dateTime",
+    "deviceId",
+    "endTime",
+    "foodId",
+    "id",
+    "logId",
+    "mealTypeId",
+    "name",
+    "startTime",
+    "subscriptionId",
+    "unitId",
 }
 
 
 class BaseResource:
     """
-    Base class for all Fitbit API resources
+    Base class for all Fitbit API resources.
 
     The Fitbit API has two types of endpoints:
     1. Public endpoints: /{endpoint}
        Used for database-wide operations like food search
     2. User endpoints: /user/{user_id}/{endpoint}
        Used for user-specific operations like logging food
+
+    This base class provides common functionality for both types of endpoints, including:
+     - URL construction
+     - Request handling and error management
+     - Response parsing and logging
+     - Debug capabilities for API interaction
+     - OAuth2 authentication management
     """
 
     API_BASE: str = "https://api.fitbit.com"
 
     def __init__(self, oauth_session: OAuth2Session, locale: str, language: str) -> None:
+        """
+        Initialize a new resource instance.
+
+        Args:
+            oauth_session: Authenticated OAuth2 session for API requests
+            locale: Locale for API responses (e.g., 'en_US')
+            language: Language for API responses (e.g., 'en_US')
+
+        The locale and language settings affect how the API formats responses,
+        particularly for things like dates, times, and measurement units.
+        """
         self.headers: Dict = {"Accept-Locale": locale, "Accept-Language": language}
         self.oauth: OAuth2Session = oauth_session
         # Initialize loggers
@@ -68,18 +87,22 @@ class BaseResource:
         """
         Build full API URL with support for both public and user-specific endpoints.
 
-        By default, endpoints are assumed to be user-specific. Set requires_user_id=False
-        for public endpoints that operate on Fitbit's global database rather than
-        user-specific data.
-
         Args:
-            endpoint: API endpoint path
+            endpoint: API endpoint path (e.g., 'foods/log')
             user_id: User ID, defaults to '-' for authenticated user
             requires_user_id: Whether the endpoint requires user_id in the path
             api_version: API version to use (default: "1")
 
         Returns:
             Complete API URL
+
+        By default, endpoints are assumed to be user-specific. Set requires_user_id=False
+        for public endpoints that operate on Fitbit's global database rather than
+        user-specific data.
+
+        Example URLs:
+            User endpoint: https://api.fitbit.com/1/user/-/foods/log.json
+            Public endpoint: https://api.fitbit.com/1/foods/search.json
         """
         endpoint = endpoint.strip("/")
         if requires_user_id:
@@ -87,7 +110,19 @@ class BaseResource:
         return f"{self.API_BASE}/{api_version}/{endpoint}"
 
     def _extract_important_fields(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Extract important fields from response data for logging."""
+        """
+        Extract important fields from response data for logging.
+
+        Args:
+            data: Response data dictionary
+
+        Returns:
+            Dictionary containing only the important fields and their values
+
+        This method recursively searches through the response data for fields
+        defined in IMPORTANT_RESPONSE_FIELDS, preserving their path in the
+        response structure using dot notation.
+        """
         extracted = {}
 
         def extract_recursive(d: Dict[str, Any], prefix: str = "") -> None:
@@ -108,7 +143,15 @@ class BaseResource:
         return extracted
 
     def _get_calling_method(self) -> str:
-        """Get the name of the method that called _make_request."""
+        """
+        Get the name of the method that called _make_request.
+
+        Returns:
+            Name of the calling method
+
+        This method walks up the call stack to find the first method that isn't
+        one of our internal request handling methods.
+        """
         frame = currentframe()
         while frame:
             # Skip our internal methods when looking for the caller
@@ -121,10 +164,85 @@ class BaseResource:
             frame = frame.f_back
         return "unknown"
 
+    def _build_curl_command(
+        self,
+        url: str,
+        http_method: str,
+        data: Optional[Dict[str, Any]] = None,
+        json: Optional[Dict[str, Any]] = None,
+        params: Optional[Dict[str, Any]] = None,
+    ) -> str:
+        """
+        Build a curl command string for debugging API requests.
+        
+        Args:
+            url: Full API URL
+            http_method: HTTP method (GET, POST, DELETE)
+            data: Optional form data for POST requests
+            json: Optional JSON data for POST requests
+            params: Optional query parameters for GET requests
+            
+        Returns:
+            Complete curl command as a multi-line string
+
+        The generated command includes:
+        - The HTTP method (for non-GET requests)
+        - Authorization header with OAuth token
+        - Request body (if data or json is provided)
+        - Query parameters (if provided)
+        
+        The command is formatted with line continuations for readability and
+        can be copied directly into a terminal for testing.
+
+        Example output:
+            curl \\
+              -X POST \\
+              -H "Authorization: Bearer <token>" \\
+              -H "Content-Type: application/json" \\
+              -d '{"name": "value"}' \\
+              'https://api.fitbit.com/1/user/-/foods/log.json'
+        """
+        # Start with base command
+        cmd_parts = ["curl -v"]
+
+        # Add method
+        if http_method != "GET":
+            cmd_parts.append(f"-X {http_method}")
+
+        # Add auth header
+        cmd_parts.append(f'-H "Authorization: Bearer {self.oauth.token["access_token"]}"')
+
+        # Add data if present
+        if json:
+            cmd_parts.append(f"-d '{dumps(json)}'")
+            cmd_parts.append('-H "Content-Type: application/json"')
+        elif data:
+            cmd_parts.append(f"-d '{urlencode(data)}'")
+            cmd_parts.append('-H "Content-Type: application/x-www-form-urlencoded"')
+
+        # Add URL with parameters if present
+        if params:
+            url = f"{url}?{urlencode(params)}"
+        cmd_parts.append(f"'{url}'")
+
+        return " \\\n  ".join(cmd_parts)
+
     def _log_response(
         self, calling_method: str, endpoint: str, response: Response, content: Optional[Dict] = None
     ) -> None:
-        """Handle logging for both success and error responses."""
+        """
+        Handle logging for both success and error responses.
+
+        Args:
+            calling_method: Name of the method that made the request
+            endpoint: API endpoint that was called
+            response: Response object from the request
+            content: Optional parsed response content
+
+        This method logs both successful and failed requests with appropriate
+        detail levels. For errors, it includes error types and messages when
+        available.
+        """
         if response.status_code >= 400:
             if isinstance(content, dict) and "errors" in content:
                 error = content["errors"][0]
@@ -149,7 +267,16 @@ class BaseResource:
             )
 
     def _log_data(self, calling_method: str, content: Dict) -> None:
-        """Log important fields from the response content."""
+        """
+        Log important fields from the response content.
+
+        Args:
+            calling_method: Name of the method that made the request
+            content: Response content to log
+
+        This method extracts and logs important fields from successful responses,
+        creating a structured log entry with timestamp and context.
+        """
         important_fields = self._extract_important_fields(content)
         if important_fields:
             data_entry = {
@@ -160,7 +287,20 @@ class BaseResource:
             self.data_logger.info(dumps(data_entry))
 
     def _handle_json_response(self, calling_method: str, endpoint: str, response: Response) -> Dict:
-        """Handle a JSON response, including parsing and logging."""
+        """
+        Handle a JSON response, including parsing and logging.
+
+        Args:
+            calling_method: Name of the method that made the request
+            endpoint: API endpoint that was called
+            response: Response object from the request
+
+        Returns:
+            Parsed JSON response data
+
+        Raises:
+            JSONDecodeError: If the response cannot be parsed as JSON
+        """
         try:
             content = response.json()
         except JSONDecodeError as e:
@@ -173,7 +313,19 @@ class BaseResource:
         return content
 
     def _handle_error_response(self, response: Response) -> None:
-        """Parse error response and raise appropriate exception"""
+        """
+        Parse error response and raise appropriate exception.
+
+        Args:
+            response: Error response from the API
+
+        Raises:
+            Appropriate exception class based on error type or status code
+
+        This method attempts to parse the error response and raise the most
+        specific exception possible based on either the API's error type or
+        the HTTP status code.
+        """
         try:
             error_data = response.json()
         except (JSONDecodeError, ValueError):
@@ -215,26 +367,32 @@ class BaseResource:
         data: Optional[Dict[str, Any]] = None,
         json: Optional[Dict[str, Any]] = None,
         params: Optional[Dict[str, Any]] = None,
+        headers: Optional[Dict[str, Any]] = {},
         user_id: str = "-",
         requires_user_id: bool = True,
         http_method: str = "GET",
         api_version: str = "1",
+        debug: bool = False,
     ) -> Any:
         """
-        Make a request to Fitbit API
+        Make a request to the Fitbit API with comprehensive error handling and debugging support.
 
         Args:
             endpoint: API endpoint path
-            data: Optional form data
-            json: Optional JSON data
+            data: Optional form data for POST requests
+            json: Optional JSON data for POST requests
             params: Optional query parameters
+            headers: Optional dict of additional HTTP headers to add to the request
             user_id: User ID, defaults to '-' for authenticated user
-            requires_user_id: Whether the endpoint is user-specific (default: True)
-            http_method: GET (default), POST, or DELETE
+            requires_user_id: Whether the endpoint requires user_id in the path
+            http_method: HTTP method to use (GET, POST, DELETE)
             api_version: API version to use (default: "1")
+            debug: If True, print curl command instead of making request
 
         Returns:
-            The API response content (typically Dict[str, Any] or None for DELETE)
+            Dict[str, Any]: Parsed JSON response for most endpoints
+            str: Raw response text for XML/TCX responses
+            None: For successful DELETE operations or debug mode
 
         Raises:
             FitbitAPIException: Base class for all Fitbit API exceptions
@@ -246,9 +404,26 @@ class BaseResource:
             RateLimitExceededException: When rate limits are exceeded
             ValidationException: When request parameters are invalid
             SystemException: When there are server-side errors
+
+        Debug Mode:
+            When debug=True, this method prints a curl command that can be used to
+            replicate the request manually and returns None. This is useful for:
+            - Testing API endpoints directly
+            - Debugging authentication issues
+            - Verifying request structure
+            - Generating examples for documentation
         """
         calling_method = self._get_calling_method()
         url = self._build_url(endpoint, user_id, requires_user_id, api_version)
+
+        if debug:
+            curl_command = self._build_curl_command(url, http_method, data, json, params)
+            print(f"\n# Debug curl command for {calling_method}:")
+            print(curl_command)
+            print()
+            return None
+
+        self.headers.update(headers)
 
         try:
             response: Response = self.oauth.request(

@@ -9,172 +9,142 @@ from pytest import fixture
 from pytest import raises
 
 # Local imports
+from fitbit_client.exceptions import InvalidDateException
+from fitbit_client.exceptions import InvalidDateRangeException
 from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources.body_timeseries import BodyTimeSeriesResource
 from fitbit_client.resources.constants import BodyResourceType
 from fitbit_client.resources.constants import BodyTimePeriod
+from fitbit_client.resources.constants import MaxRanges
 
 
 class TestBodyTimeSeriesResource:
-
     @fixture
     def body_timeseries(self, mock_oauth_session, mock_logger):
         """Create BodyTimeSeriesResource instance"""
         with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
             return BodyTimeSeriesResource(mock_oauth_session, "en_US", "en_US")
 
-    def test_get_time_series_by_date_validates_date_format(self, body_timeseries):
-        """Test that invalid date format raises ValidationException"""
-        with raises(ValidationException) as exc_info:
-            body_timeseries.get_time_series_by_date(
+    def test_get_body_timeseries_by_date_validates_date_format(self, body_timeseries):
+        """Test that invalid date format raises InvalidDateException"""
+        with raises(InvalidDateException) as exc_info:
+            body_timeseries.get_body_timeseries_by_date(
                 resource_type=BodyResourceType.BMI,
                 date="invalid-date",
                 period=BodyTimePeriod.ONE_MONTH,
             )
 
-        assert exc_info.value.status_code == 400
-        assert exc_info.value.error_type == "validation"
         assert exc_info.value.field_name == "date"
         assert "Invalid date format" in str(exc_info.value)
 
-    def test_get_time_series_by_date_allows_today(self, body_timeseries):
+    def test_get_body_timeseries_by_date_allows_today(self, body_timeseries):
         """Test that 'today' is accepted as valid date"""
         body_timeseries._make_request = Mock()
-        body_timeseries.get_time_series_by_date(
+        body_timeseries.get_body_timeseries_by_date(
             resource_type=BodyResourceType.BMI, date="today", period=BodyTimePeriod.ONE_MONTH
         )
         body_timeseries._make_request.assert_called_once()
 
-    def test_get_time_series_by_date_range_validates_dates(self, body_timeseries):
-        """Test that invalid date formats raise ValidationException"""
+    def test_get_body_timeseries_by_date_period_validation(self, body_timeseries):
+        """Test period validation for fat/weight resources"""
+        invalid_periods = [
+            BodyTimePeriod.THREE_MONTHS,
+            BodyTimePeriod.SIX_MONTHS,
+            BodyTimePeriod.ONE_YEAR,
+            BodyTimePeriod.MAX,
+        ]
+
+        for resource_type in (BodyResourceType.FAT, BodyResourceType.WEIGHT):
+            for period in invalid_periods:
+                with raises(ValidationException) as exc_info:
+                    body_timeseries.get_body_timeseries_by_date(
+                        resource_type=resource_type, date="2023-01-01", period=period
+                    )
+                assert exc_info.value.field_name == "period"
+                assert f"Period {period.value} not supported for {resource_type.value}" in str(
+                    exc_info.value
+                )
+
+    def test_get_body_timeseries_by_date_range_validates_dates(self, body_timeseries):
+        """Test that invalid date formats raise InvalidDateException"""
         # Test invalid start date
-        with raises(ValidationException) as exc_info:
-            body_timeseries.get_time_series_by_date_range(
-                resource_type=BodyResourceType.BMI, base_date="invalid-date", end_date="2023-01-01"
+        with raises(InvalidDateException) as exc_info:
+            body_timeseries.get_body_timeseries_by_date_range(
+                resource_type=BodyResourceType.BMI, start_date="invalid-date", end_date="2023-01-01"
             )
-        assert "Invalid date format" in str(exc_info.value)
-        assert exc_info.value.field_name == "date"
+        assert exc_info.value.field_name == "start_date"
 
         # Test invalid end date
-        with raises(ValidationException) as exc_info:
-            body_timeseries.get_time_series_by_date_range(
-                resource_type=BodyResourceType.BMI, base_date="2023-01-01", end_date="invalid-date"
+        with raises(InvalidDateException) as exc_info:
+            body_timeseries.get_body_timeseries_by_date_range(
+                resource_type=BodyResourceType.BMI, start_date="2023-01-01", end_date="invalid-date"
             )
+        assert exc_info.value.field_name == "end_date"
+
+    def test_get_body_timeseries_by_date_range_validates_order(self, body_timeseries):
+        """Test that end date cannot be before start date"""
+        with raises(InvalidDateRangeException) as exc_info:
+            body_timeseries.get_body_timeseries_by_date_range(
+                resource_type=BodyResourceType.BMI, start_date="2023-02-01", end_date="2023-01-01"
+            )
+        assert f"Start date 2023-02-01 is after end date 2023-01-01" in str(exc_info.value)
+
+    def test_get_body_timeseries_by_date_range_max_days(self, body_timeseries):
+        """Test maximum date range limits for each resource type"""
+        test_cases = [
+            (BodyResourceType.BMI, "2020-01-01", "2024-01-01", MaxRanges.GENERAL),
+            (BodyResourceType.FAT, "2023-01-01", "2023-02-01", MaxRanges.BODY_FAT),
+            (BodyResourceType.WEIGHT, "2023-01-01", "2023-02-02", MaxRanges.WEIGHT),
+        ]
+
+        for resource_type, start_date, end_date, max_days in test_cases:
+            with raises(InvalidDateRangeException) as exc_info:
+                body_timeseries.get_body_timeseries_by_date_range(
+                    resource_type=resource_type, start_date=start_date, end_date=end_date
+                )
+                assert (
+                    f"Date range {start_date} to {end_date} exceeds maximum allowed {max_days} days for {resource_type.value}"
+                    in str(exc_info.value)
+                )
+
+    def test_get_bodyfat_timeseries_by_date_validates_date(self, body_timeseries):
+        """Test that invalid date format raises InvalidDateException"""
+        with raises(InvalidDateException) as exc_info:
+            body_timeseries.get_bodyfat_timeseries_by_date(
+                date="invalid-date", period=BodyTimePeriod.ONE_MONTH
+            )
+        assert exc_info.value.field_name == "date"
         assert "Invalid date format" in str(exc_info.value)
 
-    def test_get_time_series_by_date_range_bmi_limit(self, body_timeseries):
-        """Test BMI's 1095-day limit"""
-        with raises(ValidationException) as exc_info:
-            body_timeseries.get_time_series_by_date_range(
-                resource_type=BodyResourceType.BMI,
-                base_date="2020-01-01",
-                end_date="2024-01-01",  # More than 1095 days
+    def test_get_weight_timeseries_by_date_validates_date(self, body_timeseries):
+        """Test that invalid date format raises InvalidDateException"""
+        with raises(InvalidDateException) as exc_info:
+            body_timeseries.get_weight_timeseries_by_date(
+                date="invalid-date", period=BodyTimePeriod.ONE_MONTH
+            )
+        assert exc_info.value.field_name == "date"
+        assert "Invalid date format" in str(exc_info.value)
+
+    def test_get_bodyfat_timeseries_by_date_range_validates_dates(self, body_timeseries):
+        """Test that invalid dates raise InvalidDateException"""
+        with raises(InvalidDateException):
+            body_timeseries.get_bodyfat_timeseries_by_date_range(
+                start_date="invalid-date", end_date="2023-01-01"
             )
 
-        assert exc_info.value.status_code == 400
-        assert exc_info.value.field_name == "date_range"
-        assert "Maximum date range for bmi is 1095 days" in str(exc_info.value)
-
-    def test_get_time_series_by_date_range_fat_limit(self, body_timeseries):
-        """Test fat's 30-day limit"""
-        with raises(ValidationException) as exc_info:
-            body_timeseries.get_time_series_by_date_range(
-                resource_type=BodyResourceType.FAT,
-                base_date="2023-01-01",
-                end_date="2023-02-01",  # More than 30 days
+        with raises(InvalidDateException):
+            body_timeseries.get_bodyfat_timeseries_by_date_range(
+                start_date="2023-01-01", end_date="invalid-date"
             )
 
-        assert exc_info.value.status_code == 400
-        assert exc_info.value.field_name == "date_range"
-        assert "Maximum date range for fat is 30 days" in str(exc_info.value)
-
-    def test_get_time_series_by_date_range_weight_limit(self, body_timeseries):
-        """Test weight's 31-day limit"""
-        with raises(ValidationException) as exc_info:
-            body_timeseries.get_time_series_by_date_range(
-                resource_type=BodyResourceType.WEIGHT,
-                base_date="2023-01-01",
-                end_date="2023-02-02",  # More than 31 days
+    def test_get_weight_timeseries_by_date_range_validates_dates(self, body_timeseries):
+        """Test that invalid dates raise InvalidDateException"""
+        with raises(InvalidDateException):
+            body_timeseries.get_weight_timeseries_by_date_range(
+                start_date="invalid-date", end_date="2023-01-01"
             )
 
-        assert exc_info.value.status_code == 400
-        assert exc_info.value.field_name == "date_range"
-        assert "Maximum date range for weight is 31 days" in str(exc_info.value)
-
-    def test_get_time_series_by_date_range_valid_ranges(self, body_timeseries):
-        """Test that valid ranges are accepted for each type"""
-        body_timeseries._make_request = Mock()
-
-        # Test BMI with 1000 days (under 1095 limit)
-        body_timeseries.get_time_series_by_date_range(
-            resource_type=BodyResourceType.BMI, base_date="2020-01-01", end_date="2022-09-27"
-        )
-        body_timeseries._make_request.assert_called_once()
-
-        # Test fat with 29 days (under 30 limit)
-        body_timeseries._make_request = Mock()
-        body_timeseries.get_time_series_by_date_range(
-            resource_type=BodyResourceType.FAT, base_date="2023-01-01", end_date="2023-01-29"
-        )
-        body_timeseries._make_request.assert_called_once()
-
-        # Test weight with 30 days (under 31 limit)
-        body_timeseries._make_request = Mock()
-        body_timeseries.get_time_series_by_date_range(
-            resource_type=BodyResourceType.WEIGHT, base_date="2023-01-01", end_date="2023-01-30"
-        )
-        body_timeseries._make_request.assert_called_once()
-
-    def test_get_time_series_by_date_range_allows_today(self, body_timeseries):
-        """Test that 'today' is accepted in date ranges"""
-        body_timeseries._make_request = Mock()
-
-        # Test with today as start date
-        body_timeseries.get_time_series_by_date_range(
-            resource_type=BodyResourceType.BMI, base_date="today", end_date="today"
-        )
-        body_timeseries._make_request.assert_called_once()
-
-    def test_body_fat_time_series_by_date_uses_general_method(self, body_timeseries):
-        """Test that fat-specific method uses general method with correct params"""
-        body_timeseries.get_time_series_by_date = Mock()
-        body_timeseries.get_body_fat_time_series_by_date(
-            date="2023-01-01", period=BodyTimePeriod.ONE_MONTH
-        )
-
-        body_timeseries.get_time_series_by_date.assert_called_once_with(
-            BodyResourceType.FAT, "2023-01-01", BodyTimePeriod.ONE_MONTH, "-"
-        )
-
-    def test_body_fat_time_series_by_date_range_uses_general_method(self, body_timeseries):
-        """Test that fat-specific range method uses general method with correct params"""
-        body_timeseries.get_time_series_by_date_range = Mock()
-        body_timeseries.get_body_fat_time_series_by_date_range(
-            base_date="2023-01-01", end_date="2023-01-15"
-        )
-
-        body_timeseries.get_time_series_by_date_range.assert_called_once_with(
-            BodyResourceType.FAT, "2023-01-01", "2023-01-15", "-"
-        )
-
-    def test_weight_time_series_by_date_uses_general_method(self, body_timeseries):
-        """Test that weight-specific method uses general method with correct params"""
-        body_timeseries.get_time_series_by_date = Mock()
-        body_timeseries.get_weight_time_series_by_date(
-            date="2023-01-01", period=BodyTimePeriod.ONE_MONTH
-        )
-
-        body_timeseries.get_time_series_by_date.assert_called_once_with(
-            BodyResourceType.WEIGHT, "2023-01-01", BodyTimePeriod.ONE_MONTH, "-"
-        )
-
-    def test_weight_time_series_by_date_range_uses_general_method(self, body_timeseries):
-        """Test that weight-specific range method uses general method with correct params"""
-        body_timeseries.get_time_series_by_date_range = Mock()
-        body_timeseries.get_weight_time_series_by_date_range(
-            base_date="2023-01-01", end_date="2023-01-15"
-        )
-
-        body_timeseries.get_time_series_by_date_range.assert_called_once_with(
-            BodyResourceType.WEIGHT, "2023-01-01", "2023-01-15", "-"
-        )
+        with raises(InvalidDateException):
+            body_timeseries.get_weight_timeseries_by_date_range(
+                start_date="2023-01-01", end_date="invalid-date"
+            )

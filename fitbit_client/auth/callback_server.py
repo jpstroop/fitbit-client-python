@@ -166,7 +166,7 @@ class CallbackServer:
                 )
 
             setattr(self.server, "last_callback", None)
-            self.logger.info(f"HTTPS server started on {self.host}:{self.port}")
+            self.logger.debug(f"HTTPS server started on {self.host}:{self.port}")
 
             # Start server in background thread
             try:
@@ -250,4 +250,4 @@ class CallbackServer:
                 self.logger.warning(f"Failed to remove key file: {str(e)}")
             self.key_file = None
 
-        self.logger.info("Callback server stopped and resources cleaned up")
+        self.logger.debug("Temporary resources cleaned up")

@@ -1,7 +1,6 @@
 # tests/resources/test_base_exceptions.py
 
 # Standard library imports
-from unittest.mock import Mock
 from unittest.mock import patch
 
 # Third party imports

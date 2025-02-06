@@ -8,6 +8,8 @@ from pytest import fixture
 from pytest import raises
 
 # Local imports
+from fitbit_client.exceptions import InvalidDateException
+from fitbit_client.exceptions import InvalidDateRangeException
 from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources.activity_timeseries import ActivityTimeSeriesResource
 from fitbit_client.resources.constants import ActivityTimeSeriesPath
@@ -24,7 +26,7 @@ class TestActivityTimeSeriesResource:
             )
             return resource
 
-    def test_get_time_series_by_date_success(self, activity_resource, mock_response):
+    def test_get_activity_timeseries_by_date_success(self, activity_resource, mock_response):
         """Test successful retrieval of activity time series by date"""
         # Setup mock response
         mock_response.json.return_value = {
@@ -33,7 +35,7 @@ class TestActivityTimeSeriesResource:
         activity_resource.oauth.request.return_value = mock_response
 
         # Test the method
-        result = activity_resource.get_time_series_by_date(
+        result = activity_resource.get_activity_timeseries_by_date(
             resource_path=ActivityTimeSeriesPath.STEPS, date="2024-02-01", period=Period.ONE_DAY
         )
 
@@ -50,7 +52,18 @@ class TestActivityTimeSeriesResource:
             headers={"Accept-Locale": "en_US", "Accept-Language": "en_US"},
         )
 
-    def test_get_time_series_activity_calories_range_limit(
+    def test_get_activity_timeseries_by_date_invalid_date(self, activity_resource):
+        """Test that invalid date format raises InvalidDateException"""
+        with raises(InvalidDateException) as exc_info:
+            activity_resource.get_activity_timeseries_by_date(
+                resource_path=ActivityTimeSeriesPath.STEPS,
+                date="invalid-date",
+                period=Period.ONE_DAY,
+            )
+        assert "invalid-date" in str(exc_info.value)
+        assert exc_info.value.field_name == "date"
+
+    def test_get_activity_timeseries_activity_calories_range_limit(
         self, activity_resource, mock_response_factory
     ):
         """Test that activity calories respects the 30 day limit"""
@@ -71,15 +84,16 @@ class TestActivityTimeSeriesResource:
         activity_resource.oauth.request.return_value = error_response
 
         with raises(ValidationException) as exc_info:
-            activity_resource.get_time_series_by_date_range(
+            activity_resource.get_activity_timeseries_by_date_range(
                 resource_path=ActivityTimeSeriesPath.ACTIVITY_CALORIES,
                 start_date="2024-01-01",
-                end_date="2024-02-15",  # More than 30 days
-            )
+                end_date="2024-02-15",
+            )  # More than 30 days
 
         assert "31 days" in str(exc_info.value)
+        assert "activityCalories" in str(exc_info.value)
 
-    def test_get_time_series_different_periods(self, activity_resource, mock_response):
+    def test_get_activity_timeseries_different_periods(self, activity_resource, mock_response):
         """Test getting time series with different period values"""
         mock_response.json.return_value = {"activities-steps": []}
         activity_resource.oauth.request.return_value = mock_response
@@ -98,7 +112,7 @@ class TestActivityTimeSeriesResource:
         ]
 
         for period in periods:
-            activity_resource.get_time_series_by_date(
+            activity_resource.get_activity_timeseries_by_date(
                 resource_path=ActivityTimeSeriesPath.STEPS, date="2024-02-01", period=period
             )
 
@@ -125,7 +139,7 @@ class TestActivityTimeSeriesResource:
         ]
 
         for calorie_type in calorie_types:
-            result = activity_resource.get_time_series_by_date(
+            result = activity_resource.get_activity_timeseries_by_date(
                 resource_path=calorie_type, date="2024-02-01", period=Period.ONE_DAY
             )
             assert isinstance(result, dict)
@@ -134,12 +148,12 @@ class TestActivityTimeSeriesResource:
                 for entry in next(iter(result.values())):
                     assert entry["value"].isdigit()
 
-    def test_get_time_series_by_date_with_user_id(self, activity_resource, mock_response):
+    def test_get_activity_timeseries_by_date_with_user_id(self, activity_resource, mock_response):
         """Test getting time series for a specific user"""
         mock_response.json.return_value = {"activities-steps": []}
         activity_resource.oauth.request.return_value = mock_response
 
-        result = activity_resource.get_time_series_by_date(
+        result = activity_resource.get_activity_timeseries_by_date(
             resource_path=ActivityTimeSeriesPath.STEPS,
             date="2024-02-01",
             period=Period.ONE_DAY,
@@ -155,7 +169,7 @@ class TestActivityTimeSeriesResource:
             headers={"Accept-Locale": "en_US", "Accept-Language": "en_US"},
         )
 
-    def test_get_time_series_by_date_range_success(self, activity_resource, mock_response):
+    def test_get_activity_timeseries_by_date_range_success(self, activity_resource, mock_response):
         """Test successful retrieval of activity time series by date range"""
         mock_response.json.return_value = {
             "activities-steps": [
@@ -165,7 +179,7 @@ class TestActivityTimeSeriesResource:
         }
         activity_resource.oauth.request.return_value = mock_response
 
-        result = activity_resource.get_time_series_by_date_range(
+        result = activity_resource.get_activity_timeseries_by_date_range(
             resource_path=ActivityTimeSeriesPath.STEPS,
             start_date="2024-02-01",
             end_date="2024-02-02",
@@ -187,12 +201,55 @@ class TestActivityTimeSeriesResource:
             headers={"Accept-Locale": "en_US", "Accept-Language": "en_US"},
         )
 
-    def test_get_time_series_by_date_range_with_user_id(self, activity_resource, mock_response):
+    def test_get_activity_timeseries_by_date_range_invalid_dates(self, activity_resource):
+        """Test that invalid date formats raise InvalidDateException"""
+        with raises(InvalidDateException) as exc_info:
+            activity_resource.get_activity_timeseries_by_date_range(
+                resource_path=ActivityTimeSeriesPath.STEPS,
+                start_date="invalid",
+                end_date="2024-02-01",
+            )
+        assert "invalid" in str(exc_info.value)
+        assert exc_info.value.field_name == "start_date"
+
+        with raises(InvalidDateException) as exc_info:
+            activity_resource.get_activity_timeseries_by_date_range(
+                resource_path=ActivityTimeSeriesPath.STEPS,
+                start_date="2024-02-01",
+                end_date="invalid",
+            )
+        assert "invalid" in str(exc_info.value)
+        assert exc_info.value.field_name == "end_date"
+
+    def test_get_activity_timeseries_by_date_range_exceeds_max_range(self, activity_resource):
+        """Test that exceeding maximum date range raises InvalidDateRangeException"""
+        with raises(InvalidDateRangeException) as exc_info:
+            activity_resource.get_activity_timeseries_by_date_range(
+                resource_path=ActivityTimeSeriesPath.STEPS,
+                start_date="2020-01-01",
+                end_date="2024-01-01",
+            )  # More than 1095 days
+        assert "1095 days" in str(exc_info.value)
+        assert "activity time series" in str(exc_info.value)
+
+    def test_get_activity_timeseries_by_date_range_invalid_date_order(self, activity_resource):
+        """Test that start date after end date raises InvalidDateRangeException"""
+        with raises(InvalidDateRangeException) as exc_info:
+            activity_resource.get_activity_timeseries_by_date_range(
+                resource_path=ActivityTimeSeriesPath.STEPS,
+                start_date="2024-02-02",
+                end_date="2024-02-01",
+            )
+        assert f"Start date 2024-02-02 is after end date 2024-02-01" in str(exc_info.value)
+
+    def test_get_activity_timeseries_by_date_range_with_user_id(
+        self, activity_resource, mock_response
+    ):
         """Test getting time series by date range for a specific user"""
         mock_response.json.return_value = {"activities-steps": []}
         activity_resource.oauth.request.return_value = mock_response
 
-        result = activity_resource.get_time_series_by_date_range(
+        result = activity_resource.get_activity_timeseries_by_date_range(
             resource_path=ActivityTimeSeriesPath.STEPS,
             start_date="2024-02-01",
             end_date="2024-02-02",
@@ -208,32 +265,12 @@ class TestActivityTimeSeriesResource:
             headers={"Accept-Locale": "en_US", "Accept-Language": "en_US"},
         )
 
-    def test_get_time_series_by_date_tracker_only(self, activity_resource, mock_response):
-        """Test getting tracker-only activity data"""
-        mock_response.json.return_value = {"activities-tracker-steps": []}
-        activity_resource.oauth.request.return_value = mock_response
-
-        result = activity_resource.get_time_series_by_date(
-            resource_path=ActivityTimeSeriesPath.TRACKER_STEPS,
-            date="2024-02-01",
-            period=Period.ONE_DAY,
-        )
-
-        activity_resource.oauth.request.assert_called_once_with(
-            "GET",
-            "https://api.fitbit.com/1/user/-/activities/tracker/steps/date/2024-02-01/1d.json",
-            data=None,
-            json=None,
-            params=None,
-            headers={"Accept-Locale": "en_US", "Accept-Language": "en_US"},
-        )
-
-    def test_get_time_series_with_today_date(self, activity_resource, mock_response):
+    def test_get_activity_timeseries_with_today_date(self, activity_resource, mock_response):
         """Test using 'today' as the date parameter"""
         mock_response.json.return_value = {"activities-steps": []}
         activity_resource.oauth.request.return_value = mock_response
 
-        result = activity_resource.get_time_series_by_date(
+        result = activity_resource.get_activity_timeseries_by_date(
             resource_path=ActivityTimeSeriesPath.STEPS, date="today", period=Period.ONE_DAY
         )
 

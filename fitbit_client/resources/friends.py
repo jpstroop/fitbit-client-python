@@ -24,12 +24,15 @@ class FriendsResource(BaseResource):
 
     API_VERSION: str = "1.1"
 
-    def get_friends(self, user_id: str = "-") -> Dict[str, Any]:
+    def get_friends(self, user_id: str = "-", debug=False) -> Dict[str, Any]:
         """
         Retrieves a list of the specified Fitbit user's friends.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/friends/get-friends/
+
         Args:
             user_id: The encoded ID of the user. Use "-" (dash) for current logged-in user.
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             A list of friend objects containing:
@@ -46,15 +49,18 @@ class FriendsResource(BaseResource):
             Access may be restricted based on whether the setting is Private, Friends Only, or Public.
         """
         return self._make_request(
-            "friends.json", user_id=user_id, api_version=FriendsResource.API_VERSION
-        )["data"]
+            "friends.json", user_id=user_id, api_version=FriendsResource.API_VERSION, debug=debug
+        )
 
-    def get_friends_leaderboard(self, user_id: str = "-") -> Dict[str, Any]:
+    def get_friends_leaderboard(self, user_id: str = "-", debug=False) -> Dict[str, Any]:
         """
         Retrieves the user's friends leaderboard showing step counts for the last 7 days.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/friends/get-friends-leaderboard/
+
         Args:
             user_id: The encoded ID of the user. Use "-" (dash) for current logged-in user.
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             A dictionary containing leaderboard data with:
@@ -77,5 +83,8 @@ class FriendsResource(BaseResource):
             - Both active (ranked-user) and inactive (inactive-user) friends are included
         """
         return self._make_request(
-            "leaderboard/friends.json", user_id=user_id, api_version=FriendsResource.API_VERSION
+            "leaderboard/friends.json",
+            user_id=user_id,
+            api_version=FriendsResource.API_VERSION,
+            debug=debug,
         )

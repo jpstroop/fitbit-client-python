@@ -45,14 +45,14 @@ htmlcov/
 .pytest_cache/
 .mypy_cache/
 
+# Mac
+.DS_Store
+
 # Project specific
-tokens.json 
+_api-docs
+_data
+_logs
+_sample_responses
+_scripts
 secrets.json
-main.py
-units.json
-data
-nutrition_manager.py
-logs
-*.log
-api-docs/
-api_docs.md
+tokens.json
