@@ -34,6 +34,7 @@ dev = [
     "pytest>=8.3.4",
     "pytest-cov>=6.0.0",
     "pytest-mock>=3.14.0",
+    "autoflake>=2.3.1",
 ]
 
 [build-system]
@@ -73,7 +74,7 @@ extensions = [
 testpaths = ["tests"]
 minversion = 6.0
 python_files = "test_*.py"
-addopts = "-ra -q --cov=fitbit_client --cov-report=term-missing -v --tb=native"
+addopts = "-ra -q --cov=fitbit_client --cache-clear --cov-report=term-missing -v --tb=native"
 pythonpath = ["."]
 
 # https://pytest-cov.readthedocs.io/en/latest/config.html
@@ -81,20 +82,19 @@ pythonpath = ["."]
 [tool.coverage.run]
 source = ["fitbit_client"]
 branch = true
+omit = [ ]
 
 [tool.coverage.report]
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",
-    "if self.debug:",
-    "raise NotImplementedError",
     "if __name__ == .__main__.:",
     "pass",
-    "raise ImportError",
 ]
 
 [tool.pdm.scripts]
-headers = { cmd = "python scripts/add_file_headers.py" }
-format = { composite = [ "headers", "black .", "isort .", "mdformat ." ] }
+autoflake = { cmd = "autoflake . -ri --remove-all-unused-imports --quiet --exclude .venv/* --exclude _scripts/" }
+headers = { cmd = "python lint/add_file_headers.py" }
+format = { composite = [ "headers", "black .", "isort .", "mdformat .", ] }
 
 

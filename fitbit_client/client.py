@@ -1,25 +1,26 @@
-# fitbit_client/client/fitbit_client.py
+# fitbit_client/client.py
 
 # Standard library imports
 from logging import getLogger
 from urllib.parse import urlparse
 
-# Local imports
+# fmt: off
+# isort: off
 from fitbit_client.auth.oauth import FitbitOAuth2
-from fitbit_client.client.resource_methods_mixin import ClientMethodsMixin
-from fitbit_client.resources.activezone import ActiveZoneResource
+from fitbit_client.resources.active_zone_minutes import ActiveZoneMinutesResource
 from fitbit_client.resources.activity import ActivityResource
 from fitbit_client.resources.activity_timeseries import ActivityTimeSeriesResource
 from fitbit_client.resources.body import BodyResource
 from fitbit_client.resources.body_timeseries import BodyTimeSeriesResource
 from fitbit_client.resources.breathingrate import BreathingRateResource
-from fitbit_client.resources.cardio_fitness import CardioFitnessResource
+from fitbit_client.resources.cardio_fitness_score import CardioFitnessScoreResource
 from fitbit_client.resources.device import DeviceResource
-from fitbit_client.resources.ecg import ECGResource
+from fitbit_client.resources.electrocardiogram import ElectrocardiogramResource
 from fitbit_client.resources.friends import FriendsResource
-from fitbit_client.resources.heartrate_timeseries import HeartRateTimeSeriesResource
-from fitbit_client.resources.heartrate_variability import HeartRateVariabilityResource
-from fitbit_client.resources.irregular_rhythm import IrregularRhythmResource
+from fitbit_client.resources.heartrate_timeseries import HeartrateTimeSeriesResource
+from fitbit_client.resources.heartrate_variability import HeartrateVariabilityResource
+from fitbit_client.resources.intraday import IntradayResource
+from fitbit_client.resources.irregular_rhythm_notifications import IrregularRhythmNotificationsResource
 from fitbit_client.resources.nutrition import NutritionResource
 from fitbit_client.resources.nutrition_timeseries import NutritionTimeSeriesResource
 from fitbit_client.resources.sleep import SleepResource
@@ -27,9 +28,11 @@ from fitbit_client.resources.spo2 import SpO2Resource
 from fitbit_client.resources.subscription import SubscriptionResource
 from fitbit_client.resources.temperature import TemperatureResource
 from fitbit_client.resources.user import UserResource
+# isort: on
+# fmt: on
 
 
-class FitbitClient(ClientMethodsMixin):
+class FitbitClient:
     """Main client for interacting with Fitbit API"""
 
     def __init__(
@@ -73,60 +76,32 @@ class FitbitClient(ClientMethodsMixin):
 
         self.logger.debug(f"Initializing API resources with language={language}, locale={locale}")
         # Initialize API resources
-        self.active_zone: ActiveZoneResource = ActiveZoneResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.activity_timeseries: ActivityTimeSeriesResource = ActivityTimeSeriesResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.activity: ActivityResource = ActivityResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.body_timeseries: BodyTimeSeriesResource = BodyTimeSeriesResource(
-            self.auth.session, language=language, locale=locale
-        )
+        # fmt: off
+        # isort: off
+        self.active_zone_minutes: ActiveZoneMinutesResource = ActiveZoneMinutesResource(self.auth.session, language=language, locale=locale)
+        self.activity_timeseries: ActivityTimeSeriesResource = ActivityTimeSeriesResource(self.auth.session, language=language, locale=locale)
+        self.activity: ActivityResource = ActivityResource(self.auth.session, language=language, locale=locale)
+        self.body_timeseries: BodyTimeSeriesResource = BodyTimeSeriesResource(self.auth.session, language=language, locale=locale)
         self.body: BodyResource = BodyResource(self.auth.session, language=language, locale=locale)
-        self.breathingrate: BreathingRateResource = BreathingRateResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.cardiofitness: CardioFitnessResource = CardioFitnessResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.device: DeviceResource = DeviceResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.ecg: ECGResource = ECGResource(self.auth.session, language=language, locale=locale)
-        self.friends: FriendsResource = FriendsResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.heartrate_timeseries: HeartRateTimeSeriesResource = HeartRateTimeSeriesResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.heartrate_variability: HeartRateVariabilityResource = HeartRateVariabilityResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.irregular_rhythm: IrregularRhythmResource = IrregularRhythmResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.nutrition_timeseries: NutritionTimeSeriesResource = NutritionTimeSeriesResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.nutrition: NutritionResource = NutritionResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.sleep: SleepResource = SleepResource(
-            self.auth.session, language=language, locale=locale
-        )
+        self.breathingrate: BreathingRateResource = BreathingRateResource(self.auth.session, language=language, locale=locale)
+        self.cardio_fitness_score: CardioFitnessScoreResource = CardioFitnessScoreResource(self.auth.session, language=language, locale=locale)
+        self.device: DeviceResource = DeviceResource(self.auth.session, language=language, locale=locale)
+        self.electrocardiogram: ElectrocardiogramResource = ElectrocardiogramResource(self.auth.session, language=language, locale=locale)
+        self.friends: FriendsResource = FriendsResource(self.auth.session, language=language, locale=locale)
+        self.heartrate_timeseries: HeartrateTimeSeriesResource = HeartrateTimeSeriesResource(self.auth.session, language=language, locale=locale)
+        self.heartrate_variability: HeartrateVariabilityResource = HeartrateVariabilityResource(self.auth.session, language=language, locale=locale)
+        self.intraday: IntradayResource = IntradayResource(self.auth.session, language=language, locale=locale)
+        self.irregular_rhythm_notifications: IrregularRhythmNotificationsResource = IrregularRhythmNotificationsResource(self.auth.session, language=language, locale=locale)
+        self.nutrition_timeseries: NutritionTimeSeriesResource = NutritionTimeSeriesResource(self.auth.session, language=language, locale=locale)
+        self.nutrition: NutritionResource = NutritionResource(self.auth.session, language=language, locale=locale)
+        self.sleep: SleepResource = SleepResource(self.auth.session, language=language, locale=locale)
         self.spo2: SpO2Resource = SpO2Resource(self.auth.session, language=language, locale=locale)
-        self.subscription: SubscriptionResource = SubscriptionResource(
-            self.auth.session, language=language, locale=locale
-        )
-        self.temperature: TemperatureResource = TemperatureResource(
-            self.auth.session, language=language, locale=locale
-        )
+        self.subscription: SubscriptionResource = SubscriptionResource(self.auth.session, language=language, locale=locale)
+        self.temperature: TemperatureResource = TemperatureResource(self.auth.session, language=language, locale=locale)
         self.user: UserResource = UserResource(self.auth.session, language=language, locale=locale)
-
-        self.logger.info("Fitbit client initialized successfully")
+        # fmt: on
+        # isort: on
+        self.logger.debug("Fitbit client initialized successfully")
 
     # API aliases will be re-implemented after resource methods have been refactored.
 
@@ -143,7 +118,7 @@ class FitbitClient(ClientMethodsMixin):
         self.logger.debug(f"Starting authentication (force_new={force_new})")
         try:
             result = self.auth.authenticate(force_new=force_new)
-            self.logger.info("Authentication successful")
+            self.logger.debug("Authentication successful")
             return result
         except Exception as e:
             self.logger.error(f"Authentication failed: {str(e)}")

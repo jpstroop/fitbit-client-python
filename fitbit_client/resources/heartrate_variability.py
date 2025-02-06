@@ -6,9 +6,11 @@ from typing import Dict
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
+from fitbit_client.utils.date_validation import validate_date_param
+from fitbit_client.utils.date_validation import validate_date_range_params
 
 
-class HeartRateVariabilityResource(BaseResource):
+class HeartrateVariabilityResource(BaseResource):
     """
     Handles Fitbit Heart Rate Variability (HRV) API endpoints for retrieving daily and interval HRV data.
 
@@ -27,13 +29,19 @@ class HeartRateVariabilityResource(BaseResource):
         Premium subscription is not required for HRV data collection.
     """
 
-    def get_hrv_summary_by_date(self, date: str, user_id: str = "-") -> Dict[str, Any]:
+    @validate_date_param(field_name="date")
+    def get_hrv_summary_by_date(
+        self, date: str, user_id: str = "-", debug: bool = False
+    ) -> Dict[str, Any]:
         """
         Retrieves HRV summary data for a single date.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/heartrate-variability/get-hrv-summary-by-date/
 
         Args:
             date: Date in yyyy-MM-dd format or 'today'
             user_id: The encoded ID of the user. Use "-" (dash) for current logged-in user.
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             HRV data including:
@@ -42,23 +50,30 @@ class HeartRateVariabilityResource(BaseResource):
                 - dailyRmssd: Daily heart rate variability (RMSSD) in milliseconds
                 - deepRmssd: Deep sleep heart rate variability (RMSSD) in milliseconds
 
+        Raises:
+            InvalidDateException: If date format is invalid
+
         Note:
             Data reflects the main sleep period, which may have started the previous day.
             A 200 status code indicates successful execution, even if no data exists.
             For reliable data collection, users should remain still during sleep measurement.
         """
-        return self._make_request(f"hrv/date/{date}.json", user_id=user_id)
+        return self._make_request(f"hrv/date/{date}.json", user_id=user_id, debug=debug)
 
+    @validate_date_range_params()
     def get_hrv_summary_by_interval(
-        self, start_date: str, end_date: str, user_id: str = "-"
+        self, start_date: str, end_date: str, user_id: str = "-", debug: bool = False
     ) -> Dict[str, Any]:
         """
         Retrieves HRV summary data for a date range.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/heartrate-variability/get-hrv-summary-by-interval/
 
         Args:
             start_date: Start date in yyyy-MM-dd format or 'today'
             end_date: End date in yyyy-MM-dd format or 'today'
             user_id: The encoded ID of the user. Use "-" (dash) for current logged-in user.
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             HRV data for each date including:
@@ -67,10 +82,16 @@ class HeartRateVariabilityResource(BaseResource):
                 - dailyRmssd: Daily heart rate variability (RMSSD) in milliseconds
                 - deepRmssd: Deep sleep heart rate variability (RMSSD) in milliseconds
 
+        Raises:
+            InvalidDateException: If date format is invalid
+            InvalidDateRangeException: If start_date is after end_date
+
         Note:
             Maximum date range is 30 days.
             Data reflects main sleep periods, which may have started the day before each date.
             A 200 status code indicates successful execution, even if no data exists.
             Since HRV data requires sleep, consider querying once or twice daily (e.g., noon and midnight).
         """
-        return self._make_request(f"hrv/date/{start_date}/{end_date}.json", user_id=user_id)
+        return self._make_request(
+            f"hrv/date/{start_date}/{end_date}.json", user_id=user_id, debug=debug
+        )

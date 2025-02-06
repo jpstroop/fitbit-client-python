@@ -4,7 +4,6 @@
 from http.server import BaseHTTPRequestHandler
 from logging import getLogger
 from typing import Dict
-from typing import Optional
 from urllib.parse import parse_qs
 from urllib.parse import urlparse
 
@@ -119,7 +118,7 @@ class CallbackHandler(BaseHTTPRequestHandler):
 
             # Store validated callback in server instance
             setattr(self.server, "last_callback", self.path)
-            self.logger.info("OAuth callback processed successfully")
+            self.logger.debug("OAuth callback received and validated successfully")
 
         except (InvalidRequestException, InvalidGrantException) as e:
             # Send error response to browser

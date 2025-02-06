@@ -7,6 +7,7 @@ from enum import Enum
 class Period(str, Enum):
     """
     Time periods for Fitbit API endpoints.
+
     Different resources may support different subsets of these periods.
     Check individual resource documentation for supported values.
     """
@@ -41,7 +42,8 @@ class MaxRanges(int, Enum):
     WEIGHT = 31
     ACTIVITY = 31
     SLEEP = 100
-    GENERAL = 1095  # (~3 years) Default max for most resources
+    GENERAL = 1095
+    INTRADAY = 1
 
 
 class ActivityTimeSeriesPath(str, Enum):
@@ -50,7 +52,6 @@ class ActivityTimeSeriesPath(str, Enum):
     API Reference: https://dev.fitbit.com/build/reference/web-api/activity-timeseries/get-activity-timeseries-by-date/#Resource-Options
     """
 
-    # All activity paths
     ACTIVITY_CALORIES = "activityCalories"
     CALORIES = "calories"
     CALORIES_BMR = "caloriesBMR"
@@ -217,13 +218,6 @@ class NutritionResource(str, Enum):
     WATER = "water"
 
 
-class SleepType(str, Enum):
-    """Types of sleep logs supported by Fitbit."""
-
-    CLASSIC = "classic"  # 60-second granularity, basic sleep pattern
-    STAGES = "stages"  # 30-second granularity, detailed sleep stages
-
-
 class SubscriptionCategory(str, Enum):
     """Categories of data available for Fitbit API subscriptions"""
 
@@ -254,3 +248,12 @@ class StartDayOfWeek(str, Enum):
 
     SUNDAY = "SUNDAY"
     MONDAY = "MONDAY"
+
+
+class IntradayDetailLevel(str, Enum):
+    """Detail levels for intraday data"""
+
+    ONE_SECOND = "1sec"
+    ONE_MINUTE = "1min"
+    FIVE_MINUTES = "5min"
+    FIFTEEN_MINUTES = "15min"

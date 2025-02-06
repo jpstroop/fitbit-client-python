@@ -1,11 +1,11 @@
-# scripts/add_file_headers.py
+# lint/add_file_headers.py
 
 # Standard library imports
 from os import getcwd
 from pathlib import Path
 from typing import List
 
-SEARCH_DIRS = ["tests", "fitbit_client", "scripts"]
+SEARCH_DIRS = ["tests", "fitbit_client", "lint"]
 
 
 def find_python_files(root_dir: str) -> List[Path]:

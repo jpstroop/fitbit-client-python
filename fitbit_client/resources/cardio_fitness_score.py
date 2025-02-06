@@ -1,16 +1,16 @@
-# fitbit_client/resources/cardio_fitness.py
+# fitbit_client/resources/cardio_fitness_score.py
 
 # Standard library imports
-from datetime import datetime
 from typing import Any
 from typing import Dict
 
 # Local imports
-from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources.base import BaseResource
+from fitbit_client.utils.date_validation import validate_date_param
+from fitbit_client.utils.date_validation import validate_date_range_params
 
 
-class CardioFitnessResource(BaseResource):
+class CardioFitnessScoreResource(BaseResource):
     """
     Handles Fitbit Cardio Fitness (VO2 Max) API endpoints for accessing cardio fitness scores.
 
@@ -25,54 +25,54 @@ class CardioFitnessResource(BaseResource):
     API Reference: https://dev.fitbit.com/build/reference/web-api/cardio-fitness-score/
     """
 
-    def get_vo2_max_summary_by_date(self, date: str, user_id: str = "-") -> Dict[str, Any]:
+    @validate_date_param()
+    def get_vo2_max_summary_by_date(
+        self, date: str, user_id: str = "-", debug: bool = False
+    ) -> Dict[str, Any]:
         """
         Get cardio fitness (VO2 Max) data for a single date.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/cardio-fitness-score/get-vo2max-summary-by-date/
 
         Args:
             date: Date in YYYY-MM-DD format or "today"
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             VO2 max data for the specified date
 
         Raises:
-            ValidationException: If date format is invalid
+            InvalidDateException: If date format is invalid
 
         Note:
             Values may change throughout the day based on activity levels, heart rate,
             weight changes and other factors. The response always uses ml/kg/min units
             regardless of the Accept-Language header.
         """
-        if date != "today":
-            try:
-                datetime.strptime(date, "%Y-%m-%d")
-            except ValueError as e:
-                raise ValidationException(
-                    message=f"Invalid date format: {str(e)}",
-                    status_code=400,
-                    error_type="validation",
-                    field_name="date",
-                )
+        return self._make_request(f"cardioscore/date/{date}.json", user_id=user_id, debug=debug)
 
-        return self._make_request(f"cardioscore/date/{date}.json", user_id=user_id)
-
+    @validate_date_range_params(max_days=30)
     def get_vo2_max_summary_by_interval(
-        self, start_date: str, end_date: str, user_id: str = "-"
+        self, start_date: str, end_date: str, user_id: str = "-", debug: bool = False
     ) -> Dict[str, Any]:
         """
         Get cardio fitness (VO2 Max) data for a date range.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/cardio-fitness-score/get-vo2max-summary-by-interval/
 
         Args:
             start_date: Start date in YYYY-MM-DD format or "today"
             end_date: End date in YYYY-MM-DD format or "today"
             user_id: Optional user ID, defaults to current user
+            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
             VO2 max data for each date in the range
 
         Raises:
-            ValidationException: If date format is invalid or date range exceeds 30 days
+            InvalidDateException: If date format is invalid
+            InvalidDateRangeException: If date range exceeds 30 days or start_date is after end_date
 
         Note:
             Maximum date range is 30 days.
@@ -80,27 +80,6 @@ class CardioFitnessResource(BaseResource):
             weight changes and other factors. The response always uses ml/kg/min units
             regardless of the Accept-Language header.
         """
-        try:
-            if start_date != "today":
-                start = datetime.strptime(start_date, "%Y-%m-%d")
-            if end_date != "today":
-                end = datetime.strptime(end_date, "%Y-%m-%d")
-
-            if start_date != "today" and end_date != "today":
-                date_diff = (end - start).days
-                if date_diff > 30:
-                    raise ValidationException(
-                        message="Maximum date range is 30 days",
-                        status_code=400,
-                        error_type="validation",
-                        field_name="date_range",
-                    )
-        except ValueError as e:
-            raise ValidationException(
-                message=f"Invalid date format: {str(e)}",
-                status_code=400,
-                error_type="validation",
-                field_name="date",
-            )
-
-        return self._make_request(f"cardioscore/date/{start_date}/{end_date}.json", user_id=user_id)
+        return self._make_request(
+            f"cardioscore/date/{start_date}/{end_date}.json", user_id=user_id, debug=debug
+        )
