@@ -49,16 +49,11 @@ except Exception as e:
     print(f"Error: {str(e)}")
 ```
 
-The response will always be a `Dict` with two keys: `headers` (the HTTP headers
-returned by the API call), and `content`, which is the API response. This
-approach allows us to almost completely encapsulate the HTTP(S) interactions
-entirely (exceptions are the, erm, exception) and also makes strong typing more
-predictable.
+The response will always be the body of the API response, and is almost always a
+`Dict`, `List` or `None`. `nutrition.get_activity_tcx` is the exception. It
+returns XML (as a `str`).
 
 ## Authentication Methods
-
-_Note that you must be signed in to https://www.fitbit.com/dev before starting
-the authentication flow._
 
 ### 1. Automatic (Recommended)
 
@@ -104,89 +99,26 @@ client.authenticate()
    - For manual method: Your preferred redirect URI
 4. Copy your Client ID and Client Secret
 
-For development guidelines, see [DEVELOPMENT.md](DEVELOPMENT.md).
+Additional documentation:
 
-## Logging
+- To understand the logging implemementation, see [LOGGING](docs/LOGGING.md)
+- To understand validations and the exception hierarchy, see
+  [VALIDATIONS_AND_EXCEPTIONS](docs/VALIDATIONS_AND_EXCEPTIONS.md)
+- For some general development guidelines, see
+  [DEVELOPMENT](docs/DEVELOPMENT.md).
+- For style guidelines (mostly enforced through varius linters and formatters)
+  see [STYLE](docs/STYLE.md).
 
-There are two logs available: the **application log** and the **data log**. The
-application log records interactions with the API including detailed error
-information and request status. The data log records important data fields like
-IDs for foods, food logs, and activity logs that the user creates.
+## Important Note - Subscription Support
 
-The data log adds a little extra complexity, but it should be easy enough to
-understand if you are familiar with Python's standard
-[logging library](https://docs.python.org/3/library/logging.html#).
-
-Here's a simple example of what you might put in your application:
-
-```python
-from logging import FileHandler
-from logging import getLogger
-from logging import INFO
-from logging import StreamHandler
-from logging import DEBUG
-
-
-# Configure application logging
-app_logger = getLogger("fitbit_client")
-app_formatter = Formatter("[%(asctime)s] %(levelname)s [%(name)s] %(message)s")
-
-# Add file handler for application logging
-file_handler = FileHandler("logs/fitbit_app.log")
-file_handler.setFormatter(app_formatter)
-app_logger.addHandler(file_handler)
-
-# Add console handler for application logging
-console_handler = StreamHandler(stdout)
-console_handler.setFormatter(app_formatter)
-app_logger.addHandler(console_handler)
-
-app_logger.setLevel(INFO)  # Set to DEBUG for detailed request information
-
-# Configure data logging separately (file only, no console output)
-data_logger = getLogger("fitbit_client.data") 
-data_handler = FileHandler("logs/fitbit_data.log")
-data_handler.setFormatter(Formatter("%(message)s"))  # Raw JSON format
-data_logger.addHandler(data_handler)
-data_logger.setLevel(INFO)
-data_logger.propagate = False
-```
-
-The client provides logging at different levels:
-
-Debug level shows comprehensive details for every API call:
-
-```
-[2025-01-27 23:37:09,660] DEBUG [fitbit_client.NutritionResource] API Call Details:
-Endpoint: foods/log/favorite.json
-Method: get_favorite_foods
-Status: 200
-Parameters: {}
-Headers: {'Content-Type': 'application/json'}
-Response: {'content': {'foods': [...]}}
-```
-
-All responses are logged at INFO level:
-
-```
-[2025-01-27 23:37:09,660] INFO [fitbit_client.NutritionResource] get_favorite_foods succeeded for foods/log/favorite.json (status 200)
-[2025-01-27 23:39:27,703] INFO [fitbit_client.NutritionResource] Request failed for foods/log/favorite.json (status 404): [validation] resource owner: Invalid ID
-```
-
-Failures (4xx and 5xx responses) are additionally logged at ERROR level:
-
-```
-[2025-01-27 23:39:27,703] ERROR [fitbit_client.NutritionResource] Request failed for foods/log/favorite.json (status 404): [validation] resource owner: Invalid ID
-```
-
-## Important Note - Intraday Data Support
-
-- This client does not currently support intraday data endpoints (detailed heart
-  rate, steps, etc). These endpoints require special access from Fitbit and are
-  typically limited to research applications.
-- For intraday data access requests, see
-  [Fitbit's API documentation](https://dev.fitbit.com/build/reference/web-api/intraday/).
-- See additional notes about this in [DEVELOPMENT.md](DEVELOPMENT.md)
+This client does not currently support the
+[creation](https://dev.fitbit.com/build/reference/web-api/subscription/create-subscription/)
+and
+[deletion](https://dev.fitbit.com/build/reference/web-api/subscription/delete-subscription/)
+of
+[webhook subscrptions](https://dev.fitbit.com/build/reference/web-api/developer-guide/using-subscriptions/).
+The methods are implemented in comments and _should_ work, but I have not had a
+chance to verify a user confirm this.
 
 ## License
 

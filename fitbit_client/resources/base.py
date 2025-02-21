@@ -399,7 +399,6 @@ class BaseResource:
             AuthorizationException: When there are authorization errors
             ExpiredTokenException: When the OAuth token has expired
             InsufficientPermissionsException: When the app lacks required permissions
-            InvalidRequestException: When the request syntax is invalid
             NotFoundException: When the requested resource doesn't exist
             RateLimitExceededException: When rate limits are exceeded
             ValidationException: When request parameters are invalid

@@ -2,10 +2,23 @@
 
 ## TODO
 
+- [ ] Rationalize:
+
+* `InsufficientScopeException` \<< Maybe in AZM? Tests use it?
+* Do we need the IntradayException?
+* FitbitException does not need status code, does it? Or is it needed for the
+  OAuth exceptions too? If so, we should map the codes and consider merging the
+  exception hierarchies
+
+- [ ] Check exceptions related to requests--they should take a status code, not
+  the fitbit API
+
 - [ ] break bigger test files down into files by method: activity and nutrition,
   at least!
 
-- [ ] finish method_checklist
+- [ ] RateLimitExceededException - can we get info about when we should retry
+  from the API, so that calls could be wrapped in a function with try/except
+  that sleeps for a set amount of time based on the response?
 
 - [ ] confirm that validation of methods where before_date or after_date is
   handled consistently across classes
