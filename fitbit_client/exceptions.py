@@ -6,6 +6,9 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
+# Local imports
+from fitbit_client.resources.constants import IntradayDetailLevel
+
 
 class FitbitAPIException(Exception):
     """Base exception for all Fitbit API errors"""
@@ -13,8 +16,8 @@ class FitbitAPIException(Exception):
     def __init__(
         self,
         message: str,
-        status_code: int,
         error_type: str,
+        status_code: Optional[int] = None,
         raw_response: Optional[Dict[str, Any]] = None,
         field_name: Optional[str] = None,
     ):
@@ -26,97 +29,106 @@ class FitbitAPIException(Exception):
         super().__init__(self.message)
 
 
-class AuthorizationException(FitbitAPIException):
-    """Raised when there are authorization-related errors"""
+## OAuthExceptions
+
+
+class OAuthException(FitbitAPIException):
+    """Superclass for all authentication flow exceptions"""
 
     pass
 
 
-class ExpiredTokenException(FitbitAPIException):
+class ExpiredTokenException(OAuthException):
     """Raised when the OAuth token has expired"""
 
     pass
 
 
-class InsufficientPermissionsException(FitbitAPIException):
-    """Raised when the application has insufficient permissions"""
-
-    pass
-
-
-class InsufficientScopeException(FitbitAPIException):
-    """Raised when the application is missing a required scope"""
-
-    pass
-
-
-class InvalidClientException(FitbitAPIException):
-    """Raised when the client_id is invalid"""
-
-    pass
-
-
-class InvalidGrantException(FitbitAPIException):
+class InvalidGrantException(OAuthException):
     """Raised when the grant_type value is invalid"""
 
     pass
 
 
-class InvalidRequestException(FitbitAPIException):
-    """Raised when the request syntax is invalid"""
-
-    pass
-
-
-class InvalidScopeException(FitbitAPIException):
-    """Raised when the scope is invalid"""
-
-    pass
-
-
-class InvalidTokenException(FitbitAPIException):
+class InvalidTokenException(OAuthException):
     """Raised when the OAuth token is invalid"""
 
     pass
 
 
-class NotFoundException(FitbitAPIException):
-    """Raised when the requested resource doesn't exist"""
+class InvalidClientException(OAuthException):
+    """Raised when the client_id is invalid"""
 
     pass
 
 
-class OAuthException(FitbitAPIException):
-    """Raised when OAuth token is invalid, missing or expired"""
+##  Request Exceptions
+
+
+class RequestException(FitbitAPIException):
+    """Superclass for all API request exceptions"""
 
     pass
 
 
-class RateLimitExceededException(FitbitAPIException):
+class InvalidRequestException(RequestException):
+    """Raised when the request syntax is invalid"""
+
+    pass
+
+
+class AuthorizationException(RequestException):
+    """Raised when there are authorization-related errors"""
+
+    pass
+
+
+class InsufficientPermissionsException(RequestException):
+    """Raised when the application has insufficient permissions"""
+
+    pass
+
+
+class InsufficientScopeException(RequestException):
+    """Raised when the application is missing a required scope"""
+
+    pass
+
+
+class NotFoundException(RequestException):
+    """Raised when the requested resource does not exist"""
+
+    pass
+
+
+class RateLimitExceededException(RequestException):
     """Raised when the application hits rate limiting quotas"""
 
     pass
 
 
-class RequestException(FitbitAPIException):
-    """Raised when the API request fails"""
-
-    pass
-
-
-class SystemException(FitbitAPIException):
+class SystemException(RequestException):
     """Raised when there's a system-level failure"""
 
     pass
 
 
-class ValidationException(FitbitAPIException):
+class ValidationException(RequestException):
     """Raised when a request parameter is invalid or missing"""
 
     pass
 
 
-class InvalidDateException(ValidationException):
+## PreRequestValidaton Exceptions
+
+
+class ClientValidationException(FitbitAPIException):
+    """Superclass for validations that take place before making a request"""
+
+    pass
+
+
+class InvalidDateException(ClientValidationException):
     """Raised when a date string is not in the correct format or not a valid calendar date"""
 
     def __init__(
@@ -124,14 +136,13 @@ class InvalidDateException(ValidationException):
     ):
         super().__init__(
             message=message or f"Invalid date format. Expected YYYY-MM-DD, got: {date_str}",
-            status_code=400,
-            error_type="validation",
+            error_type="client_validation",
             field_name=field_name,
         )
         self.date_str = date_str
 
 
-class InvalidDateRangeException(ValidationException):
+class InvalidDateRangeException(ClientValidationException):
     """Raised when a date range is invalid (e.g., end before start, exceeds max days)"""
 
     def __init__(
@@ -146,7 +157,10 @@ class InvalidDateRangeException(ValidationException):
         message = f"Invalid date range: {reason}"
 
         super().__init__(
-            message=message, status_code=400, error_type="validation", field_name="date_range"
+            message=message,
+            status_code=400,
+            error_type="client_validation",
+            field_name="date_range",
         )
         self.start_date = start_date
         self.end_date = end_date
@@ -154,7 +168,7 @@ class InvalidDateRangeException(ValidationException):
         self.resource_name = resource_name
 
 
-class IntradayValidationException(ValidationException):
+class IntradayValidationException(ClientValidationException):
     """Raised when intraday request parameters are invalid"""
 
     def __init__(
@@ -169,7 +183,7 @@ class IntradayValidationException(ValidationException):
         Args:
             message: Error message
             field_name: Name of the invalid field
-            allowed_values: Optional list of valid values for the field
+            allowed_values: Optional list of valid values
             resource_name: Optional name of the resource/endpoint
         """
         error_msg = message
@@ -178,12 +192,7 @@ class IntradayValidationException(ValidationException):
         if resource_name:
             error_msg = f"{error_msg} for {resource_name}"
 
-        super().__init__(
-            message=error_msg,
-            status_code=400,
-            error_type="intraday_validation",
-            field_name=field_name,
-        )
+        super().__init__(message=error_msg, field_name=field_name, error_type="client_validation")
         self.allowed_values = allowed_values
         self.resource_name = resource_name
 
@@ -202,7 +211,9 @@ STATUS_CODE_EXCEPTIONS = {
     504: SystemException,
 }
 
-# Map error types to exception classes
+# Map fitbit error types to exception classes. The keys match the `errorType`s listed here:
+# https://dev.fitbit.com/build/reference/web-api/troubleshooting-guide/error-handling/#types-of-errors
+# This is elegant and efficient, but may take some time to understand!
 ERROR_TYPE_EXCEPTIONS = {
     "authorization": AuthorizationException,
     "expired_token": ExpiredTokenException,
@@ -211,7 +222,6 @@ ERROR_TYPE_EXCEPTIONS = {
     "invalid_client": InvalidClientException,
     "invalid_grant": InvalidGrantException,
     "invalid_request": InvalidRequestException,
-    "invalid_scope": InvalidScopeException,
     "invalid_token": InvalidTokenException,
     "not_found": NotFoundException,
     "oauth": OAuthException,
