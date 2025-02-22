@@ -12,7 +12,7 @@ from fitbit_client.resources.activity import ActivityResource
 from fitbit_client.resources.activity_timeseries import ActivityTimeSeriesResource
 from fitbit_client.resources.body import BodyResource
 from fitbit_client.resources.body_timeseries import BodyTimeSeriesResource
-from fitbit_client.resources.breathingrate import BreathingRateResource
+from fitbit_client.resources.breathing_rate import BreathingRateResource
 from fitbit_client.resources.cardio_fitness_score import CardioFitnessScoreResource
 from fitbit_client.resources.device import DeviceResource
 from fitbit_client.resources.electrocardiogram import ElectrocardiogramResource
@@ -83,7 +83,7 @@ class FitbitClient:
         self.activity: ActivityResource = ActivityResource(self.auth.session, language=language, locale=locale)
         self.body_timeseries: BodyTimeSeriesResource = BodyTimeSeriesResource(self.auth.session, language=language, locale=locale)
         self.body: BodyResource = BodyResource(self.auth.session, language=language, locale=locale)
-        self.breathingrate: BreathingRateResource = BreathingRateResource(self.auth.session, language=language, locale=locale)
+        self.breathing_rate: BreathingRateResource = BreathingRateResource(self.auth.session, language=language, locale=locale)
         self.cardio_fitness_score: CardioFitnessScoreResource = CardioFitnessScoreResource(self.auth.session, language=language, locale=locale)
         self.device: DeviceResource = DeviceResource(self.auth.session, language=language, locale=locale)
         self.electrocardiogram: ElectrocardiogramResource = ElectrocardiogramResource(self.auth.session, language=language, locale=locale)
