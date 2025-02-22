@@ -54,5 +54,6 @@ _data
 _logs
 _sample_responses
 _scripts
+_cov_html
 secrets.json
 tokens.json

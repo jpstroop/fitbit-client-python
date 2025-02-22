@@ -10,13 +10,14 @@ from typing import List
 # Third party imports
 from pytest import fail
 
-# Local imports
+# fmt: off
+# isort: off
 from fitbit_client.resources.active_zone_minutes import ActiveZoneMinutesResource
 from fitbit_client.resources.activity import ActivityResource
 from fitbit_client.resources.activity_timeseries import ActivityTimeSeriesResource
 from fitbit_client.resources.body import BodyResource
 from fitbit_client.resources.body_timeseries import BodyTimeSeriesResource
-from fitbit_client.resources.breathingrate import BreathingRateResource
+from fitbit_client.resources.breathing_rate import BreathingRateResource
 from fitbit_client.resources.cardio_fitness_score import CardioFitnessScoreResource
 from fitbit_client.resources.device import DeviceResource
 from fitbit_client.resources.electrocardiogram import ElectrocardiogramResource
@@ -24,9 +25,7 @@ from fitbit_client.resources.friends import FriendsResource
 from fitbit_client.resources.heartrate_timeseries import HeartrateTimeSeriesResource
 from fitbit_client.resources.heartrate_variability import HeartrateVariabilityResource
 from fitbit_client.resources.intraday import IntradayResource
-from fitbit_client.resources.irregular_rhythm_notifications import (
-    IrregularRhythmNotificationsResource,
-)
+from fitbit_client.resources.irregular_rhythm_notifications import IrregularRhythmNotificationsResource
 from fitbit_client.resources.nutrition import NutritionResource
 from fitbit_client.resources.nutrition_timeseries import NutritionTimeSeriesResource
 from fitbit_client.resources.sleep import SleepResource
@@ -34,6 +33,8 @@ from fitbit_client.resources.spo2 import SpO2Resource
 from fitbit_client.resources.subscription import SubscriptionResource
 from fitbit_client.resources.temperature import TemperatureResource
 from fitbit_client.resources.user import UserResource
+# isort: on
+# fmt: on
 
 
 def get_public_methods(cls) -> List[str]:
