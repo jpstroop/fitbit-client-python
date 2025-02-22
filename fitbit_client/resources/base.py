@@ -303,7 +303,7 @@ class BaseResource:
         """
         try:
             content = response.json()
-        except JSONDecodeError as e:
+        except JSONDecodeError:
             self.logger.error(f"Invalid JSON response from {endpoint}")
             raise
 

@@ -13,17 +13,17 @@ from fitbit_client.resources.constants import ActivityTimeSeriesPath
 from fitbit_client.resources.constants import Period
 
 
-def test_get_activity_timeseries_by_date_success(activity_resource, mock_response):
+def test_get_activity_timeseries_by_date_success(activity_timeseries_resource, mock_response):
     """Test successful retrieval of activity time series by date"""
     mock_response.json.return_value = {
         "activities-steps": [{"dateTime": "2024-02-01", "value": "10000"}]
     }
-    activity_resource.oauth.request.return_value = mock_response
-    result = activity_resource.get_activity_timeseries_by_date(
+    activity_timeseries_resource.oauth.request.return_value = mock_response
+    result = activity_timeseries_resource.get_activity_timeseries_by_date(
         resource_path=ActivityTimeSeriesPath.STEPS, date="2024-02-01", period=Period.ONE_DAY
     )
     assert result == {"activities-steps": [{"dateTime": "2024-02-01", "value": "10000"}]}
-    activity_resource.oauth.request.assert_called_once_with(
+    activity_timeseries_resource.oauth.request.assert_called_once_with(
         "GET",
         "https://api.fitbit.com/1/user/-/activities/steps/date/2024-02-01/1d.json",
         data=None,
@@ -33,17 +33,17 @@ def test_get_activity_timeseries_by_date_success(activity_resource, mock_respons
     )
 
 
-def test_get_activity_timeseries_by_date_with_user_id(activity_resource, mock_response):
+def test_get_activity_timeseries_by_date_with_user_id(activity_timeseries_resource, mock_response):
     """Test getting time series for a specific user"""
     mock_response.json.return_value = {"activities-steps": []}
-    activity_resource.oauth.request.return_value = mock_response
-    result = activity_resource.get_activity_timeseries_by_date(
+    activity_timeseries_resource.oauth.request.return_value = mock_response
+    result = activity_timeseries_resource.get_activity_timeseries_by_date(
         resource_path=ActivityTimeSeriesPath.STEPS,
         date="2024-02-01",
         period=Period.ONE_DAY,
         user_id="123ABC",
     )
-    activity_resource.oauth.request.assert_called_once_with(
+    activity_timeseries_resource.oauth.request.assert_called_once_with(
         "GET",
         "https://api.fitbit.com/1/user/123ABC/activities/steps/date/2024-02-01/1d.json",
         data=None,
@@ -53,10 +53,10 @@ def test_get_activity_timeseries_by_date_with_user_id(activity_resource, mock_re
     )
 
 
-def test_get_activity_timeseries_by_date_invalid_date(activity_resource):
+def test_get_activity_timeseries_by_date_invalid_date(activity_timeseries_resource):
     """Test that invalid date format raises InvalidDateException"""
     with raises(InvalidDateException) as exc_info:
-        activity_resource.get_activity_timeseries_by_date(
+        activity_timeseries_resource.get_activity_timeseries_by_date(
             resource_path=ActivityTimeSeriesPath.STEPS, date="invalid-date", period=Period.ONE_DAY
         )
     assert "invalid-date" in str(exc_info.value)
@@ -68,14 +68,14 @@ def test_get_activity_timeseries_by_date_invalid_date(activity_resource):
 # Local imports
 
 
-def test_calories_variants(activity_resource, mock_response):
+def test_calories_variants(activity_timeseries_resource, mock_response):
     """Test different calorie measurement types return expected data"""
     mock_response.json.return_value = {
         "activities-activityCalories": [{"dateTime": "2024-02-01", "value": "300"}],
         "activities-calories": [{"dateTime": "2024-02-01", "value": "2000"}],
         "activities-caloriesBMR": [{"dateTime": "2024-02-01", "value": "1700"}],
     }
-    activity_resource.oauth.request.return_value = mock_response
+    activity_timeseries_resource.oauth.request.return_value = mock_response
     calorie_types = [
         ActivityTimeSeriesPath.ACTIVITY_CALORIES,
         ActivityTimeSeriesPath.CALORIES,
@@ -84,7 +84,7 @@ def test_calories_variants(activity_resource, mock_response):
         ActivityTimeSeriesPath.TRACKER_ACTIVITY_CALORIES,
     ]
     for calorie_type in calorie_types:
-        result = activity_resource.get_activity_timeseries_by_date(
+        result = activity_timeseries_resource.get_activity_timeseries_by_date(
             resource_path=calorie_type, date="2024-02-01", period=Period.ONE_DAY
         )
         assert isinstance(result, dict)

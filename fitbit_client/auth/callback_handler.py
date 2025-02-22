@@ -111,7 +111,7 @@ class CallbackHandler(BaseHTTPRequestHandler):
 
         try:
             # Parse and validate query parameters
-            query_params = self.parse_query_parameters()
+            self.parse_query_parameters()
 
             # Send success response
             self.send_success_response()

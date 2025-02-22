@@ -6,9 +6,6 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
-# Local imports
-from fitbit_client.resources.constants import IntradayDetailLevel
-
 
 class FitbitAPIException(Exception):
     """Base exception for all Fitbit API errors"""

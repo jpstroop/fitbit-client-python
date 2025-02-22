@@ -6,7 +6,6 @@ from typing import Dict
 from typing import Optional
 
 # Local imports
-from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import SubscriptionCategory
 

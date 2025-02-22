@@ -5,7 +5,6 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 
-pass
 # Local imports
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import Period
