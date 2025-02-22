@@ -3,6 +3,7 @@
 # Standard library imports
 from os import getcwd
 from pathlib import Path
+from sys import exit
 from typing import List
 
 SEARCH_DIRS = ["tests", "fitbit_client", "lint"]
@@ -48,10 +49,13 @@ def main():
     """Main script function."""
     project_root = Path(getcwd())
     python_files = find_python_files(project_root)
-
+    updated = 0
     for file_path in python_files:
+        add_file_header(file_path, project_root)
         if add_file_header(file_path, project_root):
-            print(f"Added or corrected path comment in {file_path.relative_to(project_root)}")
+            updated = 1
+            # print(f"Added or corrected path comment in {file_path.relative_to(project_root)}")
+    exit(updated)
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources.constants import ActivityTimeSeriesPath
 
 
-def test_get_activity_timeseries_by_date_range_success(activity_resource, mock_response):
+def test_get_activity_timeseries_by_date_range_success(activity_timeseries_resource, mock_response):
     """Test successful retrieval of activity time series by date range"""
     mock_response.json.return_value = {
         "activities-steps": [
@@ -22,8 +22,8 @@ def test_get_activity_timeseries_by_date_range_success(activity_resource, mock_r
             {"dateTime": "2024-02-02", "value": "12000"},
         ]
     }
-    activity_resource.oauth.request.return_value = mock_response
-    result = activity_resource.get_activity_timeseries_by_date_range(
+    activity_timeseries_resource.oauth.request.return_value = mock_response
+    result = activity_timeseries_resource.get_activity_timeseries_by_date_range(
         resource_path=ActivityTimeSeriesPath.STEPS, start_date="2024-02-01", end_date="2024-02-02"
     )
     assert result == {
@@ -32,7 +32,7 @@ def test_get_activity_timeseries_by_date_range_success(activity_resource, mock_r
             {"dateTime": "2024-02-02", "value": "12000"},
         ]
     }
-    activity_resource.oauth.request.assert_called_once_with(
+    activity_timeseries_resource.oauth.request.assert_called_once_with(
         "GET",
         "https://api.fitbit.com/1/user/-/activities/steps/date/2024-02-01/2024-02-02.json",
         data=None,
@@ -42,17 +42,19 @@ def test_get_activity_timeseries_by_date_range_success(activity_resource, mock_r
     )
 
 
-def test_get_activity_timeseries_by_date_range_with_user_id(activity_resource, mock_response):
+def test_get_activity_timeseries_by_date_range_with_user_id(
+    activity_timeseries_resource, mock_response
+):
     """Test getting time series by date range for a specific user"""
     mock_response.json.return_value = {"activities-steps": []}
-    activity_resource.oauth.request.return_value = mock_response
-    result = activity_resource.get_activity_timeseries_by_date_range(
+    activity_timeseries_resource.oauth.request.return_value = mock_response
+    result = activity_timeseries_resource.get_activity_timeseries_by_date_range(
         resource_path=ActivityTimeSeriesPath.STEPS,
         start_date="2024-02-01",
         end_date="2024-02-02",
         user_id="123ABC",
     )
-    activity_resource.oauth.request.assert_called_once_with(
+    activity_timeseries_resource.oauth.request.assert_called_once_with(
         "GET",
         "https://api.fitbit.com/1/user/123ABC/activities/steps/date/2024-02-01/2024-02-02.json",
         data=None,
@@ -62,26 +64,26 @@ def test_get_activity_timeseries_by_date_range_with_user_id(activity_resource, m
     )
 
 
-def test_get_activity_timeseries_by_date_range_invalid_dates(activity_resource):
+def test_get_activity_timeseries_by_date_range_invalid_dates(activity_timeseries_resource):
     """Test that invalid date formats raise InvalidDateException"""
     with raises(InvalidDateException) as exc_info:
-        activity_resource.get_activity_timeseries_by_date_range(
+        activity_timeseries_resource.get_activity_timeseries_by_date_range(
             resource_path=ActivityTimeSeriesPath.STEPS, start_date="invalid", end_date="2024-02-01"
         )
     assert "invalid" in str(exc_info.value)
     assert exc_info.value.field_name == "start_date"
     with raises(InvalidDateException) as exc_info:
-        activity_resource.get_activity_timeseries_by_date_range(
+        activity_timeseries_resource.get_activity_timeseries_by_date_range(
             resource_path=ActivityTimeSeriesPath.STEPS, start_date="2024-02-01", end_date="invalid"
         )
     assert "invalid" in str(exc_info.value)
     assert exc_info.value.field_name == "end_date"
 
 
-def test_get_activity_timeseries_by_date_range_invalid_date_order(activity_resource):
+def test_get_activity_timeseries_by_date_range_invalid_date_order(activity_timeseries_resource):
     """Test that start date after end date raises InvalidDateRangeException"""
     with raises(InvalidDateRangeException) as exc_info:
-        activity_resource.get_activity_timeseries_by_date_range(
+        activity_timeseries_resource.get_activity_timeseries_by_date_range(
             resource_path=ActivityTimeSeriesPath.STEPS,
             start_date="2024-02-02",
             end_date="2024-02-01",
@@ -90,7 +92,7 @@ def test_get_activity_timeseries_by_date_range_invalid_date_order(activity_resou
 
 
 def test_get_activity_timeseries_activity_calories_range_limit(
-    activity_resource, mock_response_factory
+    activity_timeseries_resource, mock_response_factory
 ):
     """Test that activity calories respects the 30 day limit"""
     error_response = mock_response_factory(
@@ -104,9 +106,9 @@ def test_get_activity_timeseries_activity_calories_range_limit(
             ]
         },
     )
-    activity_resource.oauth.request.return_value = error_response
+    activity_timeseries_resource.oauth.request.return_value = error_response
     with raises(ValidationException) as exc_info:
-        activity_resource.get_activity_timeseries_by_date_range(
+        activity_timeseries_resource.get_activity_timeseries_by_date_range(
             resource_path=ActivityTimeSeriesPath.ACTIVITY_CALORIES,
             start_date="2024-01-01",
             end_date="2024-02-15",
@@ -115,10 +117,10 @@ def test_get_activity_timeseries_activity_calories_range_limit(
     assert "activityCalories" in str(exc_info.value)
 
 
-def test_get_activity_timeseries_by_date_range_exceeds_max_range(activity_resource):
+def test_get_activity_timeseries_by_date_range_exceeds_max_range(activity_timeseries_resource):
     """Test that exceeding maximum date range raises InvalidDateRangeException"""
     with raises(InvalidDateRangeException) as exc_info:
-        activity_resource.get_activity_timeseries_by_date_range(
+        activity_timeseries_resource.get_activity_timeseries_by_date_range(
             resource_path=ActivityTimeSeriesPath.STEPS,
             start_date="2020-01-01",
             end_date="2024-01-01",

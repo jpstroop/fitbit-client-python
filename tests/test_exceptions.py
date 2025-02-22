@@ -1,14 +1,11 @@
 # tests/test_exceptions.py
 
 # Standard library imports
-from typing import Dict
 from typing import List
-from typing import Optional
 from typing import Union
 
 # Third party imports
 from pytest import mark
-from pytest import raises
 
 # Local imports
 from fitbit_client.exceptions import AuthorizationException
