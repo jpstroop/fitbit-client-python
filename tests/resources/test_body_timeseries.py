@@ -70,14 +70,14 @@ class TestBodyTimeSeriesResource:
         # Test invalid start date
         with raises(InvalidDateException) as exc_info:
             body_timeseries.get_body_timeseries_by_date_range(
-                resource_type=BodyResourceType.BMI, start_date="invalid-date", end_date="2023-01-01"
+                resource_type=BodyResourceType.BMI, begin_date="invalid-date", end_date="2023-01-01"
             )
-        assert exc_info.value.field_name == "start_date"
+        assert exc_info.value.field_name == "begin_date"
 
         # Test invalid end date
         with raises(InvalidDateException) as exc_info:
             body_timeseries.get_body_timeseries_by_date_range(
-                resource_type=BodyResourceType.BMI, start_date="2023-01-01", end_date="invalid-date"
+                resource_type=BodyResourceType.BMI, begin_date="2023-01-01", end_date="invalid-date"
             )
         assert exc_info.value.field_name == "end_date"
 
@@ -85,7 +85,7 @@ class TestBodyTimeSeriesResource:
         """Test that end date cannot be before start date"""
         with raises(InvalidDateRangeException) as exc_info:
             body_timeseries.get_body_timeseries_by_date_range(
-                resource_type=BodyResourceType.BMI, start_date="2023-02-01", end_date="2023-01-01"
+                resource_type=BodyResourceType.BMI, begin_date="2023-02-01", end_date="2023-01-01"
             )
         assert f"Start date 2023-02-01 is after end date 2023-01-01" in str(exc_info.value)
 
@@ -97,13 +97,13 @@ class TestBodyTimeSeriesResource:
             (BodyResourceType.WEIGHT, "2023-01-01", "2023-02-02", MaxRanges.WEIGHT),
         ]
 
-        for resource_type, start_date, end_date, max_days in test_cases:
+        for resource_type, begin_date, end_date, max_days in test_cases:
             with raises(InvalidDateRangeException) as exc_info:
                 body_timeseries.get_body_timeseries_by_date_range(
-                    resource_type=resource_type, start_date=start_date, end_date=end_date
+                    resource_type=resource_type, begin_date=begin_date, end_date=end_date
                 )
                 assert (
-                    f"Date range {start_date} to {end_date} exceeds maximum allowed {max_days} days for {resource_type.value}"
+                    f"Date range {begin_date} to {end_date} exceeds maximum allowed {max_days} days for {resource_type.value}"
                     in str(exc_info.value)
                 )
 
