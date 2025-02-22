@@ -8,22 +8,14 @@
 - [ ] confirm that validation of methods where before_date or after_date is
   handled consistently across classes
 
-- [ ] Check everywhere against docs: `begin-date` vs `start_date` (mostly in
-  timeseries APIs)
-
 - [ ] need constants for sort "desc"/"asc"
 
 - [ ] break tests into separate files for each method? It's a lot, but the test
   files are huge
 
-- [ ] Check API Reference links in activity.py
-
 - [ ] validate:
   `fitbit_client.exceptions.ValidationException: Calories From Fat must be a valid non-negative number. Currently it is "146.79".`
   It needs to be a positive int!
-
-- [ ] write a test that checks that the docstrings for resources have consistent
-  sections.
 
 - [ ] Make sure that mocks have type annotations
 
