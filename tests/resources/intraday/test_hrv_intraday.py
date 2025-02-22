@@ -48,9 +48,7 @@ def test_get_hrv_intraday_interval_all_endpoint(
     mock_response = mock_response_factory(200, {"hrv": []})
     mock_oauth_session.request.return_value = mock_response
 
-    result = intraday_resource.get_hrv_intraday_by_interval(
-        start_date="2024-02-13", end_date="2024-02-14"
-    )
+    intraday_resource.get_hrv_intraday_by_interval(start_date="2024-02-13", end_date="2024-02-14")
 
     mock_oauth_session.request.assert_called_once_with(
         "GET",
@@ -69,7 +67,7 @@ def test_get_hrv_intraday_by_date_all_endpoint(
     mock_response = mock_response_factory(200, {"hrv": []})
     mock_oauth_session.request.return_value = mock_response
 
-    result = intraday_resource.get_hrv_intraday_by_date("2024-02-13")
+    intraday_resource.get_hrv_intraday_by_date("2024-02-13")
 
     mock_oauth_session.request.assert_called_once_with(
         "GET",

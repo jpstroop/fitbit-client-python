@@ -202,7 +202,6 @@ class FitbitOAuth2:
             )
         except Exception as e:
             error_msg = str(e).lower()
-            logger = getLogger("fitbit_client.oauth")
 
             if "invalid_client" in error_msg:
                 self.logger.error(
