@@ -22,6 +22,7 @@ dependencies = [
     "requests-oauthlib>=2.0.0",
     "pyOpenSSL>=25.0.0",
     "cryptography>=44.0.0",
+    "mdformat-config>=0.2.1",
 ]
 
 [dependency-groups]

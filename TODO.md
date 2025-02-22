@@ -2,16 +2,8 @@
 
 ## TODO
 
-- [ ] Rationalize:
-
-* `InsufficientScopeException` \<< Maybe in AZM? Tests use it?
-* Do we need the IntradayException?
-* FitbitException does not need status code, does it? Or is it needed for the
-  OAuth exceptions too? If so, we should map the codes and consider merging the
-  exception hierarchies
-
-- [ ] Check exceptions related to requests--they should take a status code, not
-  the fitbit API
+- MDFormat is not fomatting code fences:
+  https://mdformat.readthedocs.io/en/stable/users/plugins.html#existing-plugins
 
 - [ ] break bigger test files down into files by method: activity and nutrition,
   at least!
