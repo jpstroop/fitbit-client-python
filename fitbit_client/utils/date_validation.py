@@ -66,6 +66,8 @@ def validate_date_range(
     end_date: str,
     max_days: Optional[int] = None,
     resource_name: Optional[str] = None,
+    start_field: str = "start_date",
+    end_field: str = "end_date",
 ) -> None:
     """
     Validates a date range.
@@ -88,14 +90,16 @@ def validate_date_range(
         end_date: End date in YYYY-MM-DD format or 'today'
         max_days: Optional maximum number of days between dates
         resource_name: Optional resource name for error messages
+        start_field: Optional field name for start date (default: "start_date")
+        end_field: Optional field name for end date (default: "end_date")
 
     Raises:
         InvalidDateException: If date format is invalid
         InvalidDateRangeException: If date range is invalid or exceeds max_days
     """
     # Validate individual date formats first
-    validate_date_format(start_date, "start_date")
-    validate_date_format(end_date, "end_date")
+    validate_date_format(start_date, start_field)
+    validate_date_format(end_date, end_field)
 
     # Convert to date objects for comparison
     start = (
@@ -202,7 +206,14 @@ def validate_date_range_params(
             end_date = bound_args.arguments.get(end_field)
 
             if start_date and end_date:
-                validate_date_range(start_date, end_date, max_days, resource_name)
+                validate_date_range(
+                    start_date,
+                    end_date,
+                    max_days,
+                    resource_name,
+                    start_field=start_field,
+                    end_field=end_field,
+                )
             return func(*args, **kwargs)
 
         return cast(F, wrapper)

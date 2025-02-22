@@ -166,3 +166,40 @@ class TestDateValidation:
         # Should work with both dates
         result = dummy_func("2024-02-01", "2024-02-13")
         assert result == {"start": "2024-02-01", "end": "2024-02-13"}
+
+    def test_validate_date_range_params_custom_field_names(self):
+        """Test that validate_date_range_params respects custom field names"""
+
+        @validate_date_range_params(start_field="begin_date", end_field="finish_date", max_days=30)
+        def dummy_func(begin_date: str, finish_date: str) -> Dict[str, Any]:
+            return {"start": begin_date, "end": finish_date}
+
+        # Test valid dates
+        result = dummy_func("2024-02-01", "2024-02-13")
+        assert result == {"start": "2024-02-01", "end": "2024-02-13"}
+
+        # Test invalid start date format
+        with pytest.raises(InvalidDateException) as exc:
+            dummy_func("invalid", "2024-02-13")
+        assert exc.value.field_name == "begin_date"
+        assert "Invalid date format" in str(exc.value)
+
+        # Test invalid end date format
+        with pytest.raises(InvalidDateException) as exc:
+            dummy_func("2024-02-01", "invalid")
+        assert exc.value.field_name == "finish_date"
+        assert "Invalid date format" in str(exc.value)
+
+        # Test invalid date range order
+        with pytest.raises(InvalidDateRangeException) as exc:
+            dummy_func("2024-02-13", "2024-02-01")
+        assert "Start date 2024-02-13 is after end date 2024-02-01" in str(exc.value)
+        assert exc.value.start_date == "2024-02-13"
+        assert exc.value.end_date == "2024-02-01"
+
+        # Test exceeding max days
+        with pytest.raises(InvalidDateRangeException) as exc:
+            dummy_func("2024-02-01", "2024-03-03")
+        assert "Date range 2024-02-01 to 2024-03-03 exceeds maximum allowed 30 days" in str(
+            exc.value
+        )

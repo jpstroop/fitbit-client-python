@@ -2,15 +2,8 @@
 
 ## TODO
 
-- MDFormat is not fomatting code fences:
-  https://mdformat.readthedocs.io/en/stable/users/plugins.html#existing-plugins
-
 - [ ] break bigger test files down into files by method: activity and nutrition,
   at least!
-
-- [ ] RateLimitExceededException - can we get info about when we should retry
-  from the API, so that calls could be wrapped in a function with try/except
-  that sleeps for a set amount of time based on the response?
 
 - [ ] confirm that validation of methods where before_date or after_date is
   handled consistently across classes

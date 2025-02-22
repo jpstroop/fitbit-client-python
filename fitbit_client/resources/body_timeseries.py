@@ -75,12 +75,12 @@ class BodyTimeSeriesResource(BaseResource):
             debug=debug,
         )
 
-    @validate_date_range_params()
+    @validate_date_range_params(start_field="begin_date")
     def get_body_timeseries_by_date_range(
         self,
         resource_type: BodyResourceType,
-        start_date: str,
-        end_date: str,
+        begin_date: str,  # Trivia! this the one place in the whole API where
+        end_date: str,  # it's not called "start-date" ¯\_(ツ)_/¯.
         user_id: str = "-",
         debug: bool = False,
     ) -> Dict[str, Any]:
@@ -91,7 +91,7 @@ class BodyTimeSeriesResource(BaseResource):
 
         Args:
             resource_type: Type of body measurement (bmi, fat, or weight)
-            start_date: The start date in YYYY-MM-DD format or 'today'
+            begin_date: The start date in YYYY-MM-DD format or 'today'
             end_date: The end date in YYYY-MM-DD format or 'today'
             user_id: Optional user ID, defaults to current user
             debug: If True, prints a curl command to stdout to help with debugging (default: False)
@@ -117,10 +117,10 @@ class BodyTimeSeriesResource(BaseResource):
         }[resource_type]
 
         # Since we have different max days for different resources, we need to validate here
-        validate_date_range(start_date, end_date, max_days, resource_type.value)
+        validate_date_range(begin_date, end_date, max_days, resource_type.value)
 
         return self._make_request(
-            f"body/{resource_type.value}/date/{start_date}/{end_date}.json",
+            f"body/{resource_type.value}/date/{begin_date}/{end_date}.json",
             user_id=user_id,
             debug=debug,
         )
