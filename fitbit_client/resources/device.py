@@ -32,32 +32,9 @@ class DeviceResource(BaseResource):
         user_id: str = "-",
     ) -> Dict[str, Any]:
         """
-        Create an alarm for a device.
-
-        Args:
-            tracker_id: ID of the tracker to create the alarm for
-            time: Time in HH:mm-offset format (e.g. "07:00-08:00")
-            enabled: Whether the alarm is enabled
-            recurring: Whether the alarm is recurring
-            week_days: List of days when the alarm should trigger
-            user_id: Optional user ID, defaults to current user
-
-        Returns:
-            Response contains the created alarm settings
+        NOT IMPLEMENTED. Create an alarm for a device.
         """
         raise NotImplementedError
-        # params = {
-        #     "time": time,
-        #     "enabled": str(enabled).lower(),
-        #     "recurring": str(recurring).lower(),
-        #     "weekDays": ",".join(day.value for day in week_days),
-        # }
-        # return self._make_request(
-        #     f"devices/tracker/{tracker_id}/alarms.json",
-        #     params=params,
-        #     user_id=user_id,
-        #     http_method="POST",
-        # )
 
     def delete_alarm(self, tracker_id: str, alarm_id: str, user_id: str = "-") -> Dict[str, Any]:
         """
@@ -74,6 +51,8 @@ class DeviceResource(BaseResource):
     def get_devices(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
         """
         Get list of Fitbit devices paired to a user's account.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/devices/get-devices/
 
         Args:
             user_id: Optional user ID, defaults to current user
