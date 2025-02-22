@@ -1,72 +1,140 @@
 # Logging
 
-There are two logs available: the **application log** and the **data log**. The
-application log records interactions with the API including detailed error
-information and request status. The data log records important data fields like
-IDs for foods, food logs, and activity logs that the client creates.
+The Fitbit client implements a dual-logger system consisting of an **application
+logger** and a **data logger**. These loggers serve different purposes and
+handle different types of information.
 
-The data log adds a little extra complexity, but it should be easy enough to
-understand if you are familiar with Python's standard
-[logging library](https://docs.python.org/3/library/logging.html#).
+## Logger Types
 
-Here's a simple example of what you might put in your application:
+### Application Logger
+
+The application logger (`fitbit_client.*`) handles operational logging
+including:
+
+- API request/response information
+- Error conditions and exceptions
+- Authentication flows
+- General operational status
+
+### Data Logger
+
+The data logger (`fitbit_client.data`) specifically tracks important data fields
+from successful API responses, including:
+
+- IDs for resources (logs, activities, foods, etc.)
+- Timestamps
+- Device IDs
+- Other critical reference fields
+
+## Log Levels
+
+The application logger uses multiple log levels:
+
+- **DEBUG**: Detailed request/response information and authentication flow
+  details
+
+  ```
+  DEBUG [fitbit_client.oauth] Initializing OAuth handler
+  DEBUG [fitbit_client.callback_server] Starting HTTPS server on localhost:8080
+  DEBUG [fitbit_client.callback_server] Generated private key
+  DEBUG [fitbit_client.callback_server] Server thread started
+  DEBUG [fitbit_client.callback_handler] Received callback request: /callback?code=...
+  DEBUG [fitbit_client.callback_handler] Query parameters: {'code': [...], 'state': [...]}
+  DEBUG [fitbit_client.callback_handler] OAuth callback received and validated successfully
+  DEBUG [fitbit_client.oauth] Authentication token exchange completed successfully
+  ```
+
+  Setting log level to DEBUG is particularly useful when troubleshooting
+  authentication issues as it provides detailed visibility into the OAuth2 flow,
+  callback server operation, and token management.
+
+- **INFO**: Successful operations and important state changes
+
+  ```
+  INFO [fitbit_client.ActivityResource] get_activity_goals succeeded for activities/goals/daily.json (status 200)
+  ```
+
+- **ERROR**: Failed operations, API errors, and exceptions
+
+  ```
+  ERROR [fitbit_client.ActivityResource] InvalidRequestException: Invalid parameter value (status: 400) [Type: invalid_request]
+  ```
+
+The data logger uses INFO level for all entries, with a structured JSON format:
+
+```json
+{
+  "timestamp": "2025-02-17T06:45:13.798603",
+  "method": "create_food",
+  "fields": {
+    "food.defaultUnit.id": 304,
+    "food.defaultUnit.name": "serving",
+    "food.foodId": 822139705,
+    "food.name": "Breakfast Chia Pudding",
+    "food.servings[0].unit.id": 304,
+    "food.servings[0].unit.name": "serving",
+    "food.servings[0].unitId": 304
+  }
+}
+```
+
+As you can see, this is really just summary of the response body that makes it
+easy to get back in information you may not have captured in a one-off script.
+
+Note that the log will not be valid JSON file, but each line will be a valid
+object and it is be trivial to read it in at as `List[Dict[str, Any]]`.
+
+## Important Fields
+
+The data logger automatically tracks fields defined in
+`IMPORTANT_RESPONSE_FIELDS`:
+
+- access
+- date
+- dateTime
+- deviceId
+- endTime
+- foodId
+- id
+- logId
+- mealTypeId
+- name
+- startTime
+- subscriptionId
+- unitId
+
+## Configuring Logging
+
+To configure logging in your application:
 
 ```python
-from logging import FileHandler
-from logging import getLogger
-from logging import INFO
-from logging import StreamHandler
-from logging import DEBUG
+from logging import getLogger, StreamHandler, FileHandler, Formatter
 
-
-# Configure application logging
+# Configure application logger
 app_logger = getLogger("fitbit_client")
-app_formatter = Formatter("[%(asctime)s] %(levelname)s [%(name)s] %(message)s")
+formatter = Formatter("[%(asctime)s] %(levelname)s [%(name)s] %(message)s")
 
-# Add file handler for application logging
-file_handler = FileHandler("logs/fitbit_app.log")
-file_handler.setFormatter(app_formatter)
-app_logger.addHandler(file_handler)
+# Add handlers as needed (file and/or console)
+handler = StreamHandler()  # or FileHandler("fitbit.log")
+handler.setFormatter(formatter)
+app_logger.addHandler(handler)
+app_logger.setLevel("INFO")  # or "DEBUG" for verbose output
 
-# Add console handler for application logging
-console_handler = StreamHandler(stdout)
-console_handler.setFormatter(app_formatter)
-app_logger.addHandler(console_handler)
-
-app_logger.setLevel(INFO)  # Set to DEBUG for detailed request information
-
-# Configure data logging separately (file only, no console output)
-data_logger = getLogger("fitbit_client.data") 
-data_handler = FileHandler("logs/fitbit_data.log")
+# Configure data logger
+data_logger = getLogger("fitbit_client.data")
+data_handler = FileHandler("fitbit_data.log")
 data_handler.setFormatter(Formatter("%(message)s"))  # Raw JSON format
 data_logger.addHandler(data_handler)
-data_logger.setLevel(INFO)
-data_logger.propagate = False
+data_logger.setLevel("INFO")
+data_logger.propagate = False  # Prevent duplicate logging
 ```
 
-The client provides logging at different levels:
+## Error Logging
 
-Debug level shows comprehensive details for every API call:
+The client automatically logs all API errors with rich context including:
 
-```
-[2025-01-27 23:37:09,660] DEBUG [fitbit_client.NutritionResource] API Call Details:
-Endpoint: foods/log/favorite.json
-Method: get_favorite_foods
-Status: 200
-Parameters: {}
-Headers: {'Content-Type': 'application/json'}
-Response: {'content': {'foods': [...]}}
-```
-
-All responses are logged at INFO level:
-
-```
-[2025-01-27 23:37:09,660] INFO [fitbit_client.NutritionResource] get_favorite_foods succeeded for foods/log/favorite.json (status 200)
-[2025-01-27 23:39:27,703] INFO [fitbit_client.NutritionResource] Request failed for foods/log/favorite.json (status 404): [validation] resource owner: Invalid ID
-```
-
-Failures (4xx and 5xx responses) are additionally logged at ERROR level:
-
-```
-[2025-01-27 23:39:27,703] ERROR [fitbit_client.NutritionResource] Request failed for foods/log/favorite.json (status 404): [validation] resource owner: Invalid ID
-```
+- Error type and message
+- HTTP status code
+- Affected resource/endpoint
+- Field-specific validation errors
+- Raw error response when available
