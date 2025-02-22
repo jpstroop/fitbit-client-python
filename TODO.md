@@ -2,22 +2,26 @@
 
 ## TODO
 
-- [ ] break bigger test files down into files by method: activity and nutrition,
-  at least!
-
-- [ ] confirm that validation of methods where before_date or after_date is
-  handled consistently across classes
+\_ [ ] Complete coverage
 
 - [ ] need constants for sort "desc"/"asc"
 
-- [ ] break tests into separate files for each method? It's a lot, but the test
-  files are huge
+- [ ] Confront MyPy. See https://stackoverflow.com/a/51294709 for json help
+
+- [ ] add a note about typing, method naming semantics, aliases, and interns.
+
+- [ ] When typing resource, wrap the actual response type around the JSONType,,
+  e.g. List[JSONType], Dict[str, JSONType], so that the user can actually know
+  what to expect (or None, of course)
+
+- [ ] Test that all methods have an alias in `Client` and that the signatures
+  match
 
 - [ ] validate:
   `fitbit_client.exceptions.ValidationException: Calories From Fat must be a valid non-negative number. Currently it is "146.79".`
   It needs to be a positive int!
 
-- [ ] Make sure that mocks have type annotations
+- [ ] Should mocks have type annotations?
 
 - [ ] consolidate fixures where possible
 
@@ -66,16 +70,8 @@
 - [ ] Form to chang scopes are part of OAuth flow? Maybe get rid of the cut and
   paste method altogether? It's less to test...
 
-- [ ] Validation to NutritionResource - Calories must be ints, not floats like
-  everything else
-
 - [ ] Response validation? Accidentally doing a GET instead of a POST on, e.g.
   `food.json` will yield a response, but not the one you want!
-
-- [ ] Confront MyPy. See https://stackoverflow.com/a/51294709 for json help
-
-- [ ] Test that all methods have an alias in `Client` and that the signatures
-  match
 
 - [ ] Make the food download_food_logs (rename to `get_food_logs`) and food log
   to CSV part of one helper package. It should expand the foods to have their

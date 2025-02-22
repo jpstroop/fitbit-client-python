@@ -21,7 +21,8 @@ def mock_oauth():
 
 
 @fixture
-def client(mock_oauth):
+def client(mock_oauth):  # We have to pass the mock even though it does not appear
+    # to be used; otherwise the actual auth flow will start!
     return FitbitClient(
         client_id="test_id", client_secret="test_secret", redirect_uri="https://localhost:8080"
     )
