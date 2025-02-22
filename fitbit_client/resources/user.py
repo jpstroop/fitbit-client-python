@@ -27,6 +27,8 @@ class UserResource(BaseResource):
         """
         Get user profile information.
 
+        API Reference: https://dev.fitbit.com/build/reference/web-api/user/get-profile/
+
         Args:
             user_id: Optional user ID, defaults to current user
             debug: If True, a prints a curl command to stdout to help with debugging (default: False)
@@ -70,6 +72,8 @@ class UserResource(BaseResource):
     ) -> Dict[str, Any]:
         """
         Update user profile data.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/user/update-profile/
 
         Args:
             gender: User's gender identity (MALE/FEMALE/NA)
@@ -140,6 +144,8 @@ class UserResource(BaseResource):
     def get_badges(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
         """
         Get list of user's earned achievement badges.
+
+        API Reference: https://dev.fitbit.com/build/reference/web-api/user/get-badges/
 
         Args:
             user_id: Optional user ID, defaults to current user
