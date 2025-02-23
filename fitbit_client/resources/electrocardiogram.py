@@ -7,7 +7,9 @@ from typing import Optional
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
+from fitbit_client.resources.constants import SortDirection
 from fitbit_client.utils.date_validation import validate_date_param
+from fitbit_client.utils.pagination_validation import validate_pagination_params
 
 
 class ElectrocardiogramResource(BaseResource):
@@ -23,11 +25,12 @@ class ElectrocardiogramResource(BaseResource):
 
     @validate_date_param(field_name="before_date")
     @validate_date_param(field_name="after_date")
+    @validate_pagination_params(max_limit=10)
     def get_ecg_log_list(
         self,
         before_date: Optional[str] = None,
         after_date: Optional[str] = None,
-        sort: str = "desc",
+        sort: SortDirection = SortDirection.DESCENDING,
         limit: int = 10,
         offset: int = 0,
         user_id: str = "-",
@@ -43,7 +46,7 @@ class ElectrocardiogramResource(BaseResource):
                         only YYYY-MM-dd is required
             after_date: Return entries after this date (YYYY-MM-ddTHH:mm:ss),
                        only YYYY-MM-dd is required
-            sort: Sort order by date - use 'asc' with after_date, 'desc' with before_date
+            sort: Sort order - use 'asc' with after_date, 'desc' with before_date
             limit: Number of entries to return (max 10)
             offset: Only 0 is supported
             user_id: Optional user ID, defaults to current user
@@ -59,32 +62,14 @@ class ElectrocardiogramResource(BaseResource):
             start time, average heart rate, waveform samples, result classification, etc.
 
         Raises:
-            ValueError: If neither before_date nor after_date is provided
-            ValueError: If offset is not 0
-            ValueError: If limit is greater than 10
+            PaginatonError: If neither before_date nor after_date is specified
+            PaginatonError: If offset is not 0
+            PaginatonError: If limit exceeds 10
+            PaginatonError: If sort is not 'asc' or 'desc'
+            PaginatonError: If sort direction doesn't match date parameter
             InvalidDateException: If date format is invalid
         """
-        if not before_date and not after_date:
-            raise ValueError("Either before_date or after_date must be specified")
-
-        if offset != 0:
-            raise ValueError(
-                "Only offset=0 is supported. To paginate, use the next and previous links in the response."
-            )
-
-        if limit > 10:
-            raise ValueError("Maximum limit is 10")
-
-        if sort not in ("asc", "desc"):
-            raise ValueError("Sort must be either 'asc' or 'desc'")
-
-        # Validate sort direction matches date parameter
-        if before_date and sort != "desc":
-            raise ValueError("Must use sort='desc' with before_date")
-        if after_date and sort != "asc":
-            raise ValueError("Must use sort='asc' with after_date")
-
-        params = {"sort": sort, "limit": limit, "offset": offset}
+        params = {"sort": sort.value, "limit": limit, "offset": offset}
 
         if before_date:
             params["beforeDate"] = before_date

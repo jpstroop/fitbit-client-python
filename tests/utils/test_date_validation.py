@@ -6,7 +6,7 @@ from typing import Dict
 from typing import Optional
 
 # Third party imports
-import pytest
+from pytest import raises
 
 # Local imports
 from fitbit_client.exceptions import InvalidDateException
@@ -44,7 +44,7 @@ class TestDateValidation:
         ]  # wrong separators  # wrong order  # invalid month  # invalid day for February  # 2-digit year  # missing leading zeros  # missing leading zeros  # empty string  # nonsense string  # only "today" is allowed  # with time  # with time
 
         for invalid_date in invalid_dates:
-            with pytest.raises(InvalidDateException) as exc:
+            with raises(InvalidDateException) as exc:
                 validate_date_format(invalid_date)
             assert exc.value.status_code is None
             assert exc.value.error_type == "client_validation"
@@ -60,7 +60,7 @@ class TestDateValidation:
         validate_date_range("2024-02-13", "2024-02-13")  # same day
 
         # Invalid order should raise
-        with pytest.raises(InvalidDateRangeException) as exc:
+        with raises(InvalidDateRangeException) as exc:
             validate_date_range("2024-02-13", "2024-02-01")
         assert f"Start date 2024-02-13 is after end date 2024-02-01" in str(exc.value)
         assert exc.value.start_date == "2024-02-13"
@@ -72,7 +72,7 @@ class TestDateValidation:
         validate_date_range("2024-02-01", "2024-03-02", max_days=30)
 
         # Should raise - 31 days
-        with pytest.raises(InvalidDateRangeException) as exc:
+        with raises(InvalidDateRangeException) as exc:
             validate_date_range("2024-02-01", "2024-03-03", max_days=30)
         assert exc.value.max_days == 30
         assert "Date range 2024-02-01 to 2024-03-03 exceeds maximum allowed 30 days" in str(
@@ -81,7 +81,7 @@ class TestDateValidation:
 
     def test_validate_date_range_with_resource(self):
         """Test validate_date_range with resource name"""
-        with pytest.raises(InvalidDateRangeException) as exc:
+        with raises(InvalidDateRangeException) as exc:
             validate_date_range(
                 "2024-02-01", "2024-03-03", max_days=30, resource_name="test resource"
             )
@@ -101,7 +101,7 @@ class TestDateValidation:
         assert dummy_func("today") == "today"
         assert dummy_func("2024-02-13") == "2024-02-13"
 
-        with pytest.raises(InvalidDateException):
+        with raises(InvalidDateException):
             dummy_func("invalid")
 
     def test_validate_date_range_params_decorator(self):
@@ -114,11 +114,11 @@ class TestDateValidation:
         result = dummy_func("2024-02-01", "2024-02-13")
         assert result == {"start": "2024-02-01", "end": "2024-02-13"}
 
-        with pytest.raises(InvalidDateRangeException) as exc:
+        with raises(InvalidDateRangeException) as exc:
             dummy_func("2024-02-13", "2024-02-01")  # wrong order
         assert f"Start date 2024-02-13 is after end date 2024-02-01" in str(exc.value)
 
-        with pytest.raises(InvalidDateRangeException) as exc:
+        with raises(InvalidDateRangeException) as exc:
             dummy_func("2024-02-01", "2024-03-03")  # too many days
         assert "Date range 2024-02-01 to 2024-03-03 exceeds maximum allowed 30 days" in str(
             exc.value
@@ -141,7 +141,7 @@ class TestDateValidation:
         assert dummy_func("2024-02-13") == "2024-02-13"
 
         # Should raise with invalid date
-        with pytest.raises(InvalidDateException):
+        with raises(InvalidDateException):
             dummy_func("invalid")
 
     def test_validate_date_range_params_decorator_with_optional(self):
@@ -179,26 +179,26 @@ class TestDateValidation:
         assert result == {"start": "2024-02-01", "end": "2024-02-13"}
 
         # Test invalid start date format
-        with pytest.raises(InvalidDateException) as exc:
+        with raises(InvalidDateException) as exc:
             dummy_func("invalid", "2024-02-13")
         assert exc.value.field_name == "begin_date"
         assert "Invalid date format" in str(exc.value)
 
         # Test invalid end date format
-        with pytest.raises(InvalidDateException) as exc:
+        with raises(InvalidDateException) as exc:
             dummy_func("2024-02-01", "invalid")
         assert exc.value.field_name == "finish_date"
         assert "Invalid date format" in str(exc.value)
 
         # Test invalid date range order
-        with pytest.raises(InvalidDateRangeException) as exc:
+        with raises(InvalidDateRangeException) as exc:
             dummy_func("2024-02-13", "2024-02-01")
         assert "Start date 2024-02-13 is after end date 2024-02-01" in str(exc.value)
         assert exc.value.start_date == "2024-02-13"
         assert exc.value.end_date == "2024-02-01"
 
         # Test exceeding max days
-        with pytest.raises(InvalidDateRangeException) as exc:
+        with raises(InvalidDateRangeException) as exc:
             dummy_func("2024-02-01", "2024-03-03")
         assert "Date range 2024-02-01 to 2024-03-03 exceeds maximum allowed 30 days" in str(
             exc.value

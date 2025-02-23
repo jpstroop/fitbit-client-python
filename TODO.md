@@ -2,22 +2,22 @@
 
 ## TODO
 
-\_ [ ] Complete coverage
-
-- [ ] need constants for sort "desc"/"asc"
+- [ ] Complete coverage
 
 - [ ] Confront MyPy. See https://stackoverflow.com/a/51294709 for json help
-
-- [ ] add a note about typing, method naming semantics, aliases, and interns.
 
 - [ ] When typing resource, wrap the actual response type around the JSONType,,
   e.g. List[JSONType], Dict[str, JSONType], so that the user can actually know
   what to expect (or None, of course)
 
+- [ ] add a note about typing, method naming semantics, aliases, and interns.
+
 - [ ] Test that all methods have an alias in `Client` and that the signatures
   match
 
-- [ ] validate:
+- [ ] Rationalize `ClientValidationException` subclass inheritance
+
+- [ ] validate Calories From Fat:
   `fitbit_client.exceptions.ValidationException: Calories From Fat must be a valid non-negative number. Currently it is "146.79".`
   It needs to be a positive int!
 

@@ -3,12 +3,12 @@
 """Tests for the get_irn_alerts_list endpoint."""
 
 # Third party imports
-
-# Third party imports
 from pytest import raises
 
 # Local imports
 from fitbit_client.exceptions import InvalidDateException
+from fitbit_client.exceptions import PaginationException
+from fitbit_client.resources.constants import SortDirection
 
 
 def test_get_irn_alerts_list_success(irn_resource, mock_oauth_session, mock_response_factory):
@@ -27,7 +27,9 @@ def test_get_irn_alerts_list_success(irn_resource, mock_oauth_session, mock_resp
     }
     mock_response = mock_response_factory(200, expected_response)
     mock_oauth_session.request.return_value = mock_response
-    result = irn_resource.get_irn_alerts_list(sort="asc", after_date="2022-09-28")
+
+    result = irn_resource.get_irn_alerts_list(after_date="2022-09-28", sort=SortDirection.ASCENDING)
+
     assert result == expected_response
     mock_oauth_session.request.assert_called_once()
     call_args = mock_oauth_session.request.call_args
@@ -41,45 +43,52 @@ def test_get_irn_alerts_list_today(irn_resource, mock_oauth_session, mock_respon
     """Test that 'today' is accepted as a valid date"""
     mock_response = mock_response_factory(200, {"alerts": []})
     mock_oauth_session.request.return_value = mock_response
-    irn_resource.get_irn_alerts_list(sort="asc", after_date="today")
-    irn_resource.get_irn_alerts_list(sort="desc", before_date="today")
+
+    irn_resource.get_irn_alerts_list(after_date="today", sort=SortDirection.ASCENDING)
+    irn_resource.get_irn_alerts_list(before_date="today", sort=SortDirection.DESCENDING)
 
 
 def test_get_irn_alerts_list_missing_dates(irn_resource):
-    """Test that omitting both before_date and after_date raises ValueError"""
-    with raises(ValueError, match="Either before_date or after_date must be specified"):
-        irn_resource.get_irn_alerts_list(sort="asc")
+    """Test that omitting both before_date and after_date raises PaginationException"""
+    with raises(PaginationException) as exc_info:
+        irn_resource.get_irn_alerts_list(sort=SortDirection.ASCENDING)
+    assert "Either before_date or after_date must be specified" in str(exc_info.value)
 
 
 def test_get_irn_alerts_list_mismatched_sort_direction(irn_resource):
     """Test validation of sort direction matching date parameter"""
-    with raises(ValueError, match="Must use after_date with ascending sort"):
-        irn_resource.get_irn_alerts_list(sort="asc", before_date="2022-09-28")
-    with raises(ValueError, match="Must use before_date with descending sort"):
-        irn_resource.get_irn_alerts_list(sort="desc", after_date="2022-09-28")
+    with raises(PaginationException) as exc_info:
+        irn_resource.get_irn_alerts_list(before_date="2022-09-28", sort=SortDirection.ASCENDING)
+    assert "Must use sort=DESCENDING with before_date" in str(exc_info.value)
+
+    with raises(PaginationException) as exc_info:
+        irn_resource.get_irn_alerts_list(after_date="2022-09-28", sort=SortDirection.DESCENDING)
+    assert "Must use sort=ASCENDING with after_date" in str(exc_info.value)
 
 
 def test_get_irn_alerts_list_invalid_dates(irn_resource):
     """Test that invalid date formats raise InvalidDateException"""
     with raises(InvalidDateException):
-        irn_resource.get_irn_alerts_list(sort="asc", after_date="invalid-date")
+        irn_resource.get_irn_alerts_list(after_date="invalid-date", sort=SortDirection.ASCENDING)
     with raises(InvalidDateException):
-        irn_resource.get_irn_alerts_list(sort="desc", before_date="invalid-date")
+        irn_resource.get_irn_alerts_list(before_date="invalid-date", sort=SortDirection.DESCENDING)
 
 
 def test_get_irn_alerts_list_invalid_offset(irn_resource):
-    """Test that non-zero offset raises ValueError"""
-    with raises(ValueError, match="Only offset=0 is supported for IRN alerts pagination"):
-        irn_resource.get_irn_alerts_list(sort="asc", offset=1, after_date="2022-09-28")
+    """Test that non-zero offset raises PaginationException"""
+    with raises(PaginationException) as exc_info:
+        irn_resource.get_irn_alerts_list(
+            after_date="2022-09-28", sort=SortDirection.ASCENDING, offset=1
+        )
+    assert "Only offset=0 is supported" in str(exc_info.value)
+    assert exc_info.value.field_name == "offset"
 
 
 def test_get_irn_alerts_list_invalid_limit(irn_resource):
-    """Test that limit > 10 raises ValueError"""
-    with raises(ValueError, match="Maximum limit is 10 entries"):
-        irn_resource.get_irn_alerts_list(sort="asc", limit=11, after_date="2022-09-28")
-
-
-def test_get_irn_alerts_list_invalid_sort(irn_resource):
-    """Test that invalid sort value raises ValueError"""
-    with raises(ValueError, match="Sort must be either 'asc' or 'desc'"):
-        irn_resource.get_irn_alerts_list(sort="invalid", after_date="2022-09-28")
+    """Test that limit > 10 raises PaginationException"""
+    with raises(PaginationException) as exc_info:
+        irn_resource.get_irn_alerts_list(
+            after_date="2022-09-28", sort=SortDirection.ASCENDING, limit=11
+        )
+    assert "Maximum limit is 10" in str(exc_info.value)
+    assert exc_info.value.field_name == "limit"
