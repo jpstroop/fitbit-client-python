@@ -7,8 +7,10 @@ from typing import Optional
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
+from fitbit_client.resources.constants import SortDirection
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range_params
+from fitbit_client.utils.pagination_validation import validate_pagination_params
 
 
 class SleepResource(BaseResource):
@@ -212,11 +214,12 @@ class SleepResource(BaseResource):
 
     @validate_date_param(field_name="before_date")
     @validate_date_param(field_name="after_date")
+    @validate_pagination_params(max_limit=100)
     def get_sleep_log_list(
         self,
         before_date: Optional[str] = None,
         after_date: Optional[str] = None,
-        sort: str = "desc",
+        sort: SortDirection = SortDirection.DESCENDING,
         limit: int = 100,
         offset: int = 0,
         user_id: str = "-",
@@ -239,35 +242,21 @@ class SleepResource(BaseResource):
         Returns:
             Paginated list of sleep logs
 
+        Note:
+            Either before_date or after_date must be specified.
+            The offset parameter only supports 0 and using other values may break your application.
+            Use the pagination links in the response to iterate through results.
+
         Raises:
-            ValueError: If neither before_date nor after_date is specified
-            ValueError: If limit > 100
-            ValueError: If sort is not 'asc' or 'desc'
-            ValueError: If sort direction doesn't match date parameter
+            PaginatonError: If neither before_date nor after_date is specified
+            PaginatonError: If offset is not 0
+            PaginatonError: If limit exceeds 10
+            PaginatonError: If sort is not 'asc' or 'desc'
+            PaginatonError: If sort direction doesn't match date parameter
             InvalidDateException: If date format is invalid
 
-        Note:
-            - Either before_date or after_date must be specified
-            - Use sort='desc' with before_date and sort='asc' with after_date
-            - For pagination, use the next/previous links in the pagination response
-              object rather than manually specifying offset
         """
-        if not before_date and not after_date:
-            raise ValueError("Must specify either before_date or after_date")
-
-        if limit > 100:
-            raise ValueError("Maximum limit is 100")
-
-        if sort not in ("asc", "desc"):
-            raise ValueError("Sort must be either 'asc' or 'desc'")
-
-        # Validate sort direction matches date parameter
-        if before_date and sort != "desc":
-            raise ValueError("Must use sort='desc' with before_date")
-        if after_date and sort != "asc":
-            raise ValueError("Must use sort='asc' with after_date")
-
-        params = {"sort": sort, "limit": limit, "offset": offset}
+        params = {"sort": sort.value, "limit": limit, "offset": offset}
         if before_date:
             params["beforeDate"] = before_date
         if after_date:

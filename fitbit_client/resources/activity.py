@@ -10,8 +10,9 @@ from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import ActivityGoalPeriod
 from fitbit_client.resources.constants import ActivityGoalType
-from fitbit_client.utils.date_validation import validate_date_format
+from fitbit_client.resources.constants import SortDirection
 from fitbit_client.utils.date_validation import validate_date_param
+from fitbit_client.utils.pagination_validation import validate_pagination_params
 
 
 class ActivityResource(BaseResource):
@@ -136,11 +137,14 @@ class ActivityResource(BaseResource):
             "activities.json", params=params, user_id=user_id, http_method="POST", debug=debug
         )
 
+    @validate_date_param(field_name="before_date")
+    @validate_date_param(field_name="after_date")
+    @validate_pagination_params(max_limit=100)
     def get_activity_log_list(
         self,
         before_date: Optional[str] = None,
         after_date: Optional[str] = None,
-        sort: str = "desc",
+        sort: SortDirection = SortDirection.DESCENDING,
         limit: int = 100,
         offset: int = 0,
         user_id: str = "-",
@@ -154,11 +158,16 @@ class ActivityResource(BaseResource):
         Args:
             before_date: Get entries before this date (YYYY-MM-DD)
             after_date: Get entries after this date (YYYY-MM-DD)
-            sort: Sort order ('asc' or 'desc')
+            sort: Sort order - use 'asc' with after_date, 'desc' with before_date
             limit: Number of records to return (max 100)
             offset: Offset for pagination
             user_id: Optional user ID, defaults to current user
             debug: If True, a prints a curl command to stdout to help with debugging (default: False)
+
+        Note:
+            Either before_date or after_date must be specified.
+            The offset parameter only supports 0 and using other values may break your application.
+            Use the pagination links in the response to iterate through results.
 
         Returns:
             Dict containing activity logs matching the criteria
@@ -167,29 +176,7 @@ class ActivityResource(BaseResource):
             ValidationException: If limit exceeds 100 or sort order is invalid
             InvalidDateException: If date format is invalid
         """
-        if limit > 100:
-            raise ValidationException(
-                message="Maximum limit is 100 records",
-                status_code=400,
-                error_type="validation",
-                field_name="limit",
-            )
-
-        if sort not in ("asc", "desc"):
-            raise ValidationException(
-                message="Sort must be either 'asc' or 'desc'",
-                status_code=400,
-                error_type="validation",
-                field_name="sort",
-            )
-
-        # Validate dates if provided
-        if before_date:
-            validate_date_format(before_date, "before_date")
-        if after_date:
-            validate_date_format(after_date, "after_date")
-
-        params = {"sort": sort, "limit": limit, "offset": offset}
+        params = {"sort": sort.value, "limit": limit, "offset": offset}
         if before_date:
             params["beforeDate"] = before_date
         if after_date:
