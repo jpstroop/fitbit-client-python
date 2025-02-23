@@ -257,3 +257,10 @@ class IntradayDetailLevel(str, Enum):
     ONE_MINUTE = "1min"
     FIVE_MINUTES = "5min"
     FIFTEEN_MINUTES = "15min"
+
+
+class SortDirection(str, Enum):
+    """Sort directions for lists"""
+
+    ASCENDING = "asc"
+    DESCENDING = "desc"

@@ -165,6 +165,19 @@ class InvalidDateRangeException(ClientValidationException):
         self.resource_name = resource_name
 
 
+class PaginationException(ClientValidationException):
+    """Raised when pagination-related parameters are invalid"""
+
+    def __init__(self, message: str, field_name: Optional[str] = None):
+        """Initialize pagination validation exception
+
+        Args:
+            message: Error message describing the validation failure
+            field_name: Optional name of the invalid field
+        """
+        super().__init__(message=message, error_type="pagination", field_name=field_name)
+
+
 class IntradayValidationException(ClientValidationException):
     """Raised when intraday request parameters are invalid"""
 
