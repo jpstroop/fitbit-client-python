@@ -2,9 +2,11 @@
 
 ## TODO
 
-- [ ] Finish method naming and typing documentation.
-
 - [ ] Complete coverage
+
+- [ ] Get rid of deprecation warnings from test coverage
+
+- [ ] Finish method naming and typing documentation.
 
 - [ ] Confront MyPy. See https://stackoverflow.com/a/51294709 for json help
 
@@ -19,22 +21,11 @@
 
 - [ ] Set up CI!
 
-- [ ] validate Calories From Fat:
-  `fitbit_client.exceptions.ValidationException: Calories From Fat must be a valid non-negative number. Currently it is "146.79".`
-  It needs to be a positive int!
-
-- [ ] Should mocks have type annotations?
-
-- [ ] consolidate fixures where possible
-
 - [ ] Consider a "replace_food_log" helper that does a delete + an add in one.
   (there might be several of these that make sense--just take an ID and then the
   signature of the "create" method)
 
 - Docs! https://www.sphinx-doc.org/en/master/#get-started (put on github pages?)
-
-- [ ] bring back the aliases! in client.py also put the resource initializations
-  in the mixin
 
 - [ ] Why does this log twice:
 
@@ -69,35 +60,18 @@
   https://dev.fitbit.com/build/reference/web-api/developer-guide/best-practices/
   in README--they still apply!
 
-- [ ] Form to chang scopes are part of OAuth flow? Maybe get rid of the cut and
+- [ ] Form to change scopes are part of OAuth flow? Maybe get rid of the cut and
   paste method altogether? It's less to test...
-
-- [ ] Response validation? Accidentally doing a GET instead of a POST on, e.g.
-  `food.json` will yield a response, but not the one you want!
 
 - [ ] Make the food download_food_logs (rename to `get_food_logs`) and food log
   to CSV part of one helper package. It should expand the foods to have their
-  complete nutrition (a separate call for each unique food)
-
-- [ ] Accept "yesterday" keyword for dates?
-
-- [ ] `raise NotImplementedError` for
-  [intraday methods](https://dev.fitbit.com/build/reference/web-api/intraday/)
-
-  - Impelement them and comment them out with a note that they are theoretical
-    unused/untested
-  - Note that they are in Resource classses AND have their own module
-
-- [ ] Figure out throttling when making multiple requests.
-
-  - Can we make this more elegant than just putting in explict `sleep(.3)`
-    statements as needed?
-  - Can we handle it and retry a few times before erroring out?
+  complete nutrition (a separate call for each unique food) (put this in a
+  `tools` package??)
 
 - [ ] PyPI deployment
 
-- [ ] Extension: ?PRIVATE filters on methods that return PUBLIC and PRIVATE
-  stuff (API doesn't seem to have this)
+- [ ] Extension: PRIVATE filters on methods that return PUBLIC and PRIVATE stuff
+  (API doesn't seem to have this). Maybe a sidecar database?
 
 - [ ] Enum for units? (it'll be big, maybe just common ones?)
 

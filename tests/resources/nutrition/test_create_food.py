@@ -2,9 +2,11 @@
 
 """Tests for the create_food endpoint."""
 
-# Local imports
+# Third party imports
+from pytest import raises
 
 # Local imports
+from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources.constants import FoodFormType
 from fitbit_client.resources.constants import NutritionalValue
 
@@ -46,7 +48,7 @@ def test_create_food_success(nutrition_resource, mock_response):
 
 
 def test_create_food_with_string_nutritional_values(nutrition_resource, mock_response):
-    """Test creating food with string nutritional value keys (line 94)"""
+    """Test creating food with string nutritional value keys"""
     mock_response.json.return_value = {"foodId": 12345, "name": "Test Food"}
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.create_food(
@@ -76,3 +78,27 @@ def test_create_food_with_string_nutritional_values(nutrition_resource, mock_res
         },
         headers={"Accept-Locale": "en_US", "Accept-Language": "en_US"},
     )
+
+
+def test_create_food_calories_from_fat_must_be_integer(nutrition_resource):
+    """Test that calories_from_fat must be an integer"""
+    with raises(ValidationException) as exc_info:
+        nutrition_resource.create_food(
+            name="Test Food",
+            default_food_measurement_unit_id=147,
+            default_serving_size=100.0,
+            calories=100,
+            description="Test food description",
+            form_type=FoodFormType.DRY,
+            nutritional_values={
+                NutritionalValue.CALORIES_FROM_FAT: 20.5,  # Float instead of integer
+                NutritionalValue.PROTEIN: 20.0,
+                NutritionalValue.TOTAL_CARBOHYDRATE: 0.0,
+            },
+        )
+
+    # Verify exception details
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.error_type == "validation"
+    assert exc_info.value.field_name == "caloriesFromFat"
+    assert "Calories from fat must be an integer" in str(exc_info.value)

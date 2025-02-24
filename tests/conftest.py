@@ -14,6 +14,7 @@ from requests_oauthlib import OAuth2Session
 from fitbit_client.resources.active_zone_minutes import ActiveZoneMinutesResource
 from fitbit_client.resources.activity import ActivityResource
 from fitbit_client.resources.activity_timeseries import ActivityTimeSeriesResource
+from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.body import BodyResource
 from fitbit_client.resources.body_timeseries import BodyTimeSeriesResource
 from fitbit_client.resources.breathing_rate import BreathingRateResource
@@ -86,6 +87,14 @@ def mock_response_factory():
         return response
 
     return _create_mock_response
+
+
+@fixture
+def base_resource(mock_oauth_session, mock_logger):
+    """Fixture to provide a BaseResource instance with standard locale settings"""
+    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+        resource = BaseResource(oauth_session=mock_oauth_session, locale="en_US", language="en_US")
+        return resource
 
 
 @fixture

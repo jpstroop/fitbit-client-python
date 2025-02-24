@@ -180,12 +180,13 @@ class CallbackServer:
                     error_type="system",
                 )
 
-        except SystemException:
-            raise
         except Exception as e:
-            error_msg = f"Failed to start callback server: {str(e)}"
-            self.logger.error(error_msg)
-            raise SystemException(message=error_msg, status_code=500, error_type="system")
+            # Only catch non-SystemException exceptions here
+            if not isinstance(e, SystemException):
+                error_msg = f"Failed to start callback server: {str(e)}"
+                self.logger.error(error_msg)
+                raise SystemException(message=error_msg, status_code=500, error_type="system")
+            raise
 
     def wait_for_callback(self, timeout: int = 300) -> Optional[str]:
         """Wait for OAuth callback

@@ -1,6 +1,8 @@
 # tests/resources/test_base_exceptions.py
 
 # Standard library imports
+from json import JSONDecodeError
+from unittest.mock import Mock
 from unittest.mock import patch
 
 # Third party imports
@@ -238,3 +240,75 @@ class TestBaseResourceExceptions:
             base_resource._make_request("test/endpoint")
 
         assert exc_info.value.status_code == 502
+
+    def test_handle_error_response_with_non_json_error(self, base_resource, mock_logger):
+        """Test handling of non-JSON error responses"""
+        # Create a mock response that will fail to parse as JSON
+        mock_response = Mock()
+        mock_response.status_code = 500
+        mock_response.text = "Internal Server Error"
+        mock_response.json.side_effect = JSONDecodeError("Invalid JSON", "doc", 0)
+
+        # Test the error handling
+        with raises(SystemException) as exc_info:
+            base_resource._handle_error_response(mock_response)
+
+        # Verify the exception
+        assert exc_info.value.status_code == 500
+        assert exc_info.value.error_type == "system"
+        assert "Internal Server Error" in str(exc_info.value)
+
+        # Verify logging happened correctly
+        mock_logger.error.assert_called()
+        log_call = mock_logger.error.call_args[0][0]
+        assert "SystemException" in log_call
+        assert "Internal Server Error" in log_call
+
+    def test_handle_error_response_with_empty_error_data(self, base_resource, mock_logger):
+        """Test handling of error responses with empty error data"""
+        # Create a mock response with empty JSON content
+        mock_response = Mock()
+        mock_response.status_code = 500
+        mock_response.json.return_value = {}
+
+        # Test the error handling
+        with raises(FitbitAPIException) as exc_info:
+            base_resource._handle_error_response(mock_response)
+
+        # When json() returns an empty dict, we should expect the error_type to be "system"
+        # and message to be "Unknown error" in the exception
+        assert exc_info.value.status_code == 500
+        assert exc_info.value.error_type == "system"
+        assert "Unknown error" in str(exc_info.value)
+
+        # The raw_response should be the same empty dict that was returned by json()
+        assert exc_info.value.raw_response == {}
+
+    def test_make_request_with_unexpected_exception(
+        self, base_resource, mock_oauth_session, mock_logger
+    ):
+        """Test handling of unexpected exceptions during request"""
+        # This test covers line 458-461 in base.py
+        mock_oauth_session.request.side_effect = ConnectionError("Network error")
+
+        with raises(ConnectionError):
+            base_resource._make_request("test/endpoint")
+
+        # Verify the error was logged
+        mock_logger.error.assert_called_once()
+        log_message = mock_logger.error.call_args[0][0]
+        assert "ConnectionError" in log_message
+        assert "Network error" in log_message
+
+    def test_handle_json_response_with_invalid_json(self, base_resource, mock_logger):
+        """Test handling of responses with invalid JSON"""
+        # This provides additional coverage for the JSONDecodeError handling
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.side_effect = JSONDecodeError("Invalid JSON", "doc", 0)
+
+        with raises(JSONDecodeError):
+            base_resource._handle_json_response("test_method", "test/endpoint", mock_response)
+
+        # Verify the error was logged
+        mock_logger.error.assert_called_once_with("Invalid JSON response from test/endpoint")
