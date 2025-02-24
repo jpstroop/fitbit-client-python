@@ -2,6 +2,8 @@
 
 ## TODO
 
+- [ ] Finish method naming and typing documentation.
+
 - [ ] Complete coverage
 
 - [ ] Confront MyPy. See https://stackoverflow.com/a/51294709 for json help
@@ -10,12 +12,12 @@
   e.g. List[JSONType], Dict[str, JSONType], so that the user can actually know
   what to expect (or None, of course)
 
-- [ ] add a note about typing, method naming semantics, aliases, and interns.
-
 - [ ] Test that all methods have an alias in `Client` and that the signatures
   match
 
 - [ ] Rationalize `ClientValidationException` subclass inheritance
+
+- [ ] Set up CI!
 
 - [ ] validate Calories From Fat:
   `fitbit_client.exceptions.ValidationException: Calories From Fat must be a valid non-negative number. Currently it is "146.79".`
