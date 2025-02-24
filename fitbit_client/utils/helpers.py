@@ -24,6 +24,9 @@ def to_camel_case(snake_str: str, cap_first: bool = False) -> str:
         snake_str: a snake_case string
         cap_first: if True, returns CamelCase, otherwise camelCase (default is False)
     """
+    if not snake_str:  # handle empty string case
+        return ""
+
     camel_string = "".join(l.capitalize() for l in snake_str.lower().split("_"))
     if cap_first:
         return camel_string
@@ -33,13 +36,13 @@ def to_camel_case(snake_str: str, cap_first: bool = False) -> str:
 
 def print_json(obj: JSONType, f: TextIO = stdout):
     """
-    Prett print JSON-serializable objects.
+    Pretty print JSON-serializable objects.
 
     Args:
         obj: Any JSON serializable object
         f: A file-like object to which the object should be serialized. Default: stdout
     """
-    print(dumps(obj, ensure_ascii=False, indent=2), file=f)
+    print(dumps(obj, ensure_ascii=False, indent=2), file=f, flush=True)
 
 
 def date_range(start_date: str, end_date: str) -> Iterator[str]:
@@ -67,5 +70,5 @@ def date_range(start_date: str, end_date: str) -> Iterator[str]:
         while start <= end:
             yield start.isoformat()
             start += timedelta(days=1)
-    else:  # Handles start == end
+    else:  # start == end
         yield start.isoformat()

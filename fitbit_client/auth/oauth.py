@@ -62,7 +62,7 @@ class FitbitOAuth2:
         token_cache_path: str,
         use_callback_server: bool = True,
     ) -> None:
-        self.logger = getLogger("fitbit_client.oauth")  # Add this line
+        self.logger = getLogger("fitbit_client.oauth")
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
