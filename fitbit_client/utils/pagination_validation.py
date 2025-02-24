@@ -16,7 +16,6 @@ F = TypeVar("F", bound=Callable)
 
 
 def validate_pagination_params(
-    *,
     before_field: str = "before_date",
     after_field: str = "after_date",
     sort_field: str = "sort",
