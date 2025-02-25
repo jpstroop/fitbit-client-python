@@ -77,7 +77,7 @@ extensions = [
 testpaths = ["tests"]
 minversion = 6.0
 python_files = "test_*.py"
-addopts = "-ra -q --cov=fitbit_client --cache-clear --cov-report=term-missing --cov-report=html:_cov_html -v --tb=native"
+addopts = "-ra -q --cov=fitbit_client --cache-clear --cov-report=term-missing --tb=native -W error::DeprecationWarning"
 pythonpath = ["."]
 
 # https://pytest-cov.readthedocs.io/en/latest/config.html
