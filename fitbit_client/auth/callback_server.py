@@ -1,6 +1,7 @@
 # fitbit_client/auth/callback_server.py
 
 # Standard library imports
+from datetime import UTC
 from datetime import datetime
 from datetime import timedelta
 from http.server import HTTPServer
@@ -106,8 +107,8 @@ class CallbackServer:
                     .issuer_name(issuer)
                     .public_key(private_key.public_key())
                     .serial_number(x509.random_serial_number())
-                    .not_valid_before(datetime.utcnow())
-                    .not_valid_after(datetime.utcnow() + timedelta(days=10))
+                    .not_valid_before(datetime.now(UTC))
+                    .not_valid_after(datetime.now(UTC) + timedelta(days=10))
                     .add_extension(
                         x509.SubjectAlternativeName([x509.DNSName(self.host)]), critical=False
                     )
