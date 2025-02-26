@@ -4,6 +4,7 @@
 from typing import Any
 from typing import Dict
 from typing import Optional
+from typing import cast
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
@@ -11,6 +12,7 @@ from fitbit_client.resources.constants import SortDirection
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range_params
 from fitbit_client.utils.pagination_validation import validate_pagination_params
+from fitbit_client.utils.types import JSONDict
 
 
 class SleepResource(BaseResource):
@@ -28,7 +30,7 @@ class SleepResource(BaseResource):
 
     def create_sleep_goals(
         self, min_duration: int, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Creates or updates a user's sleep goal.
 
@@ -45,7 +47,7 @@ class SleepResource(BaseResource):
         if min_duration <= 0:
             raise ValueError("min_duration must be positive")
 
-        return self._make_request(
+        result = self._make_request(
             "sleep/goal.json",
             data={"minDuration": min_duration},
             user_id=user_id,
@@ -53,6 +55,7 @@ class SleepResource(BaseResource):
             api_version=SleepResource.API_VERSION,
             debug=debug,
         )
+        return cast(JSONDict, result)
 
     create_sleep_goal = create_sleep_goals  # semantically correct name
 
@@ -64,7 +67,7 @@ class SleepResource(BaseResource):
         start_time: str,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Creates a log entry for a sleep event.
 
@@ -94,7 +97,7 @@ class SleepResource(BaseResource):
             raise ValueError("duration_millis must be positive")
 
         params = {"startTime": start_time, "duration": duration_millis, "date": date}
-        return self._make_request(
+        result = self._make_request(
             "sleep.json",
             params=params,
             user_id=user_id,
@@ -102,10 +105,9 @@ class SleepResource(BaseResource):
             api_version=SleepResource.API_VERSION,
             debug=debug,
         )
+        return cast(JSONDict, result)
 
-    def delete_sleep_log(
-        self, log_id: int, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    def delete_sleep_log(self, log_id: int, user_id: str = "-", debug: bool = False) -> None:
         """
         Deletes a specific sleep log entry.
 
@@ -116,15 +118,16 @@ class SleepResource(BaseResource):
             user_id: Optional user ID, defaults to current user
             debug: If True, a prints a curl command to stdout to help with debugging (default: False)
         """
-        return self._make_request(
+        result = self._make_request(
             f"sleep/{log_id}.json",
             user_id=user_id,
             http_method="DELETE",
             api_version=SleepResource.API_VERSION,
             debug=debug,
         )
+        return cast(None, result)
 
-    def get_sleep_goals(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
+    def get_sleep_goals(self, user_id: str = "-", debug: bool = False) -> JSONDict:
         """
         Gets a user's current sleep goal.
 
@@ -140,16 +143,15 @@ class SleepResource(BaseResource):
             - consistency: Sleep goal consistency flow status
             - updatedOn: Last update timestamp
         """
-        return self._make_request(
+        result = self._make_request(
             "sleep/goal.json", user_id=user_id, api_version=SleepResource.API_VERSION, debug=debug
         )
+        return cast(JSONDict, result)
 
     get_sleep_goal = get_sleep_goals  # semantically correct name
 
     @validate_date_param(field_name="date")
-    def get_sleep_log_by_date(
-        self, date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    def get_sleep_log_by_date(self, date: str, user_id: str = "-", debug: bool = False) -> JSONDict:
         """
         Gets sleep logs for a specific date.
 
@@ -173,17 +175,18 @@ class SleepResource(BaseResource):
             date. For example, requesting logs for 2021-12-22 may return a log entry
             that began on 2021-12-21 but ended on 2021-12-22.
         """
-        return self._make_request(
+        result = self._make_request(
             f"sleep/date/{date}.json",
             user_id=user_id,
             api_version=SleepResource.API_VERSION,
             debug=debug,
         )
+        return cast(JSONDict, result)
 
     @validate_date_range_params(max_days=100)
     def get_sleep_log_by_date_range(
         self, start_date: str, end_date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Gets sleep logs for a date range.
 
@@ -205,12 +208,13 @@ class SleepResource(BaseResource):
         Note:
             Maximum date range is 100 days
         """
-        return self._make_request(
+        result = self._make_request(
             f"sleep/date/{start_date}/{end_date}.json",
             user_id=user_id,
             api_version=SleepResource.API_VERSION,
             debug=debug,
         )
+        return cast(JSONDict, result)
 
     @validate_date_param(field_name="before_date")
     @validate_date_param(field_name="after_date")
@@ -224,7 +228,7 @@ class SleepResource(BaseResource):
         offset: int = 0,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Gets a list of sleep logs before or after a given date.
 
@@ -262,10 +266,11 @@ class SleepResource(BaseResource):
         if after_date:
             params["afterDate"] = after_date
 
-        return self._make_request(
+        result = self._make_request(
             "sleep/list.json",
             params=params,
             user_id=user_id,
             api_version=SleepResource.API_VERSION,
             debug=debug,
         )
+        return cast(JSONDict, result)

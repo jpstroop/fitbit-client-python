@@ -1,9 +1,8 @@
 # fitbit_client/resources/user.py
 
 # Standard library imports
-from typing import Any
-from typing import Dict
 from typing import Optional
+from typing import cast
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
@@ -11,6 +10,7 @@ from fitbit_client.resources.constants import ClockTimeFormat
 from fitbit_client.resources.constants import Gender
 from fitbit_client.resources.constants import StartDayOfWeek
 from fitbit_client.utils.date_validation import validate_date_param
+from fitbit_client.utils.types import JSONDict
 
 
 class UserResource(BaseResource):
@@ -23,7 +23,7 @@ class UserResource(BaseResource):
     API Reference: https://dev.fitbit.com/build/reference/web-api/user/
     """
 
-    def get_profile(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
+    def get_profile(self, user_id: str = "-", debug: bool = False) -> JSONDict:
         """
         Get user profile information.
 
@@ -41,7 +41,8 @@ class UserResource(BaseResource):
             Numerical values are returned in units specified by Accept-Language header.
             The profile includes all badges visible in the user's badge locker.
         """
-        return self._make_request("profile.json", user_id=user_id, debug=debug)
+        result = self._make_request("profile.json", user_id=user_id, debug=debug)
+        return cast(JSONDict, result)
 
     @validate_date_param(field_name="birthday")
     def update_profile(
@@ -69,7 +70,7 @@ class UserResource(BaseResource):
         stride_length_running: Optional[str] = None,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Update user profile data.
 
@@ -137,11 +138,12 @@ class UserResource(BaseResource):
         }
 
         params = {key: value for key, value in updates.items() if value is not None}
-        return self._make_request(
+        result = self._make_request(
             "profile.json", params=params, user_id=user_id, http_method="POST", debug=debug
         )
+        return cast(JSONDict, result)
 
-    def get_badges(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
+    def get_badges(self, user_id: str = "-", debug: bool = False) -> JSONDict:
         """
         Get list of user's earned achievement badges.
 
@@ -159,4 +161,5 @@ class UserResource(BaseResource):
             to allow access. Weight badges are only included if "My Body" privacy
             setting allows access.
         """
-        return self._make_request("badges.json", user_id=user_id, debug=debug)
+        result = self._make_request("badges.json", user_id=user_id, debug=debug)
+        return cast(JSONDict, result)

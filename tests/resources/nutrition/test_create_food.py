@@ -91,11 +91,11 @@ def test_create_food_calories_from_fat_must_be_integer(nutrition_resource):
             description="Test food description",
             form_type=FoodFormType.DRY,
             nutritional_values={
-                NutritionalValue.CALORIES_FROM_FAT: 20.5,  # Float instead of integer
+                NutritionalValue.CALORIES_FROM_FAT: 20.5,
                 NutritionalValue.PROTEIN: 20.0,
                 NutritionalValue.TOTAL_CARBOHYDRATE: 0.0,
             },
-        )
+        )  # Float instead of integer
 
     # Verify exception details
     assert exc_info.value.status_code == 400

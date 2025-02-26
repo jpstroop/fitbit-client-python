@@ -89,8 +89,8 @@ def test_get_spo2_intraday_by_interval_exceeds_max_days(intraday_resource):
     """Tests that exceeding 30 days raises InvalidDateRangeException"""
     with raises(InvalidDateRangeException) as exc_info:
         intraday_resource.get_spo2_intraday_by_interval(
-            start_date="2024-02-13", end_date="2024-03-15"  # More than 30 days
-        )
+            start_date="2024-02-13", end_date="2024-03-15"
+        )  # More than 30 days
 
     assert "exceeds maximum allowed 30 days" in str(exc_info.value)
     assert "spo2 intraday" in str(exc_info.value)

@@ -14,8 +14,10 @@ from tempfile import NamedTemporaryFile
 from threading import Thread
 from time import sleep
 from time import time
+from typing import Any
 from typing import IO
 from typing import Optional
+from typing import Tuple
 from urllib.parse import urlparse
 
 # Third party imports
@@ -71,6 +73,21 @@ class CallbackServer:
         self.cert_file: Optional[IO[bytes]] = None
         self.key_file: Optional[IO[bytes]] = None
 
+    def create_handler(
+        self, request: Any, client_address: Tuple[str, int], server: HTTPServer
+    ) -> CallbackHandler:
+        """Factory function to create CallbackHandler instances.
+
+        Args:
+            request: The request from the client
+            client_address: The client's address
+            server: The HTTPServer instance
+
+        Returns:
+            A new CallbackHandler instance
+        """
+        return CallbackHandler(request, client_address, server)
+
     def start(self) -> None:
         """
         Start callback server in background thread
@@ -81,7 +98,8 @@ class CallbackServer:
         self.logger.debug(f"Starting HTTPS server on {self.host}:{self.port}")
 
         try:
-            self.server = HTTPServer((self.host, self.port), CallbackHandler)
+            # Use the factory function instead of directly passing CallbackHandler class
+            self.server = HTTPServer((self.host, self.port), self.create_handler)
 
             # Create SSL context and certificate
             self.logger.debug("Creating SSL context and certificate")

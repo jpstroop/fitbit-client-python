@@ -277,6 +277,43 @@ class TestFitbitOAuth2:
         assert str(exc_info.value) == "other error"
 
     # Token Fetching Tests
+    def test_fetch_token_returns_typed_dict(self, oauth):
+        """Test that fetch_token correctly returns a properly typed TokenDict"""
+        mock_token_data = {
+            "access_token": "test_access_token",
+            "refresh_token": "test_refresh_token",
+            "token_type": "Bearer",
+            "expires_in": 3600,
+            "expires_at": time() + 3600,
+            "scope": ["activity", "profile"],
+        }
+
+        # Mock the session's fetch_token method to return our test data
+        mock_session = Mock()
+        mock_session.fetch_token.return_value = mock_token_data
+        oauth.session = mock_session
+
+        # Call the method we're testing
+        result = oauth.fetch_token("https://localhost:8080/callback?code=test_code")
+
+        # Verify the result matches our test data
+        assert result == mock_token_data
+        assert "access_token" in result
+        assert "refresh_token" in result
+        assert result["access_token"] == "test_access_token"
+
+        # Verify the session's fetch_token was called with correct parameters
+        mock_session.fetch_token.assert_called_once()
+        call_args = mock_session.fetch_token.call_args[0]
+        call_kwargs = mock_session.fetch_token.call_args[1]
+        assert call_args[0] == oauth.TOKEN_URL
+        assert (
+            call_kwargs["authorization_response"]
+            == "https://localhost:8080/callback?code=test_code"
+        )
+        assert call_kwargs["code_verifier"] == oauth.code_verifier
+        assert call_kwargs["include_client_id"] is True
+
     def test_fetch_token_invalid_client(self, oauth):
         """Test handling of invalid client credentials"""
         mock_session = Mock()
@@ -324,6 +361,40 @@ class TestFitbitOAuth2:
         assert "Unhandled OAuth error" in log_message
 
     # Token Refresh Tests
+    def test_refresh_token_returns_typed_dict(self, oauth):
+        """Test that refresh_token correctly returns a properly typed TokenDict"""
+        mock_token_data = {
+            "access_token": "new_access_token",
+            "refresh_token": "new_refresh_token",
+            "token_type": "Bearer",
+            "expires_in": 3600,
+            "expires_at": time() + 3600,
+            "scope": ["activity", "heartrate"],
+        }
+
+        # Mock the session's refresh_token method to return our test data
+        mock_session = Mock()
+        mock_session.refresh_token.return_value = mock_token_data
+        oauth.session = mock_session
+
+        # Also mock _save_token to avoid side effects
+        mock_save_token = Mock()
+        oauth._save_token = mock_save_token
+
+        # Call the method we're testing
+        result = oauth.refresh_token("old_refresh_token")
+
+        # Verify the result is correctly typed and matches our test data
+        assert result == mock_token_data
+        assert "access_token" in result
+        assert "refresh_token" in result
+        assert result["access_token"] == "new_access_token"
+        assert result["refresh_token"] == "new_refresh_token"
+
+        # Verify the session's refresh_token was called with correct parameters
+        mock_session.refresh_token.assert_called_once()
+        mock_save_token.assert_called_once_with(mock_token_data)
+
     def test_refresh_token_expired(self, oauth):
         """Test handling of expired refresh token"""
         mock_session = Mock()
@@ -471,8 +542,8 @@ class TestFitbitOAuth2:
         expired_token = {
             "access_token": "expired_token",
             "refresh_token": "refresh_token",
-            "expires_at": time() - 3600,  # 1 hour in the past
-        }
+            "expires_at": time() - 3600,
+        }  # 1 hour in the past
 
         # Mock file operations to return the expired token
         with (
@@ -500,8 +571,8 @@ class TestFitbitOAuth2:
         # Create an expired token without a refresh_token field
         expired_token = {
             "access_token": "expired_token",
-            "expires_at": time() - 3600,  # 1 hour in the past
-        }
+            "expires_at": time() - 3600,
+        }  # 1 hour in the past
 
         # Mock file operations to return the expired token
         with (

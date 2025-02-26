@@ -42,8 +42,8 @@ def test_heartrate_intraday_by_date_detail_level_not_in_enum(intraday_resource):
     """Tests heart rate intraday detail level validation for non-enum values"""
     with raises(IntradayValidationException) as exc_info:
         intraday_resource.get_heartrate_intraday_by_date(
-            date="2024-02-13", detail_level=object()  # Not an IntradayDetailLevel
-        )
+            date="2024-02-13", detail_level=object()
+        )  # Not an IntradayDetailLevel
 
     assert exc_info.value.field_name == "detail_level"
     assert exc_info.value.resource_name == "heart rate"
@@ -139,8 +139,8 @@ def test_heartrate_intraday_interval_validation_exception(intraday_resource):
         intraday_resource.get_heartrate_intraday_by_interval(
             start_date="2024-02-13",
             end_date="2024-02-14",
-            detail_level=IntradayDetailLevel.FIFTEEN_MINUTES,  # This will trigger the exception
-        )
+            detail_level=IntradayDetailLevel.FIFTEEN_MINUTES,
+        )  # This will trigger the exception
     assert exc_info.value.field_name == "detail_level"
     assert exc_info.value.resource_name == "heart rate"
 

@@ -138,9 +138,9 @@ def test_activity_intraday_interval_raises_validation_exception(intraday_resourc
         intraday_resource.get_activity_intraday_by_interval(
             start_date="2024-02-13",
             end_date="2024-02-14",
-            resource_path="invalid",  # This will trigger the exception
+            resource_path="invalid",
             detail_level=IntradayDetailLevel.ONE_MINUTE,
-        )
+        )  # This will trigger the exception
     assert exc_info.value.field_name == "resource_path"
     assert exc_info.value.resource_name == "activity"
 
@@ -178,8 +178,8 @@ def test_get_activity_intraday_by_interval_detail_level_not_in_enum(intraday_res
             start_date="2024-02-13",
             end_date="2024-02-14",
             resource_path="steps",
-            detail_level=object(),  # Not an IntradayDetailLevel
-        )
+            detail_level=object(),
+        )  # Not an IntradayDetailLevel
 
     assert exc_info.value.field_name == "detail_level"
     assert exc_info.value.resource_name == "activity"

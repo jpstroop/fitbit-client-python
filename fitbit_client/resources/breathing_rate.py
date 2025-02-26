@@ -1,13 +1,14 @@
 # fitbit_client/resources/breathing_rate.py
 
 # Standard library imports
-from typing import Any
 from typing import Dict
+from typing import cast
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range_params
+from fitbit_client.utils.types import JSONDict
 
 
 class BreathingRateResource(BaseResource):
@@ -31,7 +32,7 @@ class BreathingRateResource(BaseResource):
     @validate_date_param()
     def get_breathing_rate_summary_by_date(
         self, date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Get breathing rate data for a single date.
 
@@ -60,12 +61,13 @@ class BreathingRateResource(BaseResource):
             - Device must be synced
             - ~15 minute processing time after sync
         """
-        return self._make_request(f"br/date/{date}.json", user_id=user_id, debug=debug)
+        result = self._make_request(f"br/date/{date}.json", user_id=user_id, debug=debug)
+        return cast(JSONDict, result)
 
     @validate_date_range_params(max_days=30)
     def get_breathing_rate_summary_by_interval(
         self, start_date: str, end_date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Get breathing rate data for a date range.
 
@@ -95,6 +97,7 @@ class BreathingRateResource(BaseResource):
             - Device must be synced
             - ~15 minute processing time after sync
         """
-        return self._make_request(
+        result = self._make_request(
             f"br/date/{start_date}/{end_date}.json", user_id=user_id, debug=debug
         )
+        return cast(JSONDict, result)

@@ -77,6 +77,30 @@ class TestCallbackServer:
             assert server.host == "localhost"
             assert server.port == 8080
 
+    def test_create_handler(self, server):
+        """Test the factory function for creating CallbackHandler instances"""
+        # Setup mock objects
+        mock_request = MagicMock()
+        mock_client_address = ("127.0.0.1", 1234)
+        mock_server = MagicMock()
+
+        # Patch the CallbackHandler to verify it gets instantiated correctly
+        with patch("fitbit_client.auth.callback_server.CallbackHandler") as mock_handler_class:
+            # Setup the mock to return a mock instance
+            mock_handler = MagicMock()
+            mock_handler_class.return_value = mock_handler
+
+            # Call the method under test
+            handler = server.create_handler(mock_request, mock_client_address, mock_server)
+
+            # Verify the CallbackHandler was instantiated with the correct arguments
+            mock_handler_class.assert_called_once_with(
+                mock_request, mock_client_address, mock_server
+            )
+
+            # Verify the return value
+            assert handler is mock_handler
+
     # Server Start Tests
     def test_start_server_sets_callback_attribute(
         self, server, mock_private_key, mock_certificate, mock_ssl_context

@@ -1,13 +1,15 @@
 # fitbit_client/resources/device.py
 
 # Standard library imports
-from typing import Any
-from typing import Dict
 from typing import List
+from typing import Optional
+from typing import cast
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import WeekDay
+from fitbit_client.utils.types import JSONDict
+from fitbit_client.utils.types import JSONList
 
 
 class DeviceResource(BaseResource):
@@ -30,25 +32,25 @@ class DeviceResource(BaseResource):
         recurring: bool,
         week_days: List[WeekDay],
         user_id: str = "-",
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         NOT IMPLEMENTED. Create an alarm for a device.
         """
         raise NotImplementedError
 
-    def delete_alarm(self, tracker_id: str, alarm_id: str, user_id: str = "-") -> Dict[str, Any]:
+    def delete_alarm(self, tracker_id: str, alarm_id: str, user_id: str = "-") -> None:
         """
         NOT IMPLEMENTED. Delete an alarm from a device.
         """
         raise NotImplementedError
 
-    def get_alarms(self, tracker_id: str, user_id: str = "-") -> Dict[str, Any]:
+    def get_alarms(self, tracker_id: str, user_id: str = "-") -> JSONDict:
         """
         NOT IMPLEMENTED. Get list of alarms for a device.
         """
         raise NotImplementedError
 
-    def get_devices(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
+    def get_devices(self, user_id: str = "-", debug: bool = False) -> JSONList:
         """
         Get list of Fitbit devices paired to a user's account.
 
@@ -62,7 +64,7 @@ class DeviceResource(BaseResource):
             Response contains list of paired devices with their details including:
             battery level, device version, features, last sync time, etc.
         """
-        return self._make_request("devices.json", user_id=user_id, debug=debug)
+        return cast(JSONList, self._make_request("devices.json", user_id=user_id, debug=debug))
 
     def update_alarm(
         self,
@@ -74,10 +76,10 @@ class DeviceResource(BaseResource):
         week_days: List[WeekDay],
         snooze_length: int,
         snooze_count: int,
-        label: str = None,
-        vibe: str = None,
+        label: Optional[str] = None,
+        vibe: Optional[str] = None,
         user_id: str = "-",
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         NOT IMPLEMENTED. Update an existing alarm on a device.
         """

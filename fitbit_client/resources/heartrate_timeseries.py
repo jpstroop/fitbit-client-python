@@ -1,15 +1,15 @@
 # fitbit_client/resources/heartrate_timeseries.py
 
 # Standard library imports
-from typing import Any
-from typing import Dict
 from typing import Optional
+from typing import cast
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import Period
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range_params
+from fitbit_client.utils.types import JSONDict
 
 
 class HeartrateTimeSeriesResource(BaseResource):
@@ -33,7 +33,7 @@ class HeartrateTimeSeriesResource(BaseResource):
         user_id: str = "-",
         timezone: Optional[str] = None,
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Retrieves heart rate time series data for a period starting from the specified date.
 
@@ -81,12 +81,13 @@ class HeartrateTimeSeriesResource(BaseResource):
             raise ValueError("Only 'UTC' timezone is supported")
 
         params = {"timezone": timezone} if timezone else None
-        return self._make_request(
+        result = self._make_request(
             f"activities/heart/date/{date}/{period.value}.json",
             params=params,
             user_id=user_id,
             debug=debug,
         )
+        return cast(JSONDict, result)
 
     @validate_date_range_params()
     def get_heartrate_timeseries_by_date_range(
@@ -96,7 +97,7 @@ class HeartrateTimeSeriesResource(BaseResource):
         user_id: str = "-",
         timezone: Optional[str] = None,
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Retrieves heart rate time series data for a specified date range.
 
@@ -131,9 +132,10 @@ class HeartrateTimeSeriesResource(BaseResource):
             raise ValueError("Only 'UTC' timezone is supported")
 
         params = {"timezone": timezone} if timezone else None
-        return self._make_request(
+        result = self._make_request(
             f"activities/heart/date/{start_date}/{end_date}.json",
             params=params,
             user_id=user_id,
             debug=debug,
         )
+        return cast(JSONDict, result)

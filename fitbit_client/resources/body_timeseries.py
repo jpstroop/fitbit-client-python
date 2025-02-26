@@ -1,8 +1,7 @@
 # fitbit_client/resources/body_timeseries.py
 
 # Standard library imports
-from typing import Any
-from typing import Dict
+from typing import cast
 
 # Local imports
 from fitbit_client.exceptions import ValidationException
@@ -13,6 +12,7 @@ from fitbit_client.resources.constants import MaxRanges
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range
 from fitbit_client.utils.date_validation import validate_date_range_params
+from fitbit_client.utils.types import JSONDict
 
 
 class BodyTimeSeriesResource(BaseResource):
@@ -30,7 +30,7 @@ class BodyTimeSeriesResource(BaseResource):
         period: BodyTimePeriod,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Get body metrics for a given resource over a period of time by specifying a date and time period.
 
@@ -69,21 +69,24 @@ class BodyTimeSeriesResource(BaseResource):
                     field_name="period",
                 )
 
-        return self._make_request(
+        result = self._make_request(
             f"body/{resource_type.value}/date/{date}/{period.value}.json",
             user_id=user_id,
             debug=debug,
         )
+        return cast(JSONDict, result)
 
     @validate_date_range_params(start_field="begin_date")
     def get_body_timeseries_by_date_range(
         self,
         resource_type: BodyResourceType,
-        begin_date: str,  # Trivia! this the one place in the whole API where
-        end_date: str,  # it's not called "start-date" ¯\_(ツ)_/¯.
+        begin_date: str,
+        end_date: str,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> (
+        JSONDict
+    ):  # Trivia! this the one place in the whole API where  # it's not called "start-date" ¯\_(ツ)_/¯.
         """
         Get body metrics for a given resource over a period of time by specifying a date range.
 
@@ -119,16 +122,17 @@ class BodyTimeSeriesResource(BaseResource):
         # Since we have different max days for different resources, we need to validate here
         validate_date_range(begin_date, end_date, max_days, resource_type.value)
 
-        return self._make_request(
+        result = self._make_request(
             f"body/{resource_type.value}/date/{begin_date}/{end_date}.json",
             user_id=user_id,
             debug=debug,
         )
+        return cast(JSONDict, result)
 
     @validate_date_param()
     def get_bodyfat_timeseries_by_date(
         self, date: str, period: BodyTimePeriod, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Get user's body fat measurements over a period of time by specifying a date and time period.
 
@@ -164,14 +168,15 @@ class BodyTimeSeriesResource(BaseResource):
                 field_name="period",
             )
 
-        return self._make_request(
+        result = self._make_request(
             f"body/log/fat/date/{date}/{period.value}.json", user_id=user_id, debug=debug
         )
+        return cast(JSONDict, result)
 
     @validate_date_range_params(max_days=MaxRanges.BODY_FAT, resource_name="body fat")
     def get_bodyfat_timeseries_by_date_range(
         self, start_date: str, end_date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Get user's body fat measurements over a period of time by specifying a date range.
 
@@ -194,14 +199,15 @@ class BodyTimeSeriesResource(BaseResource):
             Maximum range is 30 days
             Data is returned using units based on the Accept-Language header provided.
         """
-        return self._make_request(
+        result = self._make_request(
             f"body/log/fat/date/{start_date}/{end_date}.json", user_id=user_id, debug=debug
         )
+        return cast(JSONDict, result)
 
     @validate_date_param()
     def get_weight_timeseries_by_date(
         self, date: str, period: BodyTimePeriod, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Get user's weight measurements over a period of time by specifying a date and time period.
 
@@ -237,14 +243,15 @@ class BodyTimeSeriesResource(BaseResource):
                 field_name="period",
             )
 
-        return self._make_request(
+        result = self._make_request(
             f"body/log/weight/date/{date}/{period.value}.json", user_id=user_id, debug=debug
         )
+        return cast(JSONDict, result)
 
     @validate_date_range_params(max_days=MaxRanges.WEIGHT, resource_name="weight")
     def get_weight_timeseries_by_date_range(
         self, start_date: str, end_date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Get user's weight measurements over a period of time by specifying a date range.
 
@@ -267,6 +274,7 @@ class BodyTimeSeriesResource(BaseResource):
             Maximum range is 31 days
             Data is returned using units based on the Accept-Language header provided.
         """
-        return self._make_request(
+        result = self._make_request(
             f"body/log/weight/date/{start_date}/{end_date}.json", user_id=user_id, debug=debug
         )
+        return cast(JSONDict, result)
