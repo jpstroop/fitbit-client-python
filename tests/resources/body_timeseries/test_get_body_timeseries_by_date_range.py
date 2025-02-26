@@ -64,10 +64,10 @@ def test_get_body_timeseries_by_date_range_makes_correct_request(body_timeseries
     result = body_timeseries.get_body_timeseries_by_date_range(
         resource_type=BodyResourceType.BMI,
         begin_date="2023-01-01",
-        end_date="2023-01-10",  # Well within the BMI limit
+        end_date="2023-01-10",
         user_id="test_user",
         debug=False,
-    )
+    )  # Well within the BMI limit
 
     # Assert the result
     assert result == {"expected": "response"}

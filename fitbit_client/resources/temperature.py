@@ -1,13 +1,13 @@
 # fitbit_client/resources/temperature.py
 
 # Standard library imports
-from typing import Any
-from typing import Dict
+from typing import cast
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range_params
+from fitbit_client.utils.types import JSONDict
 
 
 class TemperatureResource(BaseResource):
@@ -25,7 +25,7 @@ class TemperatureResource(BaseResource):
     @validate_date_param(field_name="date")
     def get_temperature_core_summary_by_date(
         self, date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Get core temperature summary data for a single date. Temperature
         (Core) data applies specifically to data logged manually by the user throughout
@@ -45,12 +45,13 @@ class TemperatureResource(BaseResource):
         Raises:
             InvalidDateException: If date format is invalid
         """
-        return self._make_request(f"temp/core/date/{date}.json", user_id=user_id, debug=debug)
+        result = self._make_request(f"temp/core/date/{date}.json", user_id=user_id, debug=debug)
+        return cast(JSONDict, result)
 
     @validate_date_range_params(max_days=30)
     def get_temperature_core_summary_by_interval(
         self, start_date: str, end_date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Get core temperature data for a date range. Temperature (Core) data applies
         specifically to data logged manually by the user on a given day. Maximum date
@@ -75,14 +76,15 @@ class TemperatureResource(BaseResource):
         Note:
             Maximum date range is 30 days
         """
-        return self._make_request(
+        result = self._make_request(
             f"temp/core/date/{start_date}/{end_date}.json", user_id=user_id, debug=debug
         )
+        return cast(JSONDict, result)
 
     @validate_date_param(field_name="date")
     def get_temperature_skin_summary_by_date(
         self, date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Get skin temperature data for a single date. Temperature (Skin) data applies
         specifically to a user's "main sleep," which is the longest single period of time
@@ -109,12 +111,13 @@ class TemperatureResource(BaseResource):
             - Requires minimal movement during sleep for accurate measurements
             - The data returned usually reflects a sleep period that began the day before
         """
-        return self._make_request(f"temp/skin/date/{date}.json", user_id=user_id, debug=debug)
+        result = self._make_request(f"temp/skin/date/{date}.json", user_id=user_id, debug=debug)
+        return cast(JSONDict, result)
 
     @validate_date_range_params(max_days=30)
     def get_temperature_skin_summary_by_interval(
         self, start_date: str, end_date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Get skin temperature data for a date range. It only returns a value for dates
         on which the Fitbit device was able to record Temperature (skin) data and the
@@ -144,6 +147,7 @@ class TemperatureResource(BaseResource):
             - Takes ~15 minutes after device sync for data to be available
             - The data returned usually reflects sleep periods that began the day before
         """
-        return self._make_request(
+        result = self._make_request(
             f"temp/skin/date/{start_date}/{end_date}.json", user_id=user_id, debug=debug
         )
+        return cast(JSONDict, result)

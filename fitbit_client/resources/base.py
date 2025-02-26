@@ -10,6 +10,7 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Set
+from typing import cast
 from urllib.parse import urlencode
 
 # Third party imports
@@ -20,6 +21,7 @@ from requests_oauthlib import OAuth2Session
 from fitbit_client.exceptions import ERROR_TYPE_EXCEPTIONS
 from fitbit_client.exceptions import FitbitAPIException
 from fitbit_client.exceptions import STATUS_CODE_EXCEPTIONS
+from fitbit_client.utils.types import JSONType
 
 # Constants for important fields to track in logging
 IMPORTANT_RESPONSE_FIELDS: Set[str] = {
@@ -47,7 +49,7 @@ class BaseResource:
     1. Public endpoints: /{endpoint}
        Used for database-wide operations like food search
     2. User endpoints: /user/{user_id}/{endpoint}
-       Used for user-specific operations like logging food
+       Used for user-specific operations like logging activities and food.
 
     This base class provides common functionality for both types of endpoints, including:
      - URL construction
@@ -109,7 +111,7 @@ class BaseResource:
             return f"{self.API_BASE}/{api_version}/user/{user_id}/{endpoint}"
         return f"{self.API_BASE}/{api_version}/{endpoint}"
 
-    def _extract_important_fields(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_important_fields(self, data: Dict[str, JSONType]) -> Dict[str, int | str]:
         """
         Extract important fields from response data for logging.
 
@@ -286,7 +288,9 @@ class BaseResource:
             }
             self.data_logger.info(dumps(data_entry))
 
-    def _handle_json_response(self, calling_method: str, endpoint: str, response: Response) -> Dict:
+    def _handle_json_response(
+        self, calling_method: str, endpoint: str, response: Response
+    ) -> JSONType:
         """
         Handle a JSON response, including parsing and logging.
 
@@ -310,7 +314,7 @@ class BaseResource:
         self._log_response(calling_method, endpoint, response, content)
         if isinstance(content, dict):
             self._log_data(calling_method, content)
-        return content
+        return cast(JSONType, content)
 
     def _handle_error_response(self, response: Response) -> None:
         """
@@ -367,13 +371,13 @@ class BaseResource:
         data: Optional[Dict[str, Any]] = None,
         json: Optional[Dict[str, Any]] = None,
         params: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, Any]] = {},
+        headers: Dict[str, Any] = {},
         user_id: str = "-",
         requires_user_id: bool = True,
         http_method: str = "GET",
         api_version: str = "1",
         debug: bool = False,
-    ) -> Any:
+    ) -> JSONType:
         """
         Make a request to the Fitbit API with comprehensive error handling and debugging support.
 
@@ -390,9 +394,10 @@ class BaseResource:
             debug: If True, print curl command instead of making request
 
         Returns:
-            Dict[str, Any]: Parsed JSON response for most endpoints
-            str: Raw response text for XML/TCX responses
-            None: For successful DELETE operations or debug mode
+        - Dict[str, JSONType]: For most JSON object responses
+        - List[JSONType]: For endpoints that return JSON arrays
+        - str: For XML/TCX responses
+        - None: For (most) successful DELETE operations or debug mode
 
         Raises:
             FitbitAPIException: Base class for all Fitbit API exceptions
@@ -405,12 +410,11 @@ class BaseResource:
             SystemException: When there are server-side errors
 
         Debug Mode:
-            When debug=True, this method prints a curl command that can be used to
-            replicate the request manually and returns None. This is useful for:
+            When debug=True, this method prints a curl command to stdout that can
+            be used to replicate the request manually. This is useful for:
             - Testing API endpoints directly
-            - Debugging authentication issues
+            - Debugging authentication/scope issues
             - Verifying request structure
-            - Generating examples for documentation
         """
         calling_method = self._get_calling_method()
         url = self._build_url(endpoint, user_id, requires_user_id, api_version)
@@ -449,11 +453,11 @@ class BaseResource:
             # Handle XML/TCX responses
             elif "application/vnd.garmin.tcx+xml" in content_type or "text/xml" in content_type:
                 self._log_response(calling_method, endpoint, response)
-                return response.text
+                return cast(str, response.text)
 
             # Handle unexpected content types
             self.logger.error(f"Unexpected content type {content_type} for {endpoint}")
-            return response.text
+            return None
 
         except Exception as e:
             self.logger.error(

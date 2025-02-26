@@ -64,10 +64,10 @@ def test_get_body_timeseries_by_date_successful_flow(body_timeseries, mock_respo
     result = body_timeseries.get_body_timeseries_by_date(
         resource_type=BodyResourceType.BMI,
         date="2023-01-01",
-        period=BodyTimePeriod.THREE_MONTHS,  # Use a period that would be restricted for other resources
+        period=BodyTimePeriod.THREE_MONTHS,
         user_id="test_user",
         debug=False,
-    )
+    )  # Use a period that would be restricted for other resources
 
     # Assert the result
     assert result == {"expected": "response"}
@@ -87,10 +87,10 @@ def test_get_body_timeseries_by_date_successful_flow(body_timeseries, mock_respo
     result = body_timeseries.get_body_timeseries_by_date(
         resource_type=BodyResourceType.FAT,
         date="2023-01-01",
-        period=BodyTimePeriod.ONE_WEEK,  # Use a period that is allowed for fat
+        period=BodyTimePeriod.ONE_WEEK,
         user_id="test_user",
         debug=False,
-    )
+    )  # Use a period that is allowed for fat
 
     # Assert the request was made correctly
     body_timeseries.oauth.request.assert_called_once_with(

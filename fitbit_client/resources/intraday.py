@@ -2,12 +2,8 @@
 
 # Standard library imports
 from logging import getLogger
-from typing import Any
-from typing import Dict
 from typing import Optional
-
-# Third party imports
-from requests_oauthlib import OAuth2Session
+from typing import cast
 
 # Local imports
 from fitbit_client.exceptions import IntradayValidationException
@@ -16,6 +12,7 @@ from fitbit_client.resources.constants import IntradayDetailLevel
 from fitbit_client.resources.constants import MaxRanges
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range_params
+from fitbit_client.utils.types import JSONDict
 
 
 class IntradayResource(BaseResource):
@@ -28,17 +25,6 @@ class IntradayResource(BaseResource):
     API Reference: https://dev.fitbit.com/build/reference/web-api/intraday/
     """
 
-    def __init__(self, oauth_session: OAuth2Session, locale: str, language: str) -> None:
-        """Initialize the Intraday resource.
-
-        Args:
-            oauth_session: Authenticated OAuth2 session
-            locale: Locale for the API requests
-            language: Language for the API requests
-        """
-        super().__init__(oauth_session=oauth_session, locale=locale, language=language)
-        self.logger = getLogger("fitbit_client.intraday")
-
     @validate_date_param(field_name="date")
     def get_azm_intraday_by_date(
         self,
@@ -48,7 +34,7 @@ class IntradayResource(BaseResource):
         end_time: Optional[str] = None,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Retrieves intraday active zone minutes time series data for a single date.
 
@@ -90,7 +76,7 @@ class IntradayResource(BaseResource):
             endpoint += f"/time/{start_time}/{end_time}"
         endpoint += ".json"
 
-        return self._make_request(endpoint, user_id=user_id, debug=debug)
+        return cast(JSONDict, self._make_request(endpoint, user_id=user_id, debug=debug))
 
     @validate_date_range_params(
         max_days=MaxRanges.INTRADAY, resource_name="active zone minutes intraday"
@@ -104,7 +90,7 @@ class IntradayResource(BaseResource):
         end_time: Optional[str] = None,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Retrieves intraday active zone minutes time series data for a date range.
 
@@ -150,7 +136,7 @@ class IntradayResource(BaseResource):
             endpoint += f"/time/{start_time}/{end_time}"
         endpoint += ".json"
 
-        return self._make_request(endpoint, user_id=user_id, debug=debug)
+        return cast(JSONDict, self._make_request(endpoint, user_id=user_id, debug=debug))
 
     @validate_date_param(field_name="date")
     def get_activity_intraday_by_date(
@@ -162,7 +148,7 @@ class IntradayResource(BaseResource):
         end_time: Optional[str] = None,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Retrieves intraday activity time series data for a single date.
 
@@ -227,7 +213,7 @@ class IntradayResource(BaseResource):
             endpoint += f"/time/{start_time}/{end_time}"
         endpoint += ".json"
 
-        return self._make_request(endpoint, user_id=user_id, debug=debug)
+        return cast(JSONDict, self._make_request(endpoint, user_id=user_id, debug=debug))
 
     @validate_date_range_params(max_days=MaxRanges.INTRADAY, resource_name="activity intraday")
     def get_activity_intraday_by_interval(
@@ -240,7 +226,7 @@ class IntradayResource(BaseResource):
         end_time: Optional[str] = None,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Retrieves intraday activity time series data for a date range.
 
@@ -307,12 +293,12 @@ class IntradayResource(BaseResource):
             endpoint += f"/time/{start_time}/{end_time}"
         endpoint += ".json"
 
-        return self._make_request(endpoint, user_id=user_id, debug=debug)
+        return cast(JSONDict, self._make_request(endpoint, user_id=user_id, debug=debug))
 
     @validate_date_param(field_name="date")
     def get_breathing_rate_intraday_by_date(
         self, date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Retrieves intraday breathing rate data for a single date.
 
@@ -332,12 +318,12 @@ class IntradayResource(BaseResource):
             InvalidDateException: If date format is invalid
         """
         endpoint = f"br/date/{date}/all.json"
-        return self._make_request(endpoint, user_id=user_id, debug=debug)
+        return cast(JSONDict, self._make_request(endpoint, user_id=user_id, debug=debug))
 
     @validate_date_range_params(max_days=30, resource_name="breathing rate intraday")
     def get_breathing_rate_intraday_by_interval(
         self, start_date: str, end_date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Retrieves intraday breathing rate data for a date range.
 
@@ -359,7 +345,7 @@ class IntradayResource(BaseResource):
         """
 
         endpoint = f"br/date/{start_date}/{end_date}/all.json"
-        return self._make_request(endpoint, user_id=user_id, debug=debug)
+        return cast(JSONDict, self._make_request(endpoint, user_id=user_id, debug=debug))
 
     @validate_date_param(field_name="date")
     def get_heartrate_intraday_by_date(
@@ -370,7 +356,7 @@ class IntradayResource(BaseResource):
         end_time: Optional[str] = None,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Retrieves intraday heart rate time series data for a single date.
 
@@ -404,7 +390,7 @@ class IntradayResource(BaseResource):
             endpoint += f"/time/{start_time}/{end_time}"
         endpoint += ".json"
 
-        return self._make_request(endpoint, user_id=user_id, debug=debug)
+        return cast(JSONDict, self._make_request(endpoint, user_id=user_id, debug=debug))
 
     @validate_date_range_params()
     def get_heartrate_intraday_by_interval(
@@ -414,7 +400,7 @@ class IntradayResource(BaseResource):
         detail_level: IntradayDetailLevel = IntradayDetailLevel.ONE_MINUTE,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Retrieves intraday heart rate time series data for a date range.
 
@@ -445,12 +431,12 @@ class IntradayResource(BaseResource):
             )
 
         endpoint = f"activities/heart/date/{start_date}/{end_date}/{detail_level.value}.json"
-        return self._make_request(endpoint, user_id=user_id, debug=debug)
+        return cast(JSONDict, self._make_request(endpoint, user_id=user_id, debug=debug))
 
     @validate_date_param(field_name="date")
     def get_hrv_intraday_by_date(
         self, date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Retrieves intraday heart rate variability (HRV) data for a single date.
 
@@ -479,12 +465,12 @@ class IntradayResource(BaseResource):
             * Processing takes ~15 minutes after device sync
         """
         endpoint = f"hrv/date/{date}/all.json"
-        return self._make_request(endpoint, user_id=user_id, debug=debug)
+        return cast(JSONDict, self._make_request(endpoint, user_id=user_id, debug=debug))
 
     @validate_date_range_params(max_days=30, resource_name="heart rate variability intraday")
     def get_hrv_intraday_by_interval(
         self, start_date: str, end_date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Retrieves intraday heart rate variability (HRV) data for a date range.
 
@@ -516,12 +502,12 @@ class IntradayResource(BaseResource):
             * Processing takes ~15 minutes after device sync
         """
         endpoint = f"hrv/date/{start_date}/{end_date}/all.json"
-        return self._make_request(endpoint, user_id=user_id, debug=debug)
+        return cast(JSONDict, self._make_request(endpoint, user_id=user_id, debug=debug))
 
     @validate_date_param(field_name="date")
     def get_spo2_intraday_by_date(
         self, date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Retrieves intraday SpO2 (blood oxygen saturation) data for a single date.
 
@@ -549,12 +535,12 @@ class IntradayResource(BaseResource):
             * Processing takes up to 1 hour after device sync
         """
         endpoint = f"spo2/date/{date}/all.json"
-        return self._make_request(endpoint, user_id=user_id, debug=debug)
+        return cast(JSONDict, self._make_request(endpoint, user_id=user_id, debug=debug))
 
     @validate_date_range_params(max_days=30, resource_name="spo2 intraday")
     def get_spo2_intraday_by_interval(
         self, start_date: str, end_date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Retrieves intraday SpO2 (blood oxygen saturation) data for a date range.
 
@@ -585,4 +571,4 @@ class IntradayResource(BaseResource):
             * Processing takes up to 1 hour after device sync
         """
         endpoint = f"spo2/date/{start_date}/{end_date}/all.json"
-        return self._make_request(endpoint, user_id=user_id, debug=debug)
+        return cast(JSONDict, self._make_request(endpoint, user_id=user_id, debug=debug))

@@ -1,11 +1,11 @@
 # fitbit_client/resources/friends.py
 
 # Standard library imports
-from typing import Any
-from typing import Dict
+from typing import cast
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
+from fitbit_client.utils.types import JSONDict
 
 
 class FriendsResource(BaseResource):
@@ -24,7 +24,7 @@ class FriendsResource(BaseResource):
 
     API_VERSION: str = "1.1"
 
-    def get_friends(self, user_id: str = "-", debug=False) -> Dict[str, Any]:
+    def get_friends(self, user_id: str = "-", debug: bool = False) -> JSONDict:
         """
         Retrieves a list of the specified Fitbit user's friends.
 
@@ -48,11 +48,12 @@ class FriendsResource(BaseResource):
             The user's privacy settings ('My Friends') determine whether this data is accessible.
             Access may be restricted based on whether the setting is Private, Friends Only, or Public.
         """
-        return self._make_request(
+        result = self._make_request(
             "friends.json", user_id=user_id, api_version=FriendsResource.API_VERSION, debug=debug
         )
+        return cast(JSONDict, result)
 
-    def get_friends_leaderboard(self, user_id: str = "-", debug=False) -> Dict[str, Any]:
+    def get_friends_leaderboard(self, user_id: str = "-", debug: bool = False) -> JSONDict:
         """
         Retrieves the user's friends leaderboard showing step counts for the last 7 days.
 
@@ -82,9 +83,10 @@ class FriendsResource(BaseResource):
             - The 'Average Daily Step Count' privacy setting affects leaderboard inclusion
             - Both active (ranked-user) and inactive (inactive-user) friends are included
         """
-        return self._make_request(
+        result = self._make_request(
             "leaderboard/friends.json",
             user_id=user_id,
             api_version=FriendsResource.API_VERSION,
             debug=debug,
         )
+        return cast(JSONDict, result)

@@ -3,12 +3,14 @@
 # Standard library imports
 from typing import Any
 from typing import Dict
+from typing import cast
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import Period
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range_params
+from fitbit_client.utils.types import JSONDict
 
 
 class ActiveZoneMinutesResource(BaseResource):
@@ -28,7 +30,7 @@ class ActiveZoneMinutesResource(BaseResource):
     @validate_date_param()
     def get_azm_timeseries_by_date(
         self, date: str, period: Period = Period.ONE_DAY, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Get Active Zone Minutes time series data for a period starting from the specified date.
 
@@ -54,16 +56,17 @@ class ActiveZoneMinutesResource(BaseResource):
         if period != Period.ONE_DAY:
             raise ValueError("Only 1d period is supported for AZM time series")
 
-        return self._make_request(
+        result = self._make_request(
             f"activities/active-zone-minutes/date/{date}/{period.value}.json",
             user_id=user_id,
             debug=debug,
         )
+        return cast(JSONDict, result)
 
     @validate_date_range_params(max_days=1095, resource_name="AZM time series")
     def get_azm_timeseries_by_interval(
         self, start_date: str, end_date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Get Active Zone Minutes time series data for a specified date range.
 
@@ -89,8 +92,9 @@ class ActiveZoneMinutesResource(BaseResource):
         Note:
             Maximum date range is 1095 days (approximately 3 years)
         """
-        return self._make_request(
+        result = self._make_request(
             f"activities/active-zone-minutes/date/{start_date}/{end_date}.json",
             user_id=user_id,
             debug=debug,
         )
+        return cast(JSONDict, result)

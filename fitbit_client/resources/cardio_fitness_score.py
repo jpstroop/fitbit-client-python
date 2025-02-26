@@ -1,13 +1,14 @@
 # fitbit_client/resources/cardio_fitness_score.py
 
 # Standard library imports
-from typing import Any
 from typing import Dict
+from typing import cast
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range_params
+from fitbit_client.utils.types import JSONDict
 
 
 class CardioFitnessScoreResource(BaseResource):
@@ -28,7 +29,7 @@ class CardioFitnessScoreResource(BaseResource):
     @validate_date_param()
     def get_vo2_max_summary_by_date(
         self, date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Get cardio fitness (VO2 Max) data for a single date.
 
@@ -50,12 +51,13 @@ class CardioFitnessScoreResource(BaseResource):
             weight changes and other factors. The response always uses ml/kg/min units
             regardless of the Accept-Language header.
         """
-        return self._make_request(f"cardioscore/date/{date}.json", user_id=user_id, debug=debug)
+        result = self._make_request(f"cardioscore/date/{date}.json", user_id=user_id, debug=debug)
+        return cast(JSONDict, result)
 
     @validate_date_range_params(max_days=30)
     def get_vo2_max_summary_by_interval(
         self, start_date: str, end_date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Get cardio fitness (VO2 Max) data for a date range.
 
@@ -80,6 +82,7 @@ class CardioFitnessScoreResource(BaseResource):
             weight changes and other factors. The response always uses ml/kg/min units
             regardless of the Accept-Language header.
         """
-        return self._make_request(
+        result = self._make_request(
             f"cardioscore/date/{start_date}/{end_date}.json", user_id=user_id, debug=debug
         )
+        return cast(JSONDict, result)

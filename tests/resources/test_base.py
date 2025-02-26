@@ -164,12 +164,12 @@ def test_extract_important_fields_with_mixed_list_items(base_resource):
     # where it checks if each item in a list is a dictionary
     test_data = {
         "activities": [
-            {"id": 123, "name": "Running"},  # Dictionary item that should be processed
-            "Not a dictionary",  # String item that should be skipped
-            42,  # Number item that should be skipped
-            {"id": 456, "name": "Swimming"},  # Dictionary item that should be processed
+            {"id": 123, "name": "Running"},
+            "Not a dictionary",
+            42,
+            {"id": 456, "name": "Swimming"},
         ]
-    }
+    }  # Dictionary item that should be processed  # String item that should be skipped  # Number item that should be skipped  # Dictionary item that should be processed
 
     result = base_resource._extract_important_fields(test_data)
 
@@ -338,6 +338,7 @@ def test_make_request_no_content(base_resource, mock_oauth_session, mock_respons
     """Test request with no content"""
     mock_response.status_code = 204
     mock_response.headers = {}
+    mock_response.json.return_value = {"success": True}
     mock_oauth_session.request.return_value = mock_response
 
     result = base_resource._make_request("test/endpoint")
@@ -363,7 +364,7 @@ def test_make_request_unexpected_content_type(base_resource, mock_oauth_session,
     mock_oauth_session.request.return_value = mock_response
 
     result = base_resource._make_request("test/endpoint")
-    assert result == "some data"
+    assert result == None
 
 
 def test_make_request_with_unexpected_exception(base_resource, mock_oauth_session, mock_logger):

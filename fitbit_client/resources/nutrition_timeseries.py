@@ -1,8 +1,7 @@
 # fitbit_client/resources/nutrition_timeseries.py
 
 # Standard library imports
-from typing import Any
-from typing import Dict
+from typing import cast
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
@@ -10,6 +9,7 @@ from fitbit_client.resources.constants import NutritionResource
 from fitbit_client.resources.constants import Period
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range_params
+from fitbit_client.utils.types import JSONDict
 
 
 class NutritionTimeSeriesResource(BaseResource):
@@ -30,8 +30,8 @@ class NutritionTimeSeriesResource(BaseResource):
         date: str,
         period: Period,
         user_id: str = "-",
-        debug=False,
-    ) -> Dict[str, Any]:
+        debug: bool = False,
+    ) -> JSONDict:
         """
         Retrieves nutrition data for a period starting from a specified date.
 
@@ -54,11 +54,12 @@ class NutritionTimeSeriesResource(BaseResource):
             Returns data using units corresponding to Accept-Language header.
             Only returns data since user's join date or first log entry.
         """
-        return self._make_request(
+        result = self._make_request(
             f"foods/log/{resource.value}/date/{date}/{period.value}.json",
             user_id=user_id,
             debug=debug,
         )
+        return cast(JSONDict, result)
 
     @validate_date_range_params(max_days=1095)
     def get_nutrition_timeseries_by_date_range(
@@ -67,8 +68,8 @@ class NutritionTimeSeriesResource(BaseResource):
         start_date: str,
         end_date: str,
         user_id: str = "-",
-        debug=False,
-    ) -> Dict[str, Any]:
+        debug: bool = False,
+    ) -> JSONDict:
         """
         Retrieves nutrition data for a specified date range.
 
@@ -93,8 +94,9 @@ class NutritionTimeSeriesResource(BaseResource):
             Returns data using units corresponding to Accept-Language header.
             Only returns data since user's join date or first log entry.
         """
-        return self._make_request(
+        result = self._make_request(
             f"foods/log/{resource.value}/date/{start_date}/{end_date}.json",
             user_id=user_id,
             debug=debug,
         )
+        return cast(JSONDict, result)

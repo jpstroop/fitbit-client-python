@@ -4,6 +4,8 @@
 from functools import wraps
 from inspect import signature
 from typing import Callable
+from typing import Optional
+from typing import ParamSpec
 from typing import TypeVar
 from typing import cast
 
@@ -11,8 +13,9 @@ from typing import cast
 from fitbit_client.exceptions import PaginationException
 from fitbit_client.resources.constants import SortDirection
 
-# Type variable for the decorator
-F = TypeVar("F", bound=Callable)
+# Type variables for decorator typing
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
 def validate_pagination_params(
@@ -22,7 +25,7 @@ def validate_pagination_params(
     limit_field: str = "limit",
     offset_field: str = "offset",
     max_limit: int = 100,
-) -> Callable[[F], F]:
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """
     Decorator to validate pagination parameters commonly used in list endpoints.
 
@@ -66,9 +69,9 @@ def validate_pagination_params(
         InvalidDateException: If date format is invalid
     """
 
-    def decorator(func: F) -> F:
+    def decorator(func: Callable[P, R]) -> Callable[P, R]:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
             # Bind arguments to get access to parameter values
             sig = signature(func)
             bound_args = sig.bind(*args, **kwargs)
@@ -88,8 +91,8 @@ def validate_pagination_params(
                     field_name=offset_field,
                 )
 
-            # Validate limit
-            if limit > max_limit:
+            # Validate limit - add null check to fix mypy error
+            if limit is not None and limit > max_limit:
                 raise PaginationException(
                     message=f"Maximum limit is {max_limit}", field_name=limit_field
                 )
@@ -118,6 +121,6 @@ def validate_pagination_params(
 
             return func(*args, **kwargs)
 
-        return cast(F, wrapper)
+        return cast(Callable[P, R], wrapper)
 
     return decorator

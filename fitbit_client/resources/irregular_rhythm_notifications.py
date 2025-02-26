@@ -1,15 +1,15 @@
 # fitbit_client/resources/irregular_rhythm_notifications.py
 
 # Standard library imports
-from typing import Any
-from typing import Dict
 from typing import Optional
+from typing import cast
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import SortDirection
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.pagination_validation import validate_pagination_params
+from fitbit_client.utils.types import JSONDict
 
 
 class IrregularRhythmNotificationsResource(BaseResource):
@@ -43,7 +43,7 @@ class IrregularRhythmNotificationsResource(BaseResource):
         offset: int = 0,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Retrieves a paginated list of IRN alerts and their tachograms.
 
@@ -86,11 +86,12 @@ class IrregularRhythmNotificationsResource(BaseResource):
         if after_date:
             params["afterDate"] = after_date
 
-        return self._make_request(
+        result = self._make_request(
             "irn/alerts/list.json", params=params, user_id=user_id, debug=debug
         )
+        return cast(JSONDict, result)
 
-    def get_irn_profile(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
+    def get_irn_profile(self, user_id: str = "-", debug: bool = False) -> JSONDict:
         """
         Retrieves the user's IRN feature engagement status.
 
@@ -106,4 +107,5 @@ class IrregularRhythmNotificationsResource(BaseResource):
             - enrolled: Whether user is enrolled for IRN data processing
             - lastUpdated: Timestamp of last analyzable data sync
         """
-        return self._make_request("irn/profile.json", user_id=user_id, debug=debug)
+        result = self._make_request("irn/profile.json", user_id=user_id, debug=debug)
+        return cast(JSONDict, result)

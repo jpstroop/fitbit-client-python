@@ -2,20 +2,45 @@
 
 # Standard library imports
 from http.server import BaseHTTPRequestHandler
+from http.server import HTTPServer
+from logging import Logger
 from logging import getLogger
+from socket import socket
+from typing import Any  # Used only for type declarations, not in runtime code
+from typing import Callable
 from typing import Dict
+from typing import List
+from typing import Tuple
+from typing import Type
+from typing import TypeVar
+from typing import Union
 from urllib.parse import parse_qs
 from urllib.parse import urlparse
 
 # Local imports
 from fitbit_client.exceptions import InvalidGrantException
 from fitbit_client.exceptions import InvalidRequestException
+from fitbit_client.utils.types import JSONDict
+
+# Type variable for server
+T = TypeVar("T", bound=HTTPServer)
 
 
 class CallbackHandler(BaseHTTPRequestHandler):
     """Handle OAuth2 callback requests"""
 
-    def __init__(self, *args, **kwargs) -> None:
+    logger: Logger
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """Initialize the callback handler.
+
+        The signature matches BaseHTTPRequestHandler's __init__ method:
+        __init__(self, request: Union[socket, Tuple[bytes, socket]],
+                client_address: Tuple[str, int],
+                server: HTTPServer)
+
+        But we use *args, **kwargs to avoid type compatibility issues with the parent class.
+        """
         self.logger = getLogger("fitbit_client.callback_handler")
         super().__init__(*args, **kwargs)
 
@@ -23,19 +48,19 @@ class CallbackHandler(BaseHTTPRequestHandler):
         """Parse and validate query parameters from callback URL
 
         Returns:
-            Dictionary of parsed parameters
+            Dictionary of parsed parameters with single values
 
         Raises:
             InvalidRequestException: If required parameters are missing
             InvalidGrantException: If authorization code is invalid/expired
         """
-        query_components = parse_qs(urlparse(self.path).query)
+        query_components: Dict[str, List[str]] = parse_qs(urlparse(self.path).query)
         self.logger.debug(f"Query parameters: {query_components}")
 
         # Check for error response
         if "error" in query_components:
-            error_type = query_components["error"][0]
-            error_desc = query_components.get("error_description", ["Unknown error"])[0]
+            error_type: str = query_components["error"][0]
+            error_desc: str = query_components.get("error_description", ["Unknown error"])[0]
 
             if error_type == "invalid_grant":
                 raise InvalidGrantException(
@@ -47,8 +72,10 @@ class CallbackHandler(BaseHTTPRequestHandler):
                 )
 
         # Check for required parameters
-        required_params = ["code", "state"]
-        missing_params = [param for param in required_params if param not in query_components]
+        required_params: List[str] = ["code", "state"]
+        missing_params: List[str] = [
+            param for param in required_params if param not in query_components
+        ]
         if missing_params:
             raise InvalidRequestException(
                 message=f"Missing required parameters: {', '.join(missing_params)}",
@@ -57,6 +84,7 @@ class CallbackHandler(BaseHTTPRequestHandler):
                 field_name="callback_params",
             )
 
+        # Convert from Dict[str, List[str]] to Dict[str, str] by taking first value of each
         return {k: v[0] for k, v in query_components.items()}
 
     def send_success_response(self) -> None:
@@ -65,7 +93,7 @@ class CallbackHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "text/html")
         self.end_headers()
 
-        response = """
+        response: str = """
         <html>
             <body>
                 <h1>Authentication Successful!</h1>
@@ -84,7 +112,7 @@ class CallbackHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "text/html")
         self.end_headers()
 
-        response = f"""
+        response: str = f"""
         <html>
             <body>
                 <h1>Authentication Error</h1>
@@ -126,6 +154,11 @@ class CallbackHandler(BaseHTTPRequestHandler):
             # Re-raise for server to handle
             raise
 
-    def log_message(self, format: str, *args: str) -> None:
-        """Override default logging to use our logger instead"""
-        self.logger.debug(f"Server log: {format%args}")
+    def log_message(self, format_str: str, *args: Union[str, int, float]) -> None:
+        """Override default logging to use our logger instead
+
+        Args:
+            format_str: Format string for the log message
+            args: Values to be formatted into the string
+        """
+        self.logger.debug(f"Server log: {format_str % args}")
