@@ -1,13 +1,13 @@
 # fitbit_client/resources/heartrate_variability.py
 
 # Standard library imports
-from typing import Any
-from typing import Dict
+from typing import cast
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range_params
+from fitbit_client.utils.types import JSONDict
 
 
 class HeartrateVariabilityResource(BaseResource):
@@ -32,7 +32,7 @@ class HeartrateVariabilityResource(BaseResource):
     @validate_date_param(field_name="date")
     def get_hrv_summary_by_date(
         self, date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Retrieves HRV summary data for a single date.
 
@@ -58,12 +58,13 @@ class HeartrateVariabilityResource(BaseResource):
             A 200 status code indicates successful execution, even if no data exists.
             For reliable data collection, users should remain still during sleep measurement.
         """
-        return self._make_request(f"hrv/date/{date}.json", user_id=user_id, debug=debug)
+        result = self._make_request(f"hrv/date/{date}.json", user_id=user_id, debug=debug)
+        return cast(JSONDict, result)
 
     @validate_date_range_params()
     def get_hrv_summary_by_interval(
         self, start_date: str, end_date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Retrieves HRV summary data for a date range.
 
@@ -92,6 +93,7 @@ class HeartrateVariabilityResource(BaseResource):
             A 200 status code indicates successful execution, even if no data exists.
             Since HRV data requires sleep, consider querying once or twice daily (e.g., noon and midnight).
         """
-        return self._make_request(
+        result = self._make_request(
             f"hrv/date/{start_date}/{end_date}.json", user_id=user_id, debug=debug
         )
+        return cast(JSONDict, result)

@@ -36,6 +36,7 @@ dev = [
     "pytest-cov>=6.0.0",
     "pytest-mock>=3.14.0",
     "autoflake>=2.3.1",
+    "mypy>=1.15.0",
 ]
 
 [build-system]
@@ -44,7 +45,7 @@ build-backend = "pdm.backend"
 
 [tool.black]
 line-length = 100
-target-version = ['py312']
+target-version = ['py313']
 preview = true
 quiet = true
 skip-magic-trailing-comma = true
@@ -95,9 +96,52 @@ exclude_lines = [
     "pass",
 ]
 
+[tool.mypy]
+files = "fitbit_client"
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+# disallow_untyped_decorators = true
+no_implicit_optional = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+# warn_unreachable = true
+# disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+
+# Show details about error locations
+# show_column_numbers = true
+show_error_codes = true
+pretty = true
+error_summary = true
+show_error_context = true
+# show_traceback = true
+
+
+# Necessary for most libraries
+[[tool.mypy.overrides]]
+module = [
+    "requests.*",
+    "requests_oauthlib.*",
+    "pytest.*",
+    "pyOpenSSL.*"
+]
+ignore_missing_imports = true
+
+
 [tool.pdm.scripts]
 autoflake = { cmd = "autoflake . -r --remove-unused-variables --remove-all-unused-imports --ignore-pass-after-docstring --exclude ./.venv/*,./_scripts/*" }
 headers = { cmd = "python lint/add_file_headers.py" }
-format = { composite = [ "headers", "black .", "isort .", "mdformat .", ] }
+typecheck = { cmd = "mypy --show-error-codes --pretty --no-incremental fitbit_client" }
+black = { cmd = "black ." }
+isort = { cmd = "isort ." }
+mdformat = { cmd = "mdformat ." }
+format = { composite = [ "headers", "black", "isort", "mdformat", ] }
 
 

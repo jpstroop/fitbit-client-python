@@ -3,6 +3,7 @@
 # Standard library imports
 from typing import Any
 from typing import Dict
+from typing import cast
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
@@ -10,6 +11,7 @@ from fitbit_client.resources.constants import ActivityTimeSeriesPath
 from fitbit_client.resources.constants import Period
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range_params
+from fitbit_client.utils.types import JSONDict
 
 
 class ActivityTimeSeriesResource(BaseResource):
@@ -27,7 +29,7 @@ class ActivityTimeSeriesResource(BaseResource):
         period: Period,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Get activity time series data for a period starting from the specified date.
 
@@ -43,11 +45,12 @@ class ActivityTimeSeriesResource(BaseResource):
         Raises:
             InvalidDateException: If date format is invalid
         """
-        return self._make_request(
+        result = self._make_request(
             f"activities/{resource_path.value}/date/{date}/{period.value}.json",
             user_id=user_id,
             debug=debug,
         )
+        return cast(JSONDict, result)
 
     @validate_date_range_params(max_days=1095, resource_name="activity time series")
     def get_activity_timeseries_by_date_range(
@@ -57,7 +60,7 @@ class ActivityTimeSeriesResource(BaseResource):
         end_date: str,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Get activity time series data for a specified date range.
 
@@ -79,8 +82,9 @@ class ActivityTimeSeriesResource(BaseResource):
             - activityCalories: 30 days
             - Most other resources: 1095 days (~3 years)
         """
-        return self._make_request(
+        result = self._make_request(
             f"activities/{resource_path.value}/date/{start_date}/{end_date}.json",
             user_id=user_id,
             debug=debug,
         )
+        return cast(JSONDict, result)

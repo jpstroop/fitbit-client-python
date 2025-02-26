@@ -7,6 +7,7 @@ from functools import wraps
 from inspect import signature
 from typing import Callable
 from typing import Optional
+from typing import ParamSpec
 from typing import TypeVar
 from typing import cast
 
@@ -14,8 +15,9 @@ from typing import cast
 from fitbit_client.exceptions import InvalidDateException
 from fitbit_client.exceptions import InvalidDateRangeException
 
-# Type variable for the decorator
-F = TypeVar("F", bound=Callable)
+# Type variables for decorator typing
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
 def validate_date_format(date_str: str, field_name: str = "date") -> None:
@@ -127,7 +129,7 @@ def validate_date_range(
             )
 
 
-def validate_date_param(field_name: str = "date") -> Callable[[F], F]:
+def validate_date_param(field_name: str = "date") -> Callable[[Callable[P, R]], Callable[P, R]]:
     """
     Decorator to validate a single date parameter.
 
@@ -149,9 +151,9 @@ def validate_date_param(field_name: str = "date") -> Callable[[F], F]:
         ```
     """
 
-    def decorator(func: F) -> F:
+    def decorator(func: Callable[P, R]) -> Callable[P, R]:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
             sig = signature(func)
             bound_args = sig.bind(*args, **kwargs)
             bound_args.apply_defaults()
@@ -161,7 +163,7 @@ def validate_date_param(field_name: str = "date") -> Callable[[F], F]:
                 validate_date_format(date, field_name)
             return func(*args, **kwargs)
 
-        return cast(F, wrapper)
+        return cast(Callable[P, R], wrapper)
 
     return decorator
 
@@ -171,7 +173,7 @@ def validate_date_range_params(
     end_field: str = "end_date",
     max_days: Optional[int] = None,
     resource_name: Optional[str] = None,
-) -> Callable[[F], F]:
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """
     Decorator to validate date range parameters.
 
@@ -196,9 +198,9 @@ def validate_date_range_params(
         ```
     """
 
-    def decorator(func: F) -> F:
+    def decorator(func: Callable[P, R]) -> Callable[P, R]:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
             sig = signature(func)
             bound_args = sig.bind(*args, **kwargs)
             bound_args.apply_defaults()
@@ -216,6 +218,6 @@ def validate_date_range_params(
                 )
             return func(*args, **kwargs)
 
-        return cast(F, wrapper)
+        return cast(Callable[P, R], wrapper)
 
     return decorator

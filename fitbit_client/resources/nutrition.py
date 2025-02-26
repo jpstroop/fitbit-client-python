@@ -1,12 +1,14 @@
 # fitbit_client/resources/nutrition.py
 
 # Standard library imports
-from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Union
+from typing import cast
 
 # Local imports
+from fitbit_client.exceptions import ClientValidationException
 from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import FoodFormType
@@ -16,6 +18,9 @@ from fitbit_client.resources.constants import NutritionalValue
 from fitbit_client.resources.constants import WaterUnit
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.helpers import to_camel_case
+from fitbit_client.utils.types import JSONDict
+from fitbit_client.utils.types import JSONList
+from fitbit_client.utils.types import ParamDict
 
 
 class NutritionResource(BaseResource):
@@ -25,9 +30,7 @@ class NutritionResource(BaseResource):
     API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition/
     """
 
-    def add_favorite_foods(
-        self, food_id: int, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    def add_favorite_foods(self, food_id: int, user_id: str = "-", debug: bool = False) -> None:
         """
         Adds a food with the given ID to the user's list of favorite foods.
 
@@ -41,15 +44,14 @@ class NutritionResource(BaseResource):
         Returns:
             Response indicating success
         """
-        return self._make_request(
+        result = self._make_request(
             f"foods/log/favorite/{food_id}.json", user_id=user_id, http_method="POST", debug=debug
         )
+        return cast(None, result)
 
     # Semantically correct aliases for above.
-    # Good:
-    add_favorite_food = add_favorite_foods
-    # Better:
-    create_favorite_food = add_favorite_foods
+    add_favorite_food = add_favorite_foods  # Arguable
+    create_favorite_food = add_favorite_foods  # Better
 
     def create_food(
         self,
@@ -62,7 +64,7 @@ class NutritionResource(BaseResource):
         nutritional_values: Dict[NutritionalValue, float],
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Creates a new private food entry for a user.
 
@@ -82,13 +84,13 @@ class NutritionResource(BaseResource):
         Returns:
             Created food entry details including food ID and nutritional values
         """
-        params = {
+        params: ParamDict = {
             "name": name,
             "defaultFoodMeasurementUnitId": default_food_measurement_unit_id,
             "defaultServingSize": default_serving_size,
             "calories": calories,
             "description": description,
-            "formType": form_type.value,
+            "formType": str(form_type.value),
         }
 
         if (
@@ -105,13 +107,14 @@ class NutritionResource(BaseResource):
         # Handle both enum and string nutritional values
         for key, value in nutritional_values.items():
             if isinstance(key, NutritionalValue):
-                params[key.value] = value
+                params[key.value] = float(value)
             else:
-                params[key] = value
+                params[str(key)] = float(value)
 
-        return self._make_request(
+        result = self._make_request(
             "foods.json", params=params, user_id=user_id, http_method="POST", debug=debug
         )
+        return cast(JSONDict, result)
 
     @validate_date_param(field_name="date")
     def create_food_log(
@@ -125,10 +128,10 @@ class NutritionResource(BaseResource):
         favorite: bool = False,
         brand_name: Optional[str] = None,
         calories: Optional[int] = None,
-        nutritional_values: Optional[Dict[NutritionalValue, float]] = None,
+        nutritional_values: Optional[Dict[NutritionalValue, float | int]] = None,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Creates a food log entry for a given day.
 
@@ -165,11 +168,13 @@ class NutritionResource(BaseResource):
                 for a food you created.
         """
         if not food_id and not (food_name and calories):
-            raise ValueError("Must provide either food_id or (food_name and calories)")
+            raise ClientValidationException(
+                "Must provide either food_id or (food_name and calories)"
+            )
 
-        params = {
+        params: ParamDict = {
             "date": date,
-            "mealTypeId": meal_type_id.value,
+            "mealTypeId": int(meal_type_id.value),
             "unitId": unit_id,
             "amount": amount,
         }
@@ -177,18 +182,22 @@ class NutritionResource(BaseResource):
         if food_id:
             params["foodId"] = food_id
             if favorite:
-                params["favorite"] = "true"
+                params["favorite"] = True
         else:
             params["foodName"] = food_name
             params["calories"] = calories
             if brand_name:
                 params["brandName"] = brand_name
             if nutritional_values:
-                params.update({k.value: v for k, v in nutritional_values.items()})
+                # Convert enum keys to strings and ensure values are floats
+                for k, v in nutritional_values.items():
+                    key_str = k.value if isinstance(k, NutritionalValue) else str(k)
+                    params[key_str] = float(v)
 
-        return self._make_request(
+        result = self._make_request(
             "foods/log.json", params=params, user_id=user_id, http_method="POST", debug=debug
         )
+        return cast(JSONDict, result)
 
     def create_food_goal(
         self,
@@ -197,7 +206,7 @@ class NutritionResource(BaseResource):
         personalized: Optional[bool] = None,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Creates or updates a user's daily calorie consumption goal or food plan.
 
@@ -221,26 +230,27 @@ class NutritionResource(BaseResource):
         if not calories and not intensity:
             raise ValueError("Must provide either calories or intensity")
 
-        params = {}
+        params: ParamDict = {}
         if calories:
             params["calories"] = calories
         if intensity:
-            params["intensity"] = intensity.value
+            params["intensity"] = str(intensity.value)
             if personalized is not None:
                 params["personalized"] = personalized
 
-        return self._make_request(
+        result = self._make_request(
             "foods/log/goal.json", params=params, user_id=user_id, http_method="POST", debug=debug
         )
+        return cast(JSONDict, result)
 
     def create_meal(
         self,
         name: str,
         description: str,
-        foods: List[Dict[str, Any]],
+        foods: List[JSONDict],
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Creates a meal with the given foods.
 
@@ -265,13 +275,12 @@ class NutritionResource(BaseResource):
         # snakes to camels
         foods = [{to_camel_case(k): v for k, v in d.items()} for d in foods]
         data = {"name": name, "description": description, "mealFoods": foods}
-        return self._make_request(
+        result = self._make_request(
             "meals.json", json=data, user_id=user_id, http_method="POST", debug=debug
         )
+        return cast(JSONDict, result)
 
-    def create_water_goal(
-        self, target: float, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    def create_water_goal(self, target: float, user_id: str = "-", debug: bool = False) -> JSONDict:
         """
         Creates or updates a user's daily water consumption goal.
 
@@ -285,13 +294,14 @@ class NutritionResource(BaseResource):
         Returns:
             Updated water goal information
         """
-        return self._make_request(
+        result = self._make_request(
             "foods/log/water/goal.json",
             params={"target": target},
             user_id=user_id,
             http_method="POST",
             debug=debug,
         )
+        return cast(JSONDict, result)
 
     @validate_date_param(field_name="date")
     def create_water_log(
@@ -301,7 +311,7 @@ class NutritionResource(BaseResource):
         unit: Optional[WaterUnit] = None,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Creates a water log entry.
 
@@ -324,16 +334,15 @@ class NutritionResource(BaseResource):
             If unit is not specified, uses unit system from Accept-Language
             header. This can be specified when the client is initialized.
         """
-        params = {"amount": amount, "date": date}
+        params: ParamDict = {"amount": amount, "date": date}
         if unit:
-            params["unit"] = unit.value
-        return self._make_request(
+            params["unit"] = str(unit.value)
+        result = self._make_request(
             "foods/log/water.json", params=params, user_id=user_id, http_method="POST", debug=debug
         )
+        return cast(JSONDict, result)
 
-    def delete_custom_food(
-        self, food_id: int, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    def delete_custom_food(self, food_id: int, user_id: str = "-", debug: bool = False) -> None:
         """
         Deletes a custom food created by the user.
 
@@ -343,13 +352,12 @@ class NutritionResource(BaseResource):
             food_id: ID of the food to delete
             user_id: Optional user ID, defaults to current user
         """
-        return self._make_request(
+        result = self._make_request(
             f"foods/{food_id}.json", user_id=user_id, http_method="DELETE", debug=debug
         )
+        return cast(None, result)
 
-    def delete_favorite_foods(
-        self, food_id: int, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    def delete_favorite_foods(self, food_id: int, user_id: str = "-", debug: bool = False) -> None:
         """
         Removes a food from user's list of favorite foods.
 
@@ -359,15 +367,14 @@ class NutritionResource(BaseResource):
             food_id: ID of the food to remove from favorites
             user_id: Optional user ID, defaults to current user
         """
-        return self._make_request(
+        result = self._make_request(
             f"foods/log/favorite/{food_id}.json", user_id=user_id, http_method="DELETE", debug=debug
         )
+        return cast(None, result)
 
     delete_favorite_food = delete_favorite_foods  # semantically correct alias
 
-    def delete_food_log(
-        self, food_log_id: int, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    def delete_food_log(self, food_log_id: int, user_id: str = "-", debug: bool = False) -> None:
         """
         Deletes a food log entry.
 
@@ -377,11 +384,12 @@ class NutritionResource(BaseResource):
             food_log_id: ID of the food log to delete
             user_id: Optional user ID, defaults to current user
         """
-        return self._make_request(
+        result = self._make_request(
             f"foods/log/{food_log_id}.json", user_id=user_id, http_method="DELETE", debug=debug
         )
+        return cast(None, result)
 
-    def delete_meal(self, meal_id: int, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
+    def delete_meal(self, meal_id: int, user_id: str = "-", debug: bool = False) -> None:
         """
         Deletes a meal.
 
@@ -391,13 +399,12 @@ class NutritionResource(BaseResource):
             meal_id: ID of the meal to delete
             user_id: Optional user ID, defaults to current user
         """
-        return self._make_request(
+        result = self._make_request(
             f"meals/{meal_id}.json", user_id=user_id, http_method="DELETE", debug=debug
         )
+        return cast(None, result)
 
-    def delete_water_log(
-        self, water_log_id: int, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    def delete_water_log(self, water_log_id: int, user_id: str = "-", debug: bool = False) -> None:
         """
         Deletes a water log entry.
 
@@ -407,14 +414,15 @@ class NutritionResource(BaseResource):
             water_log_id: ID of the water log to delete
             user_id: Optional user ID, defaults to current user
         """
-        return self._make_request(
+        result = self._make_request(
             f"foods/log/water/{water_log_id}.json",
             user_id=user_id,
             http_method="DELETE",
             debug=debug,
         )
+        return cast(None, result)
 
-    def get_food(self, food_id: int, debug: bool = False) -> Dict[str, Any]:
+    def get_food(self, food_id: int, debug: bool = False) -> JSONDict:
         """
         Retrieves details of a specific food from Fitbit's database or user's private foods.
 
@@ -430,9 +438,10 @@ class NutritionResource(BaseResource):
         Note:
             Nutritional values are only included for PRIVATE foods.
         """
-        return self._make_request(f"foods/{food_id}.json", requires_user_id=False, debug=debug)
+        result = self._make_request(f"foods/{food_id}.json", requires_user_id=False, debug=debug)
+        return cast(JSONDict, result)
 
-    def get_food_goals(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
+    def get_food_goals(self, user_id: str = "-", debug: bool = False) -> JSONDict:
         """
         Retrieves the user's daily calorie consumption goal and/or food plan.
 
@@ -448,10 +457,11 @@ class NutritionResource(BaseResource):
         Note:
             Food plan data is only included if the feature is enabled.
         """
-        return self._make_request("foods/log/goal.json", user_id=user_id, debug=debug)
+        result = self._make_request("foods/log/goal.json", user_id=user_id, debug=debug)
+        return cast(JSONDict, result)
 
     @validate_date_param(field_name="date")
-    def get_food_log(self, date: str, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
+    def get_food_log(self, date: str, user_id: str = "-", debug: bool = False) -> JSONDict:
         """
         Retrieves a summary of all food log entries for a given day.
 
@@ -468,9 +478,10 @@ class NutritionResource(BaseResource):
         Raises:
             InvalidDateException: If date format is invalid
         """
-        return self._make_request(f"foods/log/date/{date}.json", user_id=user_id, debug=debug)
+        result = self._make_request(f"foods/log/date/{date}.json", user_id=user_id, debug=debug)
+        return cast(JSONDict, result)
 
-    def get_food_locales(self, debug: bool = False) -> Dict[str, Any]:
+    def get_food_locales(self, debug: bool = False) -> JSONList:
         """
         Retrieves the list of food locales used for searching and creating foods.
 
@@ -480,9 +491,10 @@ class NutritionResource(BaseResource):
         Returns:
             List of supported locales with regional settings
         """
-        return self._make_request("foods/locales.json", requires_user_id=False, debug=debug)
+        result = self._make_request("foods/locales.json", requires_user_id=False, debug=debug)
+        return cast(JSONList, result)
 
-    def get_food_units(self, debug: bool = False) -> Dict[str, Any]:
+    def get_food_units(self, debug: bool = False) -> JSONList:
         """
         Retrieves list of valid Fitbit food units.
 
@@ -492,9 +504,10 @@ class NutritionResource(BaseResource):
         Returns:
             List of available measurement units for food logging
         """
-        return self._make_request("foods/units.json", requires_user_id=False, debug=debug)
+        result = self._make_request("foods/units.json", requires_user_id=False, debug=debug)
+        return cast(JSONList, result)
 
-    def get_frequent_foods(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
+    def get_frequent_foods(self, user_id: str = "-", debug: bool = False) -> JSONList:
         """
         Retrieves a list of user's frequently consumed foods.
 
@@ -510,9 +523,10 @@ class NutritionResource(BaseResource):
         Note:
             Foods in the response can be quickly logged using create_food_log.
         """
-        return self._make_request("foods/log/frequent.json", user_id=user_id, debug=debug)
+        result = self._make_request("foods/log/frequent.json", user_id=user_id, debug=debug)
+        return cast(JSONList, result)
 
-    def get_recent_foods(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
+    def get_recent_foods(self, user_id: str = "-", debug: bool = False) -> JSONList:
         """
         Retrieves a list of user's recently consumed foods.
 
@@ -525,9 +539,10 @@ class NutritionResource(BaseResource):
         Returns:
             List of recently logged foods with dates and details
         """
-        return self._make_request("foods/log/recent.json", user_id=user_id, debug=debug)
+        result = self._make_request("foods/log/recent.json", user_id=user_id, debug=debug)
+        return cast(JSONList, result)
 
-    def get_favorite_foods(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
+    def get_favorite_foods(self, user_id: str = "-", debug: bool = False) -> JSONDict:
         """
         Retrieves a list of user's favorite foods.
 
@@ -540,9 +555,10 @@ class NutritionResource(BaseResource):
         Returns:
             List of foods marked as favorites
         """
-        return self._make_request("foods/log/favorite.json", user_id=user_id, debug=debug)
+        result = self._make_request("foods/log/favorite.json", user_id=user_id, debug=debug)
+        return cast(JSONDict, result)
 
-    def get_meal(self, meal_id: int, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
+    def get_meal(self, meal_id: int, user_id: str = "-", debug: bool = False) -> JSONDict:
         """
         Retrieves a single meal from user's food log.
 
@@ -559,9 +575,10 @@ class NutritionResource(BaseResource):
         Note:
             All meals are associated with meal type "Anytime" (7).
         """
-        return self._make_request(f"meals/{meal_id}.json", user_id=user_id, debug=debug)
+        result = self._make_request(f"meals/{meal_id}.json", user_id=user_id, debug=debug)
+        return cast(JSONDict, result)
 
-    def get_meals(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
+    def get_meals(self, user_id: str = "-", debug: bool = False) -> JSONDict:
         """
         Retrieves list of all user's saved meals.
 
@@ -574,9 +591,10 @@ class NutritionResource(BaseResource):
         Returns:
             List of saved meals with their foods and nutritional info
         """
-        return self._make_request("meals.json", user_id=user_id, debug=debug)
+        result = self._make_request("meals.json", user_id=user_id, debug=debug)
+        return cast(JSONDict, result)
 
-    def get_water_goal(self, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
+    def get_water_goal(self, user_id: str = "-", debug: bool = False) -> JSONDict:
         """
         Retrieves user's daily water consumption goal.
 
@@ -589,10 +607,11 @@ class NutritionResource(BaseResource):
         Returns:
             Water goal amount and start date
         """
-        return self._make_request("foods/log/water/goal.json", user_id=user_id, debug=debug)
+        result = self._make_request("foods/log/water/goal.json", user_id=user_id, debug=debug)
+        return cast(JSONDict, result)
 
     @validate_date_param(field_name="date")
-    def get_water_log(self, date: str, user_id: str = "-", debug: bool = False) -> Dict[str, Any]:
+    def get_water_log(self, date: str, user_id: str = "-", debug: bool = False) -> JSONDict:
         """
         Retrieves water log entries for a specific date.
 
@@ -609,9 +628,12 @@ class NutritionResource(BaseResource):
         Raises:
             InvalidDateException: If date format is invalid
         """
-        return self._make_request(f"foods/log/water/date/{date}.json", user_id=user_id, debug=debug)
+        result = self._make_request(
+            f"foods/log/water/date/{date}.json", user_id=user_id, debug=debug
+        )
+        return cast(JSONDict, result)
 
-    def search_foods(self, query: str, debug: bool = False) -> Dict[str, Any]:
+    def search_foods(self, query: str, debug: bool = False) -> JSONDict:
         """
         Searches Fitbit's food database and user's custom foods.
 
@@ -629,9 +651,10 @@ class NutritionResource(BaseResource):
             Search uses the locale specified in accept-language header.  This can be
             specified when the client is initialized.
         """
-        return self._make_request(
+        result = self._make_request(
             "foods/search.json", params={"query": query}, requires_user_id=False, debug=debug
         )
+        return cast(JSONDict, result)
 
     def update_food_log(
         self,
@@ -642,7 +665,7 @@ class NutritionResource(BaseResource):
         calories: Optional[int] = None,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Updates an existing food log entry.
 
@@ -665,31 +688,33 @@ class NutritionResource(BaseResource):
             Either (unit_id and amount) or calories must be provided.
             Only food logs with valid foodId can be updated with unit/amount.
         """
-        params = {"mealTypeId": meal_type_id.value}
-        if unit_id and amount:
-            params.update({"unitId": unit_id, "amount": amount})
+        params: ParamDict = {"mealTypeId": int(meal_type_id.value)}
+        if unit_id is not None and amount is not None:
+            params["unitId"] = unit_id
+            params["amount"] = amount
         elif calories:
             params["calories"] = calories
         else:
             raise ValueError("Must provide either (unit_id and amount) or calories")
 
-        return self._make_request(
+        result = self._make_request(
             f"foods/log/{food_log_id}.json",
             params=params,
             user_id=user_id,
             http_method="POST",
             debug=debug,
         )
+        return cast(JSONDict, result)
 
     def update_meal(
         self,
         meal_id: int,
         name: str,
         description: str,
-        foods: List[Dict[str, Any]],
+        foods: List[JSONDict],
         debug: bool = False,
         user_id: str = "-",
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Updates an existing meal.
 
@@ -711,9 +736,10 @@ class NutritionResource(BaseResource):
         """
         foods = [{to_camel_case(k): v for k, v in d.items()} for d in foods]
         data = {"name": name, "description": description, "mealFoods": foods}
-        return self._make_request(
+        result = self._make_request(
             f"meals/{meal_id}.json", json=data, user_id=user_id, http_method="POST", debug=debug
         )
+        return cast(JSONDict, result)
 
     def update_water_log(
         self,
@@ -722,7 +748,7 @@ class NutritionResource(BaseResource):
         unit: Optional[WaterUnit] = None,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Updates an existing water log entry.
 
@@ -742,13 +768,14 @@ class NutritionResource(BaseResource):
             If unit is not specified, uses unit system from Accept-Language
             header.  This can be specified when the client is initialized.
         """
-        params = {"amount": amount}
+        params: ParamDict = {"amount": amount}
         if unit:
-            params["unit"] = unit.value
-        return self._make_request(
+            params["unit"] = str(unit.value)
+        result = self._make_request(
             f"foods/log/water/{water_log_id}.json",
             params=params,
             user_id=user_id,
             http_method="POST",
             debug=debug,
         )
+        return cast(JSONDict, result)

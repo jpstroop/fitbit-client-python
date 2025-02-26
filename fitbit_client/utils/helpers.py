@@ -34,7 +34,7 @@ def to_camel_case(snake_str: str, cap_first: bool = False) -> str:
         return snake_str[0].lower() + camel_string[1:]
 
 
-def print_json(obj: JSONType, f: TextIO = stdout):
+def print_json(obj: JSONType, f: TextIO = stdout) -> None:
     """
     Pretty print JSON-serializable objects.
 

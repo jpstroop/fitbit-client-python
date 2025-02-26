@@ -1,13 +1,14 @@
 # fitbit_client/resources/spo2.py
 
 # Standard library imports
-from typing import Any
-from typing import Dict
+from typing import cast
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range_params
+from fitbit_client.utils.types import JSONDict
+from fitbit_client.utils.types import JSONList
 
 
 class SpO2Resource(BaseResource):
@@ -25,7 +26,7 @@ class SpO2Resource(BaseResource):
     @validate_date_param(field_name="date")
     def get_spo2_summary_by_date(
         self, date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Get SpO2 summary data for a specific date.
 
@@ -50,12 +51,13 @@ class SpO2Resource(BaseResource):
             - Device sync after waking
             - Up to 1 hour processing time after sync
         """
-        return self._make_request(f"spo2/date/{date}.json", user_id=user_id, debug=debug)
+        result = self._make_request(f"spo2/date/{date}.json", user_id=user_id, debug=debug)
+        return cast(JSONDict, result)
 
     @validate_date_range_params()
     def get_spo2_summary_by_interval(
         self, start_date: str, end_date: str, user_id: str = "-", debug: bool = False
-    ) -> Dict[str, Any]:
+    ) -> JSONList:
         """
         Get SpO2 summary data for a date range.
 
@@ -79,6 +81,7 @@ class SpO2Resource(BaseResource):
             Unlike many other endpoints, there is no maximum date range limit
             for this endpoint.
         """
-        return self._make_request(
+        result = self._make_request(
             f"spo2/date/{start_date}/{end_date}.json", user_id=user_id, debug=debug
         )
+        return cast(JSONList, result)

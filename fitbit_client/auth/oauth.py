@@ -9,8 +9,6 @@ from logging import getLogger
 from os import environ
 from os.path import exists
 from secrets import token_urlsafe
-from typing import Any
-from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
@@ -28,6 +26,7 @@ from fitbit_client.exceptions import InvalidClientException
 from fitbit_client.exceptions import InvalidGrantException
 from fitbit_client.exceptions import InvalidRequestException
 from fitbit_client.exceptions import InvalidTokenException
+from fitbit_client.utils.types import TokenDict
 
 
 class FitbitOAuth2:
@@ -110,12 +109,14 @@ class FitbitOAuth2:
         challenge = sha256(self.code_verifier.encode("utf-8")).digest()
         return urlsafe_b64encode(challenge).decode("utf-8").rstrip("=")
 
-    def _load_token(self) -> Optional[Dict[str, Any]]:
+    def _load_token(self) -> Optional[TokenDict]:
         """Load token from file if it exists and is valid"""
         try:
             if exists(self.token_cache_path):
                 with open(self.token_cache_path, "r") as f:
-                    token = json.load(f)
+                    token_data = json.load(f)
+                    # Convert the loaded data to our TokenDict type
+                    token: TokenDict = token_data
 
                 expires_at = token.get("expires_at", 0)
                 if expires_at > datetime.now().timestamp() + 300:  # 5 min buffer
@@ -131,7 +132,7 @@ class FitbitOAuth2:
             return None
         return None
 
-    def _save_token(self, token: Dict[str, Any]) -> None:
+    def _save_token(self, token: TokenDict) -> None:
         """Save token to file"""
         with open(self.token_cache_path, "w") as f:
             json.dump(token, f)
@@ -181,25 +182,29 @@ class FitbitOAuth2:
         if not self.token:
             return False
         expires_at = self.token.get("expires_at", 0)
-        return expires_at > datetime.now().timestamp()
+        return bool(expires_at > datetime.now().timestamp())
 
     def get_authorization_url(self) -> Tuple[str, str]:
         """Get the Fitbit authorization URL"""
-        return self.session.authorization_url(
+        auth_url_tuple = self.session.authorization_url(
             self.AUTH_URL, code_challenge=self.code_challenge, code_challenge_method="S256"
         )
+        return (str(auth_url_tuple[0]), str(auth_url_tuple[1]))
 
-    def fetch_token(self, authorization_response: str) -> Dict[str, Any]:
+    def fetch_token(self, authorization_response: str) -> TokenDict:
         """Exchange authorization code for access token"""
         try:
             auth = HTTPBasicAuth(self.client_id, self.client_secret)
-            return self.session.fetch_token(
+            token_data = self.session.fetch_token(
                 self.TOKEN_URL,
                 authorization_response=authorization_response,
                 code_verifier=self.code_verifier,
                 auth=auth,
                 include_client_id=True,
             )
+            # Convert to our typed dictionary
+            token: TokenDict = token_data
+            return token
         except Exception as e:
             error_msg = str(e).lower()
 
@@ -226,7 +231,7 @@ class FitbitOAuth2:
             self.logger.error(f"OAuthException: {e.__class__.__name__}: {str(e)}")
             raise
 
-    def refresh_token(self, refresh_token: str) -> Dict[str, Any]:
+    def refresh_token(self, refresh_token: str) -> TokenDict:
         """Refresh the access token"""
         try:
             auth = HTTPBasicAuth(self.client_id, self.client_secret)
@@ -236,7 +241,9 @@ class FitbitOAuth2:
                 "grant_type": "refresh_token",
             }
 
-            token = self.session.refresh_token(self.TOKEN_URL, auth=auth, **extra)
+            token_data = self.session.refresh_token(self.TOKEN_URL, auth=auth, **extra)
+            # Convert to our typed dictionary
+            token: TokenDict = token_data
             self._save_token(token)
             return token
         except Exception as e:

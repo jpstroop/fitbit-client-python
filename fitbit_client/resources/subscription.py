@@ -1,13 +1,13 @@
 # fitbit_client/resources/subscription.py
 
 # Standard library imports
-from typing import Any
-from typing import Dict
 from typing import Optional
+from typing import cast
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import SubscriptionCategory
+from fitbit_client.utils.types import JSONDict
 
 
 class SubscriptionResource(BaseResource):
@@ -36,7 +36,7 @@ class SubscriptionResource(BaseResource):
         subscriber_id: Optional[str] = None,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Creates a subscription to notify the application when a user has new data.
 
@@ -90,7 +90,7 @@ class SubscriptionResource(BaseResource):
         subscriber_id: Optional[str] = None,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Deletes a subscription for a specific user.
 
@@ -124,7 +124,7 @@ class SubscriptionResource(BaseResource):
         subscriber_id: Optional[str] = None,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """
         Gets a list of subscriptions created by your application for a user.
 
@@ -151,4 +151,5 @@ class SubscriptionResource(BaseResource):
         if subscriber_id:
             headers["X-Fitbit-Subscriber-Id"] = subscriber_id
 
-        return self._make_request(endpoint, user_id=user_id, headers=headers, debug=debug)
+        result = self._make_request(endpoint, user_id=user_id, headers=headers, debug=debug)
+        return cast(JSONDict, result)

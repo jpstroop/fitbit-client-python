@@ -4,12 +4,14 @@
 from typing import Any
 from typing import Dict
 from typing import Optional
+from typing import cast
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import SortDirection
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.pagination_validation import validate_pagination_params
+from fitbit_client.utils.types import JSONDict
 
 
 class ElectrocardiogramResource(BaseResource):
@@ -76,4 +78,5 @@ class ElectrocardiogramResource(BaseResource):
         if after_date:
             params["afterDate"] = after_date
 
-        return self._make_request("ecg/list.json", params=params, user_id=user_id, debug=debug)
+        response = self._make_request("ecg/list.json", params=params, user_id=user_id, debug=debug)
+        return cast(JSONDict, response)

@@ -154,9 +154,9 @@ def test_get_azm_intraday_by_interval_exceeds_max_days(intraday_resource):
     with raises(InvalidDateRangeException) as exc_info:
         intraday_resource.get_azm_intraday_by_interval(
             start_date="2024-02-13",
-            end_date="2024-02-15",  # More than 24 hours
+            end_date="2024-02-15",
             detail_level=IntradayDetailLevel.ONE_MINUTE,
-        )
+        )  # More than 24 hours
 
     assert "exceeds maximum allowed" in str(exc_info.value)
     assert "active zone minutes intraday" in str(exc_info.value)

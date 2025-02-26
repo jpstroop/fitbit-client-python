@@ -122,7 +122,20 @@ class ValidationException(RequestException):
 class ClientValidationException(FitbitAPIException):
     """Superclass for validations that take place before making a request"""
 
-    pass
+    def __init__(
+        self,
+        message: str,
+        error_type: str = "client_validation",
+        field_name: Optional[str] = None,
+        raw_response: Optional[Dict[str, Any]] = None,
+    ):
+        super().__init__(
+            message=message,
+            error_type=error_type,
+            status_code=None,
+            raw_response=raw_response,
+            field_name=field_name,
+        )
 
 
 class InvalidDateException(ClientValidationException):
@@ -133,7 +146,7 @@ class InvalidDateException(ClientValidationException):
     ):
         super().__init__(
             message=message or f"Invalid date format. Expected YYYY-MM-DD, got: {date_str}",
-            error_type="client_validation",
+            error_type="invalid_date",
             field_name=field_name,
         )
         self.date_str = date_str
@@ -153,12 +166,7 @@ class InvalidDateRangeException(ClientValidationException):
         # Use the provided reason directly - don't override it
         message = f"Invalid date range: {reason}"
 
-        super().__init__(
-            message=message,
-            status_code=400,
-            error_type="client_validation",
-            field_name="date_range",
-        )
+        super().__init__(message=message, error_type="invalid_date_range", field_name="date_range")
         self.start_date = start_date
         self.end_date = end_date
         self.max_days = max_days
@@ -202,7 +210,7 @@ class IntradayValidationException(ClientValidationException):
         if resource_name:
             error_msg = f"{error_msg} for {resource_name}"
 
-        super().__init__(message=error_msg, field_name=field_name, error_type="client_validation")
+        super().__init__(message=error_msg, field_name=field_name, error_type="intraday_validation")
         self.allowed_values = allowed_values
         self.resource_name = resource_name
 

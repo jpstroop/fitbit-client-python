@@ -107,7 +107,7 @@ def test_get_hrv_intraday_by_date_range_validation(intraday_resource):
     # Test date range exceeds max
     with raises(InvalidDateRangeException) as exc_info:
         intraday_resource.get_hrv_intraday_by_interval(
-            start_date="2024-02-13", end_date="2024-03-15"  # More than 30 days
-        )
+            start_date="2024-02-13", end_date="2024-03-15"
+        )  # More than 30 days
     assert "exceeds maximum allowed 30 days" in str(exc_info.value)
     assert "heart rate variability intraday" in str(exc_info.value)

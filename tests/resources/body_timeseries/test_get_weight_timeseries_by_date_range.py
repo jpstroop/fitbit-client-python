@@ -35,8 +35,8 @@ def test_get_weight_timeseries_by_date_range_max_days(body_timeseries):
     """Test maximum date range limit for weight."""
     with raises(InvalidDateRangeException) as exc_info:
         body_timeseries.get_weight_timeseries_by_date_range(
-            start_date="2023-01-01", end_date="2023-02-02"  # 32 days, exceeds 31 day limit
-        )
+            start_date="2023-01-01", end_date="2023-02-02"
+        )  # 32 days, exceeds 31 day limit
     # The MaxRanges enum is displayed in the error message, not its value
     assert "exceeds maximum allowed" in str(exc_info.value)
     assert "weight" in str(exc_info.value)

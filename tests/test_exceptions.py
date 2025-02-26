@@ -198,9 +198,9 @@ class TestIntradayValidationException:
         """Test handling mix of enum values and strings"""
         values: List[Union[str, IntradayDetailLevel]] = [
             IntradayDetailLevel.FIFTEEN_MINUTES,
-            "1sec",  # Raw string
+            "1sec",
             IntradayDetailLevel.ONE_MINUTE,
-        ]
+        ]  # Raw string
         exc = IntradayValidationException(
             message="Invalid detail level",
             field_name="detail_level",
