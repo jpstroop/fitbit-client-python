@@ -61,7 +61,7 @@ class NutritionResource(BaseResource):
         calories: int,
         description: str,
         form_type: FoodFormType,
-        nutritional_values: Dict[NutritionalValue, float],
+        nutritional_values: Dict[NutritionalValue | str, float | int],
         user_id: str = "-",
         debug: bool = False,
     ) -> JSONDict:
@@ -98,11 +98,10 @@ class NutritionResource(BaseResource):
             and NutritionalValue.CALORIES_FROM_FAT in nutritional_values
             and not isinstance(nutritional_values[NutritionalValue.CALORIES_FROM_FAT], int)
         ):
-            raise ValidationException(
+            raise ClientValidationException(
                 message="Calories from fat must be an integer",
-                status_code=400,
-                error_type="validation",
-                field_name="caloriesFromFat",
+                error_type="client_validation",
+                field_name="CALORIES_FROM_FAT",
             )
         # Handle both enum and string nutritional values
         for key, value in nutritional_values.items():
