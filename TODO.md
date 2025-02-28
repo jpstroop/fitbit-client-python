@@ -33,6 +33,20 @@ if not food_id and not (food_name and calories):
     )
 ```
 
+- nutrition.py:
+- It doesn't seem like this should be passing tests when CALORIES is not an int:
+
+```python
+        # Handle both enum and string nutritional values
+       for key, value in nutritional_values.items():
+           if isinstance(key, NutritionalValue):
+               params[key.value] = float(value)
+           else:
+               params[str(key)] = float(value)
+```
+
+see: test_create_food_calories_from_fat_must_be_integer(nutrition_resource)
+
 - exceptions.py
 
   - Should ClientValidationException really subclass FitbitAPIException? It
