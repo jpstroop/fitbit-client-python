@@ -45,6 +45,19 @@ if not food_id and not (food_name and calories):
                params[str(key)] = float(value)
 ```
 
+It needs to change to:
+
+```python
+        for key, value in nutritional_values.items():
+            if isinstance(key, NutritionalValue):
+                if key == NutritionalValue.CALORIES_FROM_FAT:
+                    params[key.value] = int(value)
+                else:
+                    params[key.value] = float(value)
+            else:
+                params[str(key)] = float(value)
+```
+
 see: test_create_food_calories_from_fat_must_be_integer(nutrition_resource)
 
 - exceptions.py
