@@ -73,6 +73,7 @@ codeformatters = [
 extensions = [
     "gfm"
 ]
+exclude = [".venv/**"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -110,27 +111,20 @@ strict_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = true
 warn_no_return = true
-# warn_unreachable = true
+warn_unreachable = true
 # disallow_any_generics = true
 disallow_subclassing_any = true
 disallow_untyped_calls = true
-
-# Show details about error locations
-# show_column_numbers = true
+# output formatting
 show_error_codes = true
 pretty = true
 error_summary = true
 show_error_context = true
-# show_traceback = true
 
-
-# Necessary for most libraries
 [[tool.mypy.overrides]]
 module = [
     "requests.*",
     "requests_oauthlib.*",
-    "pytest.*",
-    "pyOpenSSL.*"
 ]
 ignore_missing_imports = true
 
@@ -138,7 +132,7 @@ ignore_missing_imports = true
 [tool.pdm.scripts]
 autoflake = { cmd = "autoflake . -r --remove-unused-variables --remove-all-unused-imports --ignore-pass-after-docstring --exclude ./.venv/*,./_scripts/*" }
 headers = { cmd = "python lint/add_file_headers.py" }
-typecheck = { cmd = "mypy --show-error-codes --pretty --no-incremental fitbit_client" }
+mypy = { cmd = "mypy --pretty --no-incremental --warn-unused-configs fitbit_client" }
 black = { cmd = "black ." }
 isort = { cmd = "isort ." }
 mdformat = { cmd = "mdformat ." }
