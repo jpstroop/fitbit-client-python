@@ -73,7 +73,6 @@ codeformatters = [
 extensions = [
     "gfm"
 ]
-exclude = [".venv/**"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
