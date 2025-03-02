@@ -103,10 +103,12 @@ class NutritionResource(BaseResource):
                 error_type="client_validation",
                 field_name="CALORIES_FROM_FAT",
             )
-        # Handle both enum and string nutritional values
         for key, value in nutritional_values.items():
             if isinstance(key, NutritionalValue):
-                params[key.value] = float(value)
+                if key == NutritionalValue.CALORIES_FROM_FAT:
+                    params[key.value] = int(value)
+                else:
+                    params[key.value] = float(value)
             else:
                 params[str(key)] = float(value)
 
