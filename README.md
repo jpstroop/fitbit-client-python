@@ -14,9 +14,6 @@
 A fully-typed Python client for interacting with the Fitbit API, featuring
 OAuth2 PKCE authentication and resource-based API interactions.
 
-**THIS IS WORK IN PROGRESS** most methods have been tested, but there is no test
-coverage yet, and more work [TODO](TODO.md). YMMV.
-
 ## Installation
 
 This package requires Python 3.13 or later.
