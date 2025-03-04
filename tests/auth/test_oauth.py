@@ -373,6 +373,38 @@ class TestFitbitOAuth2:
         mock_logger.error.assert_called_once()
         log_message = mock_logger.error.call_args[0][0]
         assert "OAuthException" in log_message
+        assert "during token fetch" in log_message
+
+    def test_fetch_token_no_matching_error_type(self, oauth):
+        """Test fetch_token when no error type matches in ERROR_TYPE_EXCEPTIONS"""
+        # Local imports
+        from fitbit_client.exceptions import OAuthException
+
+        # Create a mock response with an error message that doesn't match any error types
+        original_error = Exception("Some completely unknown error type")
+        mock_session = Mock()
+        mock_session.fetch_token.side_effect = original_error
+        oauth.session = mock_session
+
+        # Setup logger mock to capture log message
+        mock_logger = Mock()
+        oauth.logger = mock_logger
+
+        # The method should fall through to the default OAuthException
+        with raises(OAuthException) as exc_info:
+            oauth.fetch_token("callback_url")
+
+        # Verify the wrapped exception has correct attributes
+        assert str(original_error) in str(exc_info.value)
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.error_type == "oauth"
+
+        # Verify the error was logged correctly with the specific message format
+        mock_logger.error.assert_called_once()
+        log_message = mock_logger.error.call_args[0][0]
+        assert "OAuthException during token fetch" in log_message
+        assert original_error.__class__.__name__ in log_message
+        assert str(original_error) in log_message
 
     # Token Refresh Tests
     def test_refresh_token_returns_typed_dict(self, oauth):
@@ -528,6 +560,15 @@ class TestFitbitOAuth2:
         with (
             patch("os.path.exists", return_value=True),
             patch("builtins.open", side_effect=Exception("file access error")),
+        ):
+            token = oauth._load_token()
+            assert token is None
+
+    def test_load_token_oserror_exception(self, oauth):
+        """Test handling of OSError exception during token loading"""
+        with (
+            patch("os.path.exists", return_value=True),
+            patch("builtins.open", side_effect=OSError("permission denied")),
         ):
             token = oauth._load_token()
             assert token is None
