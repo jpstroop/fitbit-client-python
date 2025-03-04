@@ -8,7 +8,9 @@
 from pytest import raises
 
 # Local imports
+from fitbit_client.exceptions import IntradayValidationException
 from fitbit_client.exceptions import InvalidDateException
+from fitbit_client.exceptions import ParameterValidationException
 from fitbit_client.resources.constants import Period
 
 
@@ -80,18 +82,18 @@ def test_get_heartrate_timeseries_by_date_invalid_date(heartrate_resource):
 
 def test_get_heartrate_timeseries_by_date_invalid_period(heartrate_resource):
     """Test that error is raised for unsupported period"""
-    with raises(ValueError) as exc_info:
+    with raises(IntradayValidationException) as exc_info:
         heartrate_resource.get_heartrate_timeseries_by_date(
             date="2024-02-10", period=Period.ONE_YEAR
         )
     error_msg = str(exc_info.value)
-    assert error_msg.startswith("Period must be one of: ")
+    assert "Period must be one of the supported values" in error_msg
     assert all((period in error_msg for period in ["1d", "7d", "30d", "1w", "1m"]))
 
 
 def test_get_heartrate_timeseries_by_date_invalid_timezone(heartrate_resource):
     """Test that error is raised for unsupported timezone"""
-    with raises(ValueError) as exc_info:
+    with raises(ParameterValidationException) as exc_info:
         heartrate_resource.get_heartrate_timeseries_by_date(
             date="2024-02-10", period=Period.ONE_DAY, timezone="EST"
         )

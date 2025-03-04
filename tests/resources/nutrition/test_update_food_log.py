@@ -8,6 +8,7 @@
 from pytest import raises
 
 # Local imports
+from fitbit_client.exceptions import MissingParameterException
 from fitbit_client.resources.constants import MealType
 
 
@@ -50,7 +51,8 @@ def test_update_food_log_with_calories_success(nutrition_resource, mock_response
 
 
 def test_update_food_log_validation_error(nutrition_resource):
-    """Test that updating a food log without required parameters raises ValueError"""
-    with raises(ValueError) as exc_info:
+    """Test that updating a food log without required parameters raises MissingParameterException"""
+    with raises(MissingParameterException) as exc_info:
         nutrition_resource.update_food_log(food_log_id=12345, meal_type_id=MealType.LUNCH)
     assert "Must provide either (unit_id and amount) or calories" in str(exc_info.value)
+    assert exc_info.value.field_name == "unit_id/amount/calories"

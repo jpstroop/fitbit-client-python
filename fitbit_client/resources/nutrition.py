@@ -9,6 +9,7 @@ from typing import cast
 
 # Local imports
 from fitbit_client.exceptions import ClientValidationException
+from fitbit_client.exceptions import MissingParameterException
 from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import FoodFormType
@@ -151,9 +152,7 @@ class NutritionResource(BaseResource):
             and not isinstance(nutritional_values[NutritionalValue.CALORIES_FROM_FAT], int)
         ):
             raise ClientValidationException(
-                message="Calories from fat must be an integer",
-                error_type="client_validation",
-                field_name="CALORIES_FROM_FAT",
+                message="Calories from fat must be an integer", field_name="CALORIES_FROM_FAT"
             )
         for key, value in nutritional_values.items():
             if isinstance(key, NutritionalValue):
@@ -295,7 +294,7 @@ class NutritionResource(BaseResource):
                   (if enabled)
 
         Raises:
-            ValueError: If neither calories nor intensity is provided
+            fitbit_client.exceptions.MissingParameterException: If neither calories nor intensity is provided
             fitbit_client.exceptions.AuthorizationException: If required scope is not granted
             fitbit_client.exceptions.ValidationException: If parameters are invalid
 
@@ -318,7 +317,9 @@ class NutritionResource(BaseResource):
             accounts for the user's activity levels rather than a fixed calorie goal.
         """
         if not calories and not intensity:
-            raise ValueError("Must provide either calories or intensity")
+            raise MissingParameterException(
+                message="Must provide either calories or intensity", field_name="calories/intensity"
+            )
 
         params: ParamDict = {}
         if calories:
@@ -1095,7 +1096,7 @@ class NutritionResource(BaseResource):
                   amount, calories, and nutritional values reflecting the changes
 
         Raises:
-            fitbit_client.exceptions.ValueError: If neither (unit_id and amount) nor calories are provided
+            fitbit_client.exceptions.MissingParameterException: If neither (unit_id and amount) nor calories are provided
             fitbit_client.exceptions.NotFoundException: If the food log ID doesn't exist
             fitbit_client.exceptions.AuthorizationException: If required scope is not granted
 
@@ -1117,7 +1118,10 @@ class NutritionResource(BaseResource):
         elif calories:
             params["calories"] = calories
         else:
-            raise ValueError("Must provide either (unit_id and amount) or calories")
+            raise MissingParameterException(
+                message="Must provide either (unit_id and amount) or calories",
+                field_name="unit_id/amount/calories",
+            )
 
         result = self._make_request(
             f"foods/log/{food_log_id}.json",

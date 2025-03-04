@@ -10,6 +10,7 @@ from pytest import raises
 
 # Local imports
 from fitbit_client.exceptions import InvalidDateException
+from fitbit_client.exceptions import MissingParameterException
 
 
 # Success cases - Activity ID path
@@ -111,8 +112,8 @@ def test_create_activity_log_invalid_date(activity_resource):
 
 
 def test_create_activity_log_missing_required_params(activity_resource):
-    """Test that missing required parameters raises ValueError"""
-    with raises(ValueError) as exc_info:
+    """Test that missing required parameters raises MissingParameterException"""
+    with raises(MissingParameterException) as exc_info:
         activity_resource.create_activity_log(
             start_time="12:00", duration_millis=3600000, date="2023-01-01"
         )
@@ -120,18 +121,19 @@ def test_create_activity_log_missing_required_params(activity_resource):
     assert "Must provide either activity_id or (activity_name and manual_calories)" in str(
         exc_info.value
     )
+    assert exc_info.value.field_name == "activity_id/activity_name"
 
 
 def test_create_activity_log_partial_custom_params(activity_resource):
-    """Test that providing only activity_name without manual_calories raises ValueError"""
-    with raises(ValueError) as exc_info:
+    """Test that providing only activity_name without manual_calories raises MissingParameterException"""
+    with raises(MissingParameterException) as exc_info:
         activity_resource.create_activity_log(
             activity_name="Custom Yoga",
             start_time="12:00",
             duration_millis=3600000,
             date="2023-01-01",
         )
-
     assert "Must provide either activity_id or (activity_name and manual_calories)" in str(
         exc_info.value
     )
+    assert exc_info.value.field_name == "activity_id/activity_name"

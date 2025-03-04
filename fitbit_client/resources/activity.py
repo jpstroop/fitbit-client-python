@@ -8,6 +8,7 @@ from typing import Optional
 from typing import cast
 
 # Local imports
+from fitbit_client.exceptions import MissingParameterException
 from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import ActivityGoalPeriod
@@ -137,7 +138,7 @@ class ActivityResource(BaseResource):
             JSONDict: The created activity log entry with details of the recorded activity
 
         Raises:
-            ValueError: If neither activity_id nor activity_name/manual_calories pair is provided
+            fitbit_client.exceptions.MissingParameterException: If neither activity_id nor activity_name/manual_calories pair is provided
             fitbit_client.exceptions.InvalidDateException: If date format is invalid
             fitbit_client.exceptions.ValidationException: If required parameters are missing
 
@@ -170,8 +171,9 @@ class ActivityResource(BaseResource):
                 "date": date,
             }
         else:
-            raise ValueError(
-                "Must provide either activity_id or (activity_name and manual_calories)"
+            raise MissingParameterException(
+                message="Must provide either activity_id or (activity_name and manual_calories)",
+                field_name="activity_id/activity_name",
             )
 
         result = self._make_request(

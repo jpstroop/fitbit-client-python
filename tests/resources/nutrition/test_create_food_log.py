@@ -240,7 +240,7 @@ def test_create_food_log_none_handling(nutrition_resource, mock_response):
 
 
 def test_create_food_log_validation_error(nutrition_resource):
-    """Test that creating a food log without required parameters raises ValueError"""
+    """Test that creating a food log without required parameters raises ClientValidationException"""
     with raises(ClientValidationException) as exc_info:
         nutrition_resource.create_food_log(
             date="2025-02-08", meal_type_id=MealType.BREAKFAST, unit_id=147, amount=100.0
