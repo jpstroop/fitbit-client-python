@@ -6,6 +6,7 @@ from typing import Dict
 from typing import cast
 
 # Local imports
+from fitbit_client.exceptions import IntradayValidationException
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import Period
 from fitbit_client.utils.date_validation import validate_date_param
@@ -59,7 +60,7 @@ class ActiveZoneMinutesResource(BaseResource):
             JSONDict: Daily Active Zone Minutes data
 
         Raises:
-            ValueError: If period is not Period.ONE_DAY
+            fitbit_client.exceptions.IntradayValidationException: If period is not Period.ONE_DAY
             fitbit_client.exceptions.InvalidDateException: If date format is invalid
 
         Note:
@@ -72,7 +73,12 @@ class ActiveZoneMinutesResource(BaseResource):
             - Days with no AZM data will show all metrics as zero
         """
         if period != Period.ONE_DAY:
-            raise ValueError("Only 1d period is supported for AZM time series")
+            raise IntradayValidationException(
+                message="Only 1d period is supported for AZM time series",
+                field_name="period",
+                allowed_values=[Period.ONE_DAY.value],
+                resource_name="active zone minutes",
+            )
 
         result = self._make_request(
             f"activities/active-zone-minutes/date/{date}/{period.value}.json",

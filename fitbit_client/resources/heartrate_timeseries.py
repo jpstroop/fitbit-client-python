@@ -5,6 +5,8 @@ from typing import Optional
 from typing import cast
 
 # Local imports
+from fitbit_client.exceptions import IntradayValidationException
+from fitbit_client.exceptions import ParameterValidationException
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import Period
 from fitbit_client.utils.date_validation import validate_date_param
@@ -59,8 +61,8 @@ class HeartrateTimeSeriesResource(BaseResource):
             JSONDict: Heart rate data for each day in the period, including heart rate zones and resting heart rate
 
         Raises:
-            ValueError: If period is not one of the supported period values
-            ValueError: If timezone is provided and not 'UTC'
+            fitbit_client.exceptions.IntradayValidationException: If period is not one of the supported period values
+            fitbit_client.exceptions.ParameterValidationException: If timezone is provided and not 'UTC'
             fitbit_client.exceptions.InvalidDateException: If date format is invalid
             fitbit_client.exceptions.AuthorizationException: If the required scope is not granted
 
@@ -91,12 +93,17 @@ class HeartrateTimeSeriesResource(BaseResource):
         }
 
         if period not in supported_periods:
-            raise ValueError(
-                f"Period must be one of: {', '.join(p.value for p in supported_periods)}"
+            raise IntradayValidationException(
+                message=f"Period must be one of the supported values",
+                field_name="period",
+                allowed_values=[p.value for p in supported_periods],
+                resource_name="heart rate",
             )
 
         if timezone is not None and timezone != "UTC":
-            raise ValueError("Only 'UTC' timezone is supported")
+            raise ParameterValidationException(
+                message="Only 'UTC' timezone is supported", field_name="timezone"
+            )
 
         params = {"timezone": timezone} if timezone else None
         result = self._make_request(
@@ -135,7 +142,7 @@ class HeartrateTimeSeriesResource(BaseResource):
             JSONDict: Heart rate data for each day in the date range, including heart rate zones and resting heart rate
 
         Raises:
-            ValueError: If timezone is provided and not 'UTC'
+            fitbit_client.exceptions.ParameterValidationException: If timezone is provided and not 'UTC'
             fitbit_client.exceptions.InvalidDateException: If date format is invalid
             fitbit_client.exceptions.InvalidDateRangeException: If start_date is after end_date or
                 if the date range exceeds the maximum allowed (1095 days)
@@ -158,7 +165,9 @@ class HeartrateTimeSeriesResource(BaseResource):
             method, but allows for more precise control over the date range.
         """
         if timezone is not None and timezone != "UTC":
-            raise ValueError("Only 'UTC' timezone is supported")
+            raise ParameterValidationException(
+                message="Only 'UTC' timezone is supported", field_name="timezone"
+            )
 
         params = {"timezone": timezone} if timezone else None
         result = self._make_request(

@@ -7,6 +7,7 @@ from typing import Optional
 from typing import cast
 
 # Local imports
+from fitbit_client.exceptions import ParameterValidationException
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import SortDirection
 from fitbit_client.utils.date_validation import validate_date_param
@@ -50,7 +51,7 @@ class SleepResource(BaseResource):
             JSONDict: Sleep goal details including minimum duration and update timestamp
 
         Raises:
-            ValueError: If min_duration is not positive
+            fitbit_client.exceptions.ParameterValidationException: If min_duration is not positive
 
         Note:
             Sleep goals help users track and maintain healthy sleep habits.
@@ -58,7 +59,9 @@ class SleepResource(BaseResource):
             (7-8 hours) per night.
         """
         if min_duration <= 0:
-            raise ValueError("min_duration must be positive")
+            raise ParameterValidationException(
+                message="min_duration must be positive", field_name="min_duration"
+            )
 
         result = self._make_request(
             "sleep/goal.json",
@@ -100,7 +103,7 @@ class SleepResource(BaseResource):
             JSONDict: Created sleep log entry with sleep metrics and summary information
 
         Raises:
-            ValueError: If duration_millis is not positive
+            fitbit_client.exceptions.ParameterValidationException: If duration_millis is not positive
             fitbit_client.exceptions.InvalidDateException: If date format is invalid
             fitbit_client.exceptions.ValidationException: If time or duration is invalid
             fitbit_client.exceptions.AuthorizationException: If required scope is not granted
@@ -117,7 +120,9 @@ class SleepResource(BaseResource):
             This endpoint uses API version 1.2, unlike most other Fitbit API endpoints.
         """
         if duration_millis <= 0:
-            raise ValueError("duration_millis must be positive")
+            raise ParameterValidationException(
+                message="duration_millis must be positive", field_name="duration_millis"
+            )
 
         params = {"startTime": start_time, "duration": duration_millis, "date": date}
         result = self._make_request(

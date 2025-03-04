@@ -56,7 +56,7 @@ class TestCallbackServer:
             CallbackServer("http://localhost:8080")
 
         assert exc_info.value.status_code == 400
-        assert exc_info.value.error_type == "request"
+        assert exc_info.value.error_type == "invalid_request"
         assert exc_info.value.field_name == "redirect_uri"
         assert "must use HTTPS protocol" in str(exc_info.value)
 
@@ -345,6 +345,8 @@ class TestCallbackServer:
         assert exc_info.value.status_code == 400
         assert exc_info.value.error_type == "invalid_request"
         assert "timed out" in str(exc_info.value)
+        assert exc_info.value.field_name == "oauth_callback"
+        assert "1 seconds" in str(exc_info.value)
 
     def test_wait_for_callback_success(self, server):
         """Test successful callback handling"""

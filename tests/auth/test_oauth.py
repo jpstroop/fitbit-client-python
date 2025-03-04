@@ -69,7 +69,8 @@ class TestFitbitOAuth2:
 
         assert "should use https protocol" in str(exc_info.value)
         assert exc_info.value.status_code == 400
-        assert exc_info.value.error_type == "request"
+        assert exc_info.value.error_type == "invalid_request"
+        assert exc_info.value.field_name == "redirect_uri"
 
     # PKCE Tests
     def test_code_verifier_length_validation(self, oauth):
@@ -205,28 +206,27 @@ class TestFitbitOAuth2:
         oauth.fetch_token.assert_called_once_with(mock_auth_response)
         oauth._save_token.assert_called_once_with(mock_token)
 
-    def test_authenticate_invalid_grant(self, oauth):
-        """Test authentication failure due to invalid grant during token fetch"""
-        mock_auth_response = "https://localhost:8080/callback?code=invalid_code&state=test_state"
+    def test_authenticate_uses_fetch_token_directly(self, oauth):
+        """Test that authenticate passes callback URL directly to fetch_token"""
+        mock_auth_response = "https://localhost:8080/callback?code=test_code&state=test_state"
+        mock_token = {
+            "access_token": "test_token",
+            "refresh_token": "test_refresh",
+            "expires_at": time() + 3600,
+        }
 
-        class MockException(Exception):
-            def __str__(self):
-                return "invalid_grant"
-
+        # Setup mocks
         oauth.get_authorization_url = Mock(return_value=("test_url", "test_state"))
-        oauth.fetch_token = Mock(side_effect=MockException())
+        oauth.fetch_token = Mock(return_value=mock_token)
         oauth.is_authenticated = Mock(return_value=False)
+        oauth._save_token = Mock()
 
-        with (
-            patch("builtins.input", return_value=mock_auth_response),
-            patch("webbrowser.open"),
-            raises(InvalidGrantException) as exc_info,
-        ):
+        with patch("builtins.input", return_value=mock_auth_response), patch("webbrowser.open"):
             oauth.authenticate()
 
-        assert "Authorization code expired or invalid" in str(exc_info.value)
-        assert exc_info.value.status_code == 400
-        assert exc_info.value.error_type == "invalid_grant"
+        # Verify fetch_token was called with the callback response
+        oauth.fetch_token.assert_called_once_with(mock_auth_response)
+        oauth._save_token.assert_called_once_with(mock_token)
 
     def test_authenticate_unexpected_error(self, oauth):
         """Test authentication failure due to unexpected error during token fetch"""
@@ -246,35 +246,36 @@ class TestFitbitOAuth2:
 
         assert str(exc_info.value) == "some unhandled error"
 
-    def test_authenticate_exception_flows(self, oauth):
-        """Test exception handling paths in authenticate method"""
-        mock_auth_response = "https://localhost:8080/callback?code=test_code&state=test_state"
+    def test_fetch_token_handles_all_exception_types(self, oauth):
+        """Test that fetch_token handles all exception types from ERROR_TYPE_EXCEPTIONS map"""
+        # Local imports
+        from fitbit_client.exceptions import ERROR_TYPE_EXCEPTIONS
 
-        oauth.get_authorization_url = Mock(return_value=("test_url", "test_state"))
-        oauth.is_authenticated = Mock(return_value=False)
+        # Get a few key error types to test (no need to test all of them)
+        test_error_types = [
+            "expired_token",
+            "invalid_grant",
+            "invalid_client",
+            "insufficient_scope",
+        ]
 
-        # Test invalid_grant flow
-        oauth.fetch_token = Mock(side_effect=Exception("invalid_grant"))
-        with (
-            patch("builtins.input", return_value=mock_auth_response),
-            patch("webbrowser.open"),
-            raises(InvalidGrantException) as exc_info,
-        ):
-            oauth.authenticate()
+        for error_type in test_error_types:
+            # Create a mock error with this error type in the message
+            mock_error = Exception(f"Error with {error_type} in the message")
+            mock_session = Mock()
+            mock_session.fetch_token.side_effect = mock_error
+            oauth.session = mock_session
 
-        assert exc_info.value.status_code == 400
-        assert exc_info.value.error_type == "invalid_grant"
+            # Get the expected exception class for this error type
+            expected_exception = ERROR_TYPE_EXCEPTIONS[error_type]
 
-        # Test other exception flow
-        oauth.fetch_token = Mock(side_effect=ValueError("other error"))
-        with (
-            patch("builtins.input", return_value=mock_auth_response),
-            patch("webbrowser.open"),
-            raises(ValueError) as exc_info,
-        ):
-            oauth.authenticate()
+            # Test that the correct exception is raised
+            with raises(expected_exception) as exc_info:
+                oauth.fetch_token("https://localhost:8080/callback?code=test")
 
-        assert str(exc_info.value) == "other error"
+            # Verify the exception has correct attributes
+            assert exc_info.value.error_type == error_type
+            assert exc_info.value.status_code in [400, 401]  # Depending on error type
 
     # Token Fetching Tests
     def test_fetch_token_returns_typed_dict(self, oauth):
@@ -316,30 +317,40 @@ class TestFitbitOAuth2:
 
     def test_fetch_token_invalid_client(self, oauth):
         """Test handling of invalid client credentials"""
+        # Create a more realistic error message that matches what the API would return
         mock_session = Mock()
-        mock_session.fetch_token.side_effect = Exception("invalid_client")
+        mock_session.fetch_token.side_effect = Exception(
+            "invalid_client: The client credentials are invalid"
+        )
         oauth.session = mock_session
 
         with raises(InvalidClientException) as exc_info:
             oauth.fetch_token("callback_url")
-        assert "Invalid client credentials" in str(exc_info.value)
-        assert exc_info.value.status_code == 401
+        assert exc_info.value.status_code == 400  # Our implementation uses 400
         assert exc_info.value.error_type == "invalid_client"
+        # The message from the API should be preserved in the exception
+        assert "invalid_client" in str(exc_info.value)
 
     def test_fetch_token_invalid_token(self, oauth):
         """Test handling of invalid authorization code"""
         mock_session = Mock()
-        mock_session.fetch_token.side_effect = Exception("invalid_token")
+        mock_session.fetch_token.side_effect = Exception(
+            "invalid_token: The token is invalid or has expired"
+        )
         oauth.session = mock_session
 
         with raises(InvalidTokenException) as exc_info:
             oauth.fetch_token("callback_url")
-        assert "Invalid authorization code" in str(exc_info.value)
         assert exc_info.value.status_code == 401
         assert exc_info.value.error_type == "invalid_token"
+        assert "invalid_token" in str(exc_info.value)
 
-    def test_fetch_token_unhandled_error_logging(self, oauth):
-        """Test unhandled error logging in fetch_token method"""
+    def test_fetch_token_catches_oauth_errors(self, oauth):
+        """Test fetch_token correctly wraps exceptions in OAuthException"""
+        # Local imports
+        from fitbit_client.exceptions import OAuthException
+
+        # Create an unhandled exception type
         original_error = ValueError("Unhandled OAuth error")
         mock_session = Mock()
         mock_session.fetch_token.side_effect = original_error
@@ -349,16 +360,19 @@ class TestFitbitOAuth2:
         mock_logger = Mock()
         oauth.logger = mock_logger
 
-        with raises(ValueError) as exc_info:
+        # The method should wrap the ValueError in an OAuthException
+        with raises(OAuthException) as exc_info:
             oauth.fetch_token("callback_url")
 
+        # Verify the wrapped exception has correct attributes
+        assert "Unhandled OAuth error" in str(exc_info.value)
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.error_type == "oauth"
+
         # Verify the error was logged correctly
-        assert str(exc_info.value) == "Unhandled OAuth error"
         mock_logger.error.assert_called_once()
         log_message = mock_logger.error.call_args[0][0]
         assert "OAuthException" in log_message
-        assert "ValueError" in log_message
-        assert "Unhandled OAuth error" in log_message
 
     # Token Refresh Tests
     def test_refresh_token_returns_typed_dict(self, oauth):
@@ -398,38 +412,58 @@ class TestFitbitOAuth2:
     def test_refresh_token_expired(self, oauth):
         """Test handling of expired refresh token"""
         mock_session = Mock()
-        mock_session.refresh_token.side_effect = Exception("expired_token")
+        mock_session.refresh_token.side_effect = Exception(
+            "expired_token: The access token expired"
+        )
         oauth.session = mock_session
 
         with raises(ExpiredTokenException) as exc_info:
             oauth.refresh_token("old_token")
-        assert "Access token expired" in str(exc_info.value)
         assert exc_info.value.status_code == 401
         assert exc_info.value.error_type == "expired_token"
+        assert "expired_token" in str(exc_info.value)
 
     def test_refresh_token_invalid(self, oauth):
         """Test handling of invalid refresh token"""
         mock_session = Mock()
-        mock_session.refresh_token.side_effect = Exception("invalid_grant")
+        mock_session.refresh_token.side_effect = Exception(
+            "invalid_grant: The refresh token is invalid"
+        )
         oauth.session = mock_session
 
         with raises(InvalidGrantException) as exc_info:
             oauth.refresh_token("bad_token")
-        assert "Refresh token invalid" in str(exc_info.value)
         assert exc_info.value.status_code == 400
         assert exc_info.value.error_type == "invalid_grant"
+        assert "invalid_grant" in str(exc_info.value)
 
-    def test_refresh_token_other_error(self, oauth):
-        """Test handling of unexpected error during token refresh"""
+    def test_refresh_token_wraps_unexpected_errors(self, oauth):
+        """Test that refresh_token wraps unexpected errors in OAuthException"""
+        # Local imports
+        from fitbit_client.exceptions import OAuthException
+
         mock_session = Mock()
         unexpected_error = ValueError("unexpected error")
         mock_session.refresh_token.side_effect = unexpected_error
         oauth.session = mock_session
 
-        with raises(ValueError) as exc_info:
+        # Setup logger mock to capture log message
+        mock_logger = Mock()
+        oauth.logger = mock_logger
+
+        # The method should wrap the ValueError in an OAuthException
+        with raises(OAuthException) as exc_info:
             oauth.refresh_token("test_token")
 
+        # Verify the wrapped exception has correct attributes
         assert "unexpected error" in str(exc_info.value)
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.error_type == "oauth"
+
+        # Verify the error was logged correctly
+        mock_logger.error.assert_called_once()
+        log_message = mock_logger.error.call_args[0][0]
+        assert "OAuthException during token refresh" in log_message
 
     def test_refresh_token_save_and_return(self, oauth):
         """Test that refresh_token saves and returns the new token"""

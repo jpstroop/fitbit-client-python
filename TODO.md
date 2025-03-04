@@ -45,18 +45,10 @@ if not food_id and not (food_name and calories):
 
 see: test_create_food_calories_from_fat_must_be_integer(nutrition_resource)
 
-- exceptions.py
-
-  - Should ClientValidationException really subclass FitbitAPIException? IT
-    SHOULD SUBCLASS ValueError doesn't need the API lookup mapping
-    (`exception_type`) or a `status_code`, so we may just be able to simplify
-    it. The most important thing is that the user understands that the message
-    came from the client prior to the API call.
-
-  - Make sure we aren't using
-
-  - Make sure that `ClientValidationException` is getting used for arbitrary
-    validations like
+- exceptions.py Consider:
+  - Add automatic token refresh for ExpiredTokenException
+  - Implement backoff and retry for RateLimitExceededException
+  - Add retry with exponential backoff for transient errors (5xx)
 
 ## Longer term TODOs
 

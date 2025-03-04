@@ -22,8 +22,10 @@ from fitbit_client.exceptions import InvalidDateRangeException
 from fitbit_client.exceptions import InvalidGrantException
 from fitbit_client.exceptions import InvalidRequestException
 from fitbit_client.exceptions import InvalidTokenException
+from fitbit_client.exceptions import MissingParameterException
 from fitbit_client.exceptions import NotFoundException
 from fitbit_client.exceptions import OAuthException
+from fitbit_client.exceptions import ParameterValidationException
 from fitbit_client.exceptions import RateLimitExceededException
 from fitbit_client.exceptions import RequestException
 from fitbit_client.exceptions import STATUS_CODE_EXCEPTIONS
@@ -244,6 +246,42 @@ class TestIntradayValidationException:
             resource_name="heart rate",
         )
         assert str(exc) == "Invalid detail level. Allowed values: 1min for heart rate"
+
+
+class TestParameterValidationException:
+    """Test suite for ParameterValidationException"""
+
+    def test_parameter_validation_exception_minimal(self):
+        """Test with minimal required parameters"""
+        exc = ParameterValidationException(message="Value must be positive")
+        assert isinstance(exc, ClientValidationException)
+        assert str(exc) == "Value must be positive"
+        assert exc.field_name is None
+
+    def test_parameter_validation_exception_with_field(self):
+        """Test with field name specified"""
+        exc = ParameterValidationException(message="Value must be positive", field_name="duration")
+        assert str(exc) == "Value must be positive"
+        assert exc.field_name == "duration"
+
+
+class TestMissingParameterException:
+    """Test suite for MissingParameterException"""
+
+    def test_missing_parameter_exception_minimal(self):
+        """Test with minimal required parameters"""
+        exc = MissingParameterException(message="Required parameter missing")
+        assert isinstance(exc, ClientValidationException)
+        assert str(exc) == "Required parameter missing"
+        assert exc.field_name is None
+
+    def test_missing_parameter_exception_with_field(self):
+        """Test with field name specified"""
+        exc = MissingParameterException(
+            message="Must provide either food_id or food_name", field_name="food_parameter"
+        )
+        assert str(exc) == "Must provide either food_id or food_name"
+        assert exc.field_name == "food_parameter"
 
 
 class TestExceptionMappings:

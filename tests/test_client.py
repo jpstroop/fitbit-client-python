@@ -10,6 +10,8 @@ from pytest import raises
 
 # Local imports
 from fitbit_client.client import FitbitClient
+from fitbit_client.exceptions import OAuthException
+from fitbit_client.exceptions import SystemException
 
 
 @fixture
@@ -42,8 +44,19 @@ def test_client_authenticate_force_new(client, mock_oauth):
     mock_oauth.authenticate.assert_called_once_with(force_new=True)
 
 
-def test_client_authenticate_error(client, mock_oauth):
-    """Test authentication error handling"""
-    mock_oauth.authenticate.side_effect = RuntimeError("Auth failed")
-    with raises(RuntimeError):
+def test_client_authenticate_oauth_error(client, mock_oauth):
+    """Test OAuth authentication error handling"""
+    mock_error = OAuthException(message="Auth failed", error_type="oauth", status_code=400)
+    mock_oauth.authenticate.side_effect = mock_error
+    with raises(OAuthException) as exc_info:
         client.authenticate()
+    assert "Auth failed" in str(exc_info.value)
+
+
+def test_client_authenticate_system_error(client, mock_oauth):
+    """Test system error handling"""
+    mock_error = SystemException(message="System failure", error_type="system", status_code=500)
+    mock_oauth.authenticate.side_effect = mock_error
+    with raises(SystemException) as exc_info:
+        client.authenticate()
+    assert "System failure" in str(exc_info.value)

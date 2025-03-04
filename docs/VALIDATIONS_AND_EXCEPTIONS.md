@@ -1,10 +1,16 @@
 # Input Validation and Error Handling
 
-Many method parameter arguments are validated before making API requests. The
-aim is to encapulate the HTTP API as much as possible and raise more helpfule
-exceptions before a bad request is executed. Understanding these validations and
-the exceptions that are raised by them (and elsewhere) will help you use this
-library correctly.
+Many method parameter arguments are validated **before making any API
+requests**. The aim is to encapsulate the HTTP API as much as possible and raise
+more helpful exceptions before a bad request is executed. This approach:
+
+- Preserves your API rate limits by catching errors locally
+- Provides more specific and helpful error messages
+- Simplifies debugging by clearly separating client-side validation issues from
+  API response issues
+
+Understanding these validations and the exceptions that are raised by them (and
+elsewhere) will help you use this library correctly and efficiently.
 
 ## Input Validation
 
@@ -167,8 +173,51 @@ except ValidationException as e:
 
 ## Exception Handling
 
-There are many custom exceptions, When validation fails or other errors occur,
+There are many custom exceptions. When validation fails or other errors occur,
 the library raises specific exceptions that help identify the problem.
+
+### Using Custom Validation Exceptions
+
+Client validation exceptions (`ClientValidationException` and its subclasses)
+are raised *before* any API call is made. This means:
+
+1. They reflect problems with your input parameters that can be detected locally
+2. No network requests have been initiated when these exceptions occur
+3. They help you fix issues before consuming API rate limits
+
+This is in contrast to API exceptions (`FitbitAPIException` and its subclasses),
+which are raised in response to errors returned by the Fitbit API after a
+network request has been made.
+
+When using this library, you'll want to catch the specific exception types for
+proper error handling:
+
+```python
+from fitbit_client.exceptions import ParameterValidationException, MissingParameterException
+
+try:
+    # When parameters might be missing
+    client.nutrition.create_food_goal(calories=None, intensity=None)
+except MissingParameterException as e:
+    print(f"Missing parameter: {e.message}")
+
+try:
+    # When parameters might be invalid
+    client.sleep.create_sleep_goals(min_duration=-10)
+except ParameterValidationException as e:
+    print(f"Invalid parameter value for {e.field_name}: {e.message}")
+```
+
+You can also catch the base class for all client validation exceptions:
+
+```python
+from fitbit_client.exceptions import ClientValidationException
+
+try:
+    client.activity.create_activity_log(duration_millis=-100, start_time="12:00", date="2024-02-20")
+except ClientValidationException as e:
+    print(f"Validation error: {e.message}")
+```
 
 ### ValidationException
 
@@ -238,17 +287,49 @@ except RateLimitExceededException as e:
 
 ### Exception Properties
 
-All exceptions provide these properties:
+API exceptions (`FitbitAPIException` and its subclasses) provide these
+properties:
 
 - `message`: Human-readable error description
 - `status_code`: HTTP status code (if applicable)
 - `error_type`: Type of error from the API
 - `field_name`: Name of the invalid field (for validation errors)
 
+Validation exceptions (`ClientValidationException` and its subclasses) provide:
+
+- `message`: Human-readable error description
+- `field_name`: Name of the invalid field (for validation errors)
+
+Specific validation exception subclasses provide additional properties:
+
+- `InvalidDateException`: Adds `date_str` property with the invalid date string
+- `InvalidDateRangeException`: Adds `start_date`, `end_date`, `max_days`, and
+  `resource_name` properties
+- `IntradayValidationException`: Adds `allowed_values` and `resource_name`
+  properties
+- `ParameterValidationException`: Used for invalid parameter values (e.g.,
+  negative where positive is required)
+- `MissingParameterException`: Used when required parameters are missing or
+  parameter combinations are invalid
+
 ### Exception Hierarchy:
 
 ```
 Exception
+├── ValueError
+│   └── ClientValidationException             # Superclass for validations that take place before 
+│       │                                     #   making a request
+│       ├── InvalidDateException              # Raised when a date string is not in the correct 
+│       │                                     #   format or not a valid calendar date
+│       ├── InvalidDateRangeException         # Raised when a date range is invalid (e.g., end is 
+│       │                                     #   before start, exceeds max days)
+│       ├── PaginationException               # Raised when pagination parameters are invalid
+│       ├── IntradayValidationException       # Raised when intraday request parameters are invalid
+│       ├── ParameterValidationException      # Raised when a parameter value is invalid
+│       │                                     #   (e.g., negative when positive required)
+│       └── MissingParameterException         # Raised when required parameters are missing or
+│                                             #   parameter combinations are invalid
+│
 └── FitbitAPIException                        # Base exception for all Fitbit API errors
     │
     ├── OAuthException                        # Superclass for all authentication flow exceptions
@@ -257,23 +338,15 @@ Exception
     │   ├── InvalidTokenException             # Raised when the OAuth token is invalid
     │   └── InvalidClientException            # Raised when the client_id is invalid
     │
-    ├── RequestException                      # Superclass for all API request exceptions
-    │   ├── InvalidRequestException           # Raised when the request syntax is invalid
-    │   ├── AuthorizationException            # Raised when there are authorization-related errors
-    │   ├── InsufficientPermissionsException  # Raised when the application has insufficient permissions
-    │   ├── InsufficientScopeException        # Raised when the application is missing a required scope
-    │   ├── NotFoundException                 # Raised when the requested resource does not exist
-    │   ├── RateLimitExceededException        # Raised when the application hits rate limiting quotas
-    │   ├── SystemException                   # Raised when there is a system-level failure
-    │   └── ValidationException               # Raised when a request parameter is invalid or missing
-    │
-    └── ClientValidationException             # Superclass for validations that take place before 
-        │                                     #   making a request
-        ├── InvalidDateException              # Raised when a date string is not in the correct 
-        │                                     #   format or not a valid calendar date
-        ├── InvalidDateRangeException         # Raised when a date range is invalid (e.g., end is 
-        │                                     #   before start, exceeds max days)
-        └── IntradayValidationException       # Raised when intraday request parameters are invalid
+    └── RequestException                      # Superclass for all API request exceptions
+        ├── InvalidRequestException           # Raised when the request syntax is invalid
+        ├── AuthorizationException            # Raised when there are authorization-related errors
+        ├── InsufficientPermissionsException  # Raised when the application has insufficient permissions
+        ├── InsufficientScopeException        # Raised when the application is missing a required scope
+        ├── NotFoundException                 # Raised when the requested resource does not exist
+        ├── RateLimitExceededException        # Raised when the application hits rate limiting quotas
+        ├── SystemException                   # Raised when there is a system-level failure
+        └── ValidationException               # Raised when a request parameter is invalid or missing
 ```
 
 ## Debugging
