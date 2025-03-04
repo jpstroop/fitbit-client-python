@@ -13,14 +13,28 @@ from fitbit_client.utils.types import JSONDict
 
 
 class NutritionTimeSeriesResource(BaseResource):
-    """
-    Handles Fitbit Nutrition Time Series API endpoints for retrieving historical food and water data.
+    """Provides access to Fitbit Nutrition Time Series API for retrieving historical nutrition data.
+
+    This resource handles endpoints for retrieving historical food and water consumption data
+    over time. It provides daily summaries of calorie and water intake, allowing applications
+    to display trends and patterns in nutritional data over various time periods.
 
     API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition-timeseries/
 
-    This resource provides access to daily summaries of:
-    - Calorie consumption
-    - Water consumption
+    Required Scopes:
+      - nutrition: Required for all endpoints in this resource
+
+    Note:
+        This resource provides access to daily summaries of:
+        - Calorie consumption (caloriesIn)
+        - Water consumption (water)
+
+        The data is always returned with date values and can be queried either by
+        specifying a base date and period, or by providing explicit start and end dates.
+
+        All water measurements are returned in the unit system specified by the Accept-Language
+        header provided during client initialization (fluid ounces for en_US, milliliters
+        for most other locales).
     """
 
     @validate_date_param(field_name="date")
@@ -32,27 +46,36 @@ class NutritionTimeSeriesResource(BaseResource):
         user_id: str = "-",
         debug: bool = False,
     ) -> JSONDict:
-        """
-        Retrieves nutrition data for a period starting from a specified date.
+        """Returns nutrition data for a period ending on the specified date.
+
+        This endpoint retrieves daily summaries of calorie intake or water consumption
+        for a specified time period ending on the given date. It provides historical
+        nutrition data that can be used to analyze trends over time.
 
         API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition-timeseries/get-nutrition-timeseries-by-date/
 
         Args:
-            resource: Resource to query (CALORIES_IN or WATER)
-            date: The end date in yyyy-MM-dd format or 'today'
-            period: Time period for data (1d, 7d, 30d, 1w, 1m, 3m, 6m, 1y)
-            user_id: Optional user ID, defaults to current user
-            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
+            resource: Resource to query (NutritionResource.CALORIES_IN or NutritionResource.WATER)
+            date: The end date in YYYY-MM-DD format or 'today'
+            period: Time period for data (e.g., Period.ONE_DAY, Period.ONE_WEEK, Period.ONE_MONTH)
+            user_id: Optional user ID, defaults to current user ("-")
+            debug: If True, prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
-            Dictionary containing daily summary values for the specified period
+            JSONDict: Dictionary containing daily summary values for calorie intake or water consumption,
+                  with dates and corresponding values for each day in the period
 
         Raises:
-            InvalidDateException: If date format is invalid
+            fitbit_client.exceptions.InvalidDateException: If date format is invalid
+            fitbit_client.exceptions.AuthorizationException: If required scope is not granted
 
         Note:
-            Returns data using units corresponding to Accept-Language header.
-            Only returns data since user's join date or first log entry.
+            Data is returned in chronological order (oldest first). The API only returns
+            data from the user's join date or first log entry onward. Days with no logged
+            data may be omitted from the response.
+
+            Water values are returned in the unit system specified by the Accept-Language
+            header (fluid ounces for en_US, milliliters for most other locales).
         """
         result = self._make_request(
             f"foods/log/{resource.value}/date/{date}/{period.value}.json",
@@ -70,29 +93,43 @@ class NutritionTimeSeriesResource(BaseResource):
         user_id: str = "-",
         debug: bool = False,
     ) -> JSONDict:
-        """
-        Retrieves nutrition data for a specified date range.
+        """Returns nutrition data for a specified date range.
+
+        This endpoint retrieves daily summaries of calorie intake or water consumption
+        for a specific date range. It allows for more precise control over the time
+        period compared to the period-based endpoint.
 
         API Reference: https://dev.fitbit.com/build/reference/web-api/nutrition-timeseries/get-nutrition-timeseries-by-date-range/
 
         Args:
-            resource: Resource to query (CALORIES_IN or WATER)
-            start_date: Start date in yyyy-MM-dd format or 'today'
-            end_date: End date in yyyy-MM-dd format or 'today'
-            user_id: Optional user ID, defaults to current user
-            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
+            resource: Resource to query (NutritionResource.CALORIES_IN or NutritionResource.WATER)
+            start_date: Start date in YYYY-MM-DD format or 'today'
+            end_date: End date in YYYY-MM-DD format or 'today'
+            user_id: Optional user ID, defaults to current user ("-")
+            debug: If True, prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
-            Dictionary containing daily summary values for the date range
+            JSONDict: Dictionary containing daily summary values for calorie intake or water consumption,
+                  with dates and corresponding values for each day in the specified date range
 
         Raises:
-            InvalidDateException: If date format is invalid
-            InvalidDateRangeException: If start_date is after end_date or date range exceeds 1095 days
+            fitbit_client.exceptions.InvalidDateException: If date format is invalid
+            fitbit_client.exceptions.InvalidDateRangeException: If start_date is after end_date
+                or date range exceeds 1095 days
+            fitbit_client.exceptions.AuthorizationException: If required scope is not granted
 
         Note:
-            Maximum range is 1095 days (~3 years).
-            Returns data using units corresponding to Accept-Language header.
-            Only returns data since user's join date or first log entry.
+            Maximum date range is 1095 days (approximately 3 years).
+
+            Data is returned in chronological order (oldest first). The API only returns
+            data from the user's join date or first log entry onward. Days with no logged
+            data may be omitted from the response.
+
+            Water values are returned in the unit system specified by the Accept-Language
+            header (fluid ounces for en_US, milliliters for most other locales).
+
+            This endpoint returns the same data format as get_nutrition_timeseries_by_date,
+            but allows for more precise control over the date range.
         """
         result = self._make_request(
             f"foods/log/{resource.value}/date/{start_date}/{end_date}.json",

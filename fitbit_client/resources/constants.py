@@ -5,11 +5,17 @@ from enum import Enum
 
 
 class Period(str, Enum):
-    """
-    Time periods for Fitbit API endpoints.
+    """Standard time periods for requesting data from Fitbit API endpoints.
 
-    Different resources may support different subsets of these periods.
-    Check individual resource documentation for supported values.
+    These period values are used across multiple API endpoints to specify the
+    timeframe for retrieving data. Each value represents a specific duration
+    ending on the date specified in the request.
+
+    Note:
+        Different resources support different subsets of these periods.
+        Always check individual resource documentation for supported values.
+        Some resources (like body fat and weight) only support shorter periods,
+        while others (like activity and sleep) may support longer periods.
     """
 
     ONE_DAY = "1d"  # One day
@@ -35,7 +41,16 @@ class ActivityGoalType(str, Enum):
 
 
 class MaxRanges(int, Enum):
-    """Maximum date ranges for various resources (in days)"""
+    """Maximum date ranges (in days) allowed for various Fitbit API resources.
+
+    These values define the maximum number of days that can be requested in a single
+    API call when using date range endpoints. Exceeding these limits will result in
+    a ValidationException from the API.
+
+    Note:
+        When requesting data over periods longer than these limits, you must make
+        multiple API calls with smaller date ranges and combine the results.
+    """
 
     BREATHING_RATE = 30
     BODY_FAT = 30
