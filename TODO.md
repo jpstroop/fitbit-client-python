@@ -23,8 +23,6 @@
 
   - Creat and Test that all methods have an alias in `Client` and that the
     signatures match
-  - Make sure that `ClientValidationException` is getting used for arbitrary
-    validations like:
 
 ```python
 if not food_id and not (food_name and calories):
@@ -45,41 +43,20 @@ if not food_id and not (food_name and calories):
                params[str(key)] = float(value)
 ```
 
-It needs to change to:
-
-```python
-        for key, value in nutritional_values.items():
-            if isinstance(key, NutritionalValue):
-                if key == NutritionalValue.CALORIES_FROM_FAT:
-                    params[key.value] = int(value)
-                else:
-                    params[key.value] = float(value)
-            else:
-                params[str(key)] = float(value)
-```
-
 see: test_create_food_calories_from_fat_must_be_integer(nutrition_resource)
 
 - exceptions.py
 
-  - Should ClientValidationException really subclass FitbitAPIException? It
-    doesn't need the API lookup mapping (`exception_type`) or a `status_code`,
-    so we may just be able to simplify it. The most important thing is that the
-    user understands that the message came from the client prior to the API
-    call.
+  - Should ClientValidationException really subclass FitbitAPIException? IT
+    SHOULD SUBCLASS ValueError doesn't need the API lookup mapping
+    (`exception_type`) or a `status_code`, so we may just be able to simplify
+    it. The most important thing is that the user understands that the message
+    came from the client prior to the API call.
 
-- Resource docstrings/documentation:
+  - Make sure we aren't using
 
-  - Update the list of exceptions that are raised in the doctring for
-    `base._make_request`
-  - Review all documentation and between **API docs, return types, and
-    exceptions**, update the doctrings
-  - Update "Returns" in all resource docstrings
-  - Review and add link to
-    https://dev.fitbit.com/build/reference/web-api/developer-guide/best-practices/
-    in README--they still apply!
-
-- Set up CI!
+  - Make sure that `ClientValidationException` is getting used for arbitrary
+    validations like
 
 ## Longer term TODOs
 

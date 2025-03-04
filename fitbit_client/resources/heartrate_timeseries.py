@@ -13,16 +13,21 @@ from fitbit_client.utils.types import JSONDict
 
 
 class HeartrateTimeSeriesResource(BaseResource):
-    """
-    Handles Fitbit Heart Rate Time Series API endpoints for retrieving time-series heart rate data.
+    """Provides access to Fitbit Heart Rate Time Series API for retrieving heart rate data.
+
+    This resource handles endpoints for retrieving daily heart rate summaries including
+    heart rate zones, resting heart rate, and time spent in each zone. It provides data
+    for specific dates or date ranges.
 
     API Reference: https://dev.fitbit.com/build/reference/web-api/heartrate-timeseries/
 
+    Required Scopes: heartrate
+
     Note:
-        This resource requires the 'heartrate' scope.
-        Data is limited to the user's join date or first log entry date.
-        Responses include daily summary values including heart rate zones and resting heart rate.
-        For intraday resolution, see the IntradayResource class.
+        Data availability is limited to the user's join date or first log entry date.
+        Responses include daily summary values but not minute-by-minute data.
+        For intraday (minute-level) heart rate data, use the IntradayResource class.
+        This resource requires a heart rate capable Fitbit device.
     """
 
     @validate_date_param(field_name="date")
@@ -34,35 +39,48 @@ class HeartrateTimeSeriesResource(BaseResource):
         timezone: Optional[str] = None,
         debug: bool = False,
     ) -> JSONDict:
-        """
-        Retrieves heart rate time series data for a period starting from the specified date.
+        """Returns heart rate time series data for a period ending on the specified date.
+
+        This endpoint retrieves daily heart rate summaries for a specified time period ending
+        on the given date. The data includes resting heart rate and time spent in different
+        heart rate zones for each day in the period.
 
         API Reference: https://dev.fitbit.com/build/reference/web-api/heartrate-timeseries/get-heartrate-timeseries-by-date/
 
         Args:
-            date: The end date in yyyy-MM-dd format or 'today'
-            period: Time period to retrieve data for.
-                   Supported values: 1d, 7d, 30d, 1w, 1m
-            user_id: The encoded ID of the user. Use "-" (dash) for current logged-in user.
+            date: The end date in YYYY-MM-DD format or 'today'
+            period: Time period to retrieve data for (must be one of: Period.ONE_DAY,
+                   Period.SEVEN_DAYS, Period.THIRTY_DAYS, Period.ONE_WEEK, Period.ONE_MONTH)
+            user_id: Optional user ID, defaults to current user ("-")
             timezone: Optional timezone (only 'UTC' supported)
-            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
+            debug: If True, prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
-            Heart rate data including:
-            - Date/time of measurement
-            - Custom heart rate zones with calories, ranges, and minutes
-            - Standard heart rate zones (Out of Range, Fat Burn, Cardio, Peak)
-            - Resting heart rate if available
+            JSONDict: Heart rate data for each day in the period, including heart rate zones and resting heart rate
 
         Raises:
-            ValueError: If period is not supported
-            ValueError: If timezone is not 'UTC'
-            InvalidDateException: If date format is invalid
+            ValueError: If period is not one of the supported period values
+            ValueError: If timezone is provided and not 'UTC'
+            fitbit_client.exceptions.InvalidDateException: If date format is invalid
+            fitbit_client.exceptions.AuthorizationException: If the required scope is not granted
 
         Note:
             Resting heart rate is calculated from measurements throughout the day,
             prioritizing sleep periods. If insufficient data exists for a day,
-            resting heart rate may not be available.
+            the restingHeartRate field may be missing from that day's data.
+
+            Each heart rate zone contains:
+            - name: Zone name (Out of Range, Fat Burn, Cardio, Peak)
+            - min/max: The heart rate boundaries for this zone in beats per minute
+            - minutes: Total time spent in this zone in minutes
+            - caloriesOut: Estimated calories burned while in this zone
+
+            The standard zones are calculated based on the user's profile data (age, gender, etc.)
+            and represent different exercise intensities:
+            - Out of Range: Below 50% of max heart rate
+            - Fat Burn: 50-69% of max heart rate
+            - Cardio: 70-84% of max heart rate
+            - Peak: 85-100% of max heart rate
         """
         supported_periods = {
             Period.ONE_DAY,
@@ -98,35 +116,46 @@ class HeartrateTimeSeriesResource(BaseResource):
         timezone: Optional[str] = None,
         debug: bool = False,
     ) -> JSONDict:
-        """
-        Retrieves heart rate time series data for a specified date range.
+        """Returns heart rate time series data for a specified date range.
+
+        This endpoint retrieves daily heart rate summaries for each day in the specified date range.
+        The data includes resting heart rate and time spent in different heart rate zones for each
+        day in the range.
 
         API Reference: https://dev.fitbit.com/build/reference/web-api/heartrate-timeseries/get-heartrate-timeseries-by-date-range/
 
         Args:
-            start_date: Start date in yyyy-MM-dd format or 'today'
-            end_date: End date in yyyy-MM-dd format or 'today'
-            user_id: The encoded ID of the user. Use "-" (dash) for current logged-in user.
+            start_date: Start date in YYYY-MM-DD format or 'today'
+            end_date: End date in YYYY-MM-DD format or 'today'
+            user_id: Optional user ID, defaults to current user ("-")
             timezone: Optional timezone (only 'UTC' supported)
-            debug: If True, a prints a curl command to stdout to help with debugging (default: False)
+            debug: If True, prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
-            Heart rate data including:
-            - Date/time of measurement
-            - Custom heart rate zones with calories, ranges, and minutes
-            - Standard heart rate zones (Out of Range, Fat Burn, Cardio, Peak)
-            - Resting heart rate if available
+            JSONDict: Heart rate data for each day in the date range, including heart rate zones and resting heart rate
 
         Raises:
-            ValueError: If timezone is not 'UTC'
-            InvalidDateException: If date format is invalid
-            InvalidDateRangeException: If start_date is after end_date
+            ValueError: If timezone is provided and not 'UTC'
+            fitbit_client.exceptions.InvalidDateException: If date format is invalid
+            fitbit_client.exceptions.InvalidDateRangeException: If start_date is after end_date or
+                if the date range exceeds the maximum allowed (1095 days)
+            fitbit_client.exceptions.AuthorizationException: If the required scope is not granted
 
         Note:
-            Maximum date range is 1 year.
+            Maximum date range is 1095 days (approximately 3 years).
+
             Resting heart rate is calculated from measurements throughout the day,
-            prioritizing sleep periods. If insufficient data exists for a day,
-            resting heart rate may not be available.
+            prioritizing sleep periods. If insufficient data exists for a particular day,
+            the restingHeartRate field may be missing from that day's data.
+
+            Each heart rate zone contains:
+            - name: Zone name (Out of Range, Fat Burn, Cardio, Peak)
+            - min/max: The heart rate boundaries for this zone in beats per minute
+            - minutes: Total time spent in this zone in minutes
+            - caloriesOut: Estimated calories burned while in this zone
+
+            This endpoint returns the same data format as the get_heartrate_timeseries_by_date
+            method, but allows for more precise control over the date range.
         """
         if timezone is not None and timezone != "UTC":
             raise ValueError("Only 'UTC' timezone is supported")

@@ -42,8 +42,13 @@ IMPORTANT_RESPONSE_FIELDS: Set[str] = {
 
 
 class BaseResource:
-    """
-    Base class for all Fitbit API resources.
+    """Provides foundational functionality for all Fitbit API resource classes.
+
+    The BaseResource class implements core functionality that all specific resource
+    classes (Activity, Sleep, User, etc.) inherit. It handles API communication,
+    authentication, error handling, URL construction, logging, and debugging support.
+
+    API Reference: https://dev.fitbit.com/build/reference/web-api/
 
     The Fitbit API has two types of endpoints:
     1. Public endpoints: /{endpoint}
@@ -51,27 +56,39 @@ class BaseResource:
     2. User endpoints: /user/{user_id}/{endpoint}
        Used for user-specific operations like logging activities and food.
 
-    This base class provides common functionality for both types of endpoints, including:
-     - URL construction
-     - Request handling and error management
-     - Response parsing and logging
-     - Debug capabilities for API interaction
+    This base class provides:
+     - URL construction for both endpoint types
+     - Request handling with comprehensive error management
+     - Response parsing with type safety
+     - Detailed logging of requests, responses, and errors
+     - Debug capabilities for API troubleshooting
      - OAuth2 authentication management
+
+    Note:
+        All resource-specific classes inherit from this class and use its _make_request
+        method to communicate with the Fitbit API. The class handles different response
+        formats (JSON, XML), empty responses, and various error conditions automatically.
     """
 
     API_BASE: str = "https://api.fitbit.com"
 
     def __init__(self, oauth_session: OAuth2Session, locale: str, language: str) -> None:
-        """
-        Initialize a new resource instance.
+        """Initialize a new resource instance with authentication and locale settings.
 
         Args:
             oauth_session: Authenticated OAuth2 session for API requests
             locale: Locale for API responses (e.g., 'en_US')
             language: Language for API responses (e.g., 'en_US')
 
-        The locale and language settings affect how the API formats responses,
-        particularly for things like dates, times, and measurement units.
+        The locale and language settings affect how the Fitbit API formats responses,
+        particularly for things like:
+        - Date and time formats
+        - Measurement units (imperial vs metric)
+        - Number formats (decimal separator, thousands separator)
+        - Currency symbols and formats
+
+        These settings are passed with each request in the Accept-Locale and
+        Accept-Language headers.
         """
         self.headers: Dict = {"Accept-Locale": locale, "Accept-Language": language}
         self.oauth: OAuth2Session = oauth_session
@@ -86,8 +103,11 @@ class BaseResource:
         requires_user_id: bool = True,
         api_version: str = "1",
     ) -> str:
-        """
-        Build full API URL with support for both public and user-specific endpoints.
+        """Constructs a complete Fitbit API URL for the specified endpoint.
+
+        This method handles both public endpoints (database-wide operations) and
+        user-specific endpoints (operations on user data) by constructing the
+        appropriate URL pattern.
 
         Args:
             endpoint: API endpoint path (e.g., 'foods/log')
@@ -96,15 +116,18 @@ class BaseResource:
             api_version: API version to use (default: "1")
 
         Returns:
-            Complete API URL
-
-        By default, endpoints are assumed to be user-specific. Set requires_user_id=False
-        for public endpoints that operate on Fitbit's global database rather than
-        user-specific data.
+            str: Complete API URL for the requested endpoint
 
         Example URLs:
             User endpoint: https://api.fitbit.com/1/user/-/foods/log.json
             Public endpoint: https://api.fitbit.com/1/foods/search.json
+
+        Note:
+            By default, endpoints are assumed to be user-specific. Set requires_user_id=False
+            for public endpoints that operate on Fitbit's global database rather than
+            user-specific data. The user_id parameter is ignored when requires_user_id is False.
+
+            The special user_id value "-" indicates the currently authenticated user.
         """
         endpoint = endpoint.strip("/")
         if requires_user_id:
@@ -378,43 +401,52 @@ class BaseResource:
         api_version: str = "1",
         debug: bool = False,
     ) -> JSONType:
-        """
-        Make a request to the Fitbit API with comprehensive error handling and debugging support.
+        """Makes a request to the Fitbit API with error handling and debugging support.
+
+        This core method handles all API communication for the library. It constructs URLs,
+        sends requests with proper authentication, processes responses, handles errors,
+        and provides debugging capabilities.
 
         Args:
-            endpoint: API endpoint path
+            endpoint: API endpoint path (e.g., 'activities/steps')
             data: Optional form data for POST requests
             json: Optional JSON data for POST requests
-            params: Optional query parameters
+            params: Optional query parameters for GET requests
             headers: Optional dict of additional HTTP headers to add to the request
             user_id: User ID, defaults to '-' for authenticated user
             requires_user_id: Whether the endpoint requires user_id in the path
             http_method: HTTP method to use (GET, POST, DELETE)
             api_version: API version to use (default: "1")
-            debug: If True, print curl command instead of making request
+            debug: If True, prints a curl command to stdout to help with debugging
 
         Returns:
-        - Dict[str, JSONType]: For most JSON object responses
-        - List[JSONType]: For endpoints that return JSON arrays
-        - str: For XML/TCX responses
-        - None: For (most) successful DELETE operations or debug mode
+            JSONType: The API response in one of these formats:
+                - Dict[str, Any]: For most JSON object responses
+                - List[Any]: For endpoints that return JSON arrays
+                - str: For XML/TCX responses
+                - None: For successful DELETE operations or debug mode
 
         Raises:
-            FitbitAPIException: Base class for all Fitbit API exceptions
-            AuthorizationException: When there are authorization errors
-            ExpiredTokenException: When the OAuth token has expired
-            InsufficientPermissionsException: When the app lacks required permissions
-            NotFoundException: When the requested resource doesn't exist
-            RateLimitExceededException: When rate limits are exceeded
-            ValidationException: When request parameters are invalid
-            SystemException: When there are server-side errors
+            fitbit_client.exceptions.FitbitAPIException: Base class for all Fitbit API exceptions
+            fitbit_client.exceptions.AuthorizationException: When there are authorization errors
+            fitbit_client.exceptions.ExpiredTokenException: When the OAuth token has expired
+            fitbit_client.exceptions.InsufficientPermissionsException: When the app lacks required permissions
+            fitbit_client.exceptions.NotFoundException: When the requested resource doesn't exist
+            fitbit_client.exceptions.RateLimitExceededException: When rate limits are exceeded
+            fitbit_client.exceptions.ValidationException: When request parameters are invalid
+            fitbit_client.exceptions.SystemException: When there are server-side errors
 
-        Debug Mode:
+        Note:
+            Debug Mode functionality:
             When debug=True, this method prints a curl command to stdout that can
-            be used to replicate the request manually. This is useful for:
+            be used to replicate the request manually, which is useful for:
             - Testing API endpoints directly
             - Debugging authentication/scope issues
             - Verifying request structure
+            - Troubleshooting permission problems
+
+            The method automatically handles different response formats and appropriate
+            error types based on the API's response.
         """
         calling_method = self._get_calling_method()
         url = self._build_url(endpoint, user_id, requires_user_id, api_version)
