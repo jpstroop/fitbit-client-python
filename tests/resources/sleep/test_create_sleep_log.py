@@ -9,6 +9,7 @@ from pytest import raises
 
 # Local imports
 from fitbit_client.exceptions import InvalidDateException
+from fitbit_client.exceptions import ParameterValidationException
 
 
 def test_create_sleep_log_success(sleep_resource, mock_oauth_session, mock_response_factory):
@@ -31,10 +32,11 @@ def test_create_sleep_log_success(sleep_resource, mock_oauth_session, mock_respo
 
 
 def test_create_sleep_log_invalid_duration(sleep_resource):
-    """Test that negative duration raises ValueError"""
-    with raises(ValueError) as exc_info:
+    """Test that negative duration raises ParameterValidationException"""
+    with raises(ParameterValidationException) as exc_info:
         sleep_resource.create_sleep_log(start_time="22:00", duration_millis=-1, date="2024-02-13")
     assert "duration_millis must be positive" in str(exc_info.value)
+    assert exc_info.value.field_name == "duration_millis"
 
 
 def test_create_sleep_log_invalid_date(sleep_resource):

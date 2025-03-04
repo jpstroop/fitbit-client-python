@@ -6,7 +6,17 @@ from urllib.parse import urlparse
 
 # fmt: off
 # isort: off
+# Auth imports
 from fitbit_client.auth.oauth import FitbitOAuth2
+from fitbit_client.exceptions import ExpiredTokenException
+from fitbit_client.exceptions import InvalidClientException
+from fitbit_client.exceptions import InvalidGrantException
+from fitbit_client.exceptions import InvalidRequestException
+from fitbit_client.exceptions import InvalidTokenException
+from fitbit_client.exceptions import OAuthException
+from fitbit_client.exceptions import SystemException
+
+# Resource imports
 from fitbit_client.resources.active_zone_minutes import ActiveZoneMinutesResource
 from fitbit_client.resources.activity import ActivityResource
 from fitbit_client.resources.activity_timeseries import ActivityTimeSeriesResource
@@ -114,12 +124,24 @@ class FitbitClient:
 
         Returns:
             bool: True if authenticated successfully
+
+        Raises:
+            OAuthException: Base class for all OAuth-related exceptions
+            ExpiredTokenException: If the OAuth token has expired
+            InvalidClientException: If the client_id is invalid
+            InvalidGrantException: If the grant_type is invalid
+            InvalidTokenException: If the OAuth token is invalid
+            InvalidRequestException: If the request syntax is invalid
+            SystemException: If there's a system-level failure during authentication
         """
         self.logger.debug(f"Starting authentication (force_new={force_new})")
         try:
             result = self.auth.authenticate(force_new=force_new)
             self.logger.debug("Authentication successful")
             return result
-        except Exception as e:
-            self.logger.error(f"Authentication failed: {str(e)}")
+        except OAuthException as e:
+            self.logger.error(f"Authentication failed: {e.__class__.__name__}: {str(e)}")
+            raise
+        except SystemException as e:
+            self.logger.error(f"System error during authentication: {str(e)}")
             raise

@@ -73,7 +73,8 @@ class FitbitOAuth2:
             raise InvalidRequestException(
                 message="This request should use https protocol.",
                 status_code=400,
-                error_type="request",
+                error_type="invalid_request",
+                field_name="redirect_uri",
             )
 
         environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
@@ -128,7 +129,14 @@ class FitbitOAuth2:
                     except InvalidGrantException:
                         # Invalid/expired refresh token
                         return None
-        except Exception:
+        except json.JSONDecodeError:
+            self.logger.error(f"Invalid JSON in token cache file: {self.token_cache_path}")
+            return None
+        except OSError as e:
+            self.logger.error(f"Error reading token cache file: {self.token_cache_path}: {str(e)}")
+            return None
+        except Exception as e:
+            self.logger.error(f"Unexpected error loading token: {e.__class__.__name__}: {str(e)}")
             return None
         return None
 
@@ -139,7 +147,23 @@ class FitbitOAuth2:
         self.token = token
 
     def authenticate(self, force_new: bool = False) -> bool:
-        """Complete authentication flow if needed"""
+        """Complete authentication flow if needed
+
+        Args:
+            force_new: Force new authentication even if valid token exists
+
+        Returns:
+            bool: True if authenticated successfully
+
+        Raises:
+            InvalidRequestException: If the request syntax is invalid
+            InvalidClientException: If the client_id is invalid
+            InvalidGrantException: If the grant_type is invalid
+            InvalidTokenException: If the OAuth token is invalid
+            ExpiredTokenException: If the OAuth token has expired
+            OAuthException: Base class for all OAuth-related exceptions
+            SystemException: If there's a system-level failure
+        """
         if not force_new and self.is_authenticated():
             self.logger.debug("Authentication token exchange completed successfully")
             return True
@@ -164,18 +188,9 @@ class FitbitOAuth2:
             callback_url = input("Enter the full callback URL: ")
 
         # Exchange authorization code for token
-        try:
-            token = self.fetch_token(callback_url)
-            self._save_token(token)
-            return True
-        except Exception as e:
-            if "invalid_grant" in str(e):
-                raise InvalidGrantException(
-                    message="Authorization code expired or invalid",
-                    status_code=400,
-                    error_type="invalid_grant",
-                ) from e
-            raise
+        token = self.fetch_token(callback_url)
+        self._save_token(token)
+        return True
 
     def is_authenticated(self) -> bool:
         """Check if we have valid tokens"""
@@ -192,7 +207,21 @@ class FitbitOAuth2:
         return (str(auth_url_tuple[0]), str(auth_url_tuple[1]))
 
     def fetch_token(self, authorization_response: str) -> TokenDict:
-        """Exchange authorization code for access token"""
+        """Exchange authorization code for access token
+
+        Args:
+            authorization_response: The full callback URL with authorization code
+
+        Returns:
+            TokenDict: Dictionary containing access token and other OAuth details
+
+        Raises:
+            InvalidClientException: If the client credentials are invalid
+            InvalidTokenException: If the authorization code is invalid
+            InvalidGrantException: If the authorization grant is invalid
+            ExpiredTokenException: If the token has expired
+            OAuthException: For other OAuth-related errors
+        """
         try:
             auth = HTTPBasicAuth(self.client_id, self.client_secret)
             token_data = self.session.fetch_token(
@@ -208,31 +237,54 @@ class FitbitOAuth2:
         except Exception as e:
             error_msg = str(e).lower()
 
-            if "invalid_client" in error_msg:
-                self.logger.error(
-                    f"InvalidClientException: Authentication failed "
-                    f"(Client ID: {self.client_id[:4]}..., Error: {str(e)})"
-                )
-                raise InvalidClientException(
-                    message="Invalid client credentials",
-                    status_code=401,
-                    error_type="invalid_client",
-                ) from e
-            if "invalid_token" in error_msg:
-                self.logger.error(
-                    f"InvalidTokenException: Token validation failed " f"(Error: {str(e)})"
-                )
-                raise InvalidTokenException(
-                    message="Invalid authorization code",
-                    status_code=401,
-                    error_type="invalid_token",
-                ) from e
+            # Use standard error mapping from ERROR_TYPE_EXCEPTIONS
+            # Local imports
+            from fitbit_client.exceptions import ERROR_TYPE_EXCEPTIONS
+            from fitbit_client.exceptions import OAuthException
 
-            self.logger.error(f"OAuthException: {e.__class__.__name__}: {str(e)}")
-            raise
+            # Check for known error types
+            for error_type, exception_class in ERROR_TYPE_EXCEPTIONS.items():
+                if error_type in error_msg:
+                    # Special case for client ID to mask most of it in logs
+                    if error_type == "invalid_client":
+                        self.logger.error(
+                            f"{exception_class.__name__}: Authentication failed "
+                            f"(Client ID: {self.client_id[:4]}..., Error: {str(e)})"
+                        )
+                    else:
+                        self.logger.error(
+                            f"{exception_class.__name__}: {error_type} error during token fetch: {str(e)}"
+                        )
+
+                    raise exception_class(
+                        message=str(e),
+                        status_code=(
+                            401 if "token" in error_type or error_type == "authorization" else 400
+                        ),
+                        error_type=error_type,
+                    ) from e
+
+            # If no specific error type found, use OAuthException
+            self.logger.error(
+                f"OAuthException during token fetch: {e.__class__.__name__}: {str(e)}"
+            )
+            raise OAuthException(message=str(e), status_code=400, error_type="oauth") from e
 
     def refresh_token(self, refresh_token: str) -> TokenDict:
-        """Refresh the access token"""
+        """Refresh the access token
+
+        Args:
+            refresh_token: The refresh token to use
+
+        Returns:
+            TokenDict: Dictionary containing new access token and other OAuth details
+
+        Raises:
+            ExpiredTokenException: If the access token has expired
+            InvalidGrantException: If the refresh token is invalid
+            InvalidClientException: If the client credentials are invalid
+            OAuthException: For other OAuth-related errors
+        """
         try:
             auth = HTTPBasicAuth(self.client_id, self.client_secret)
             extra = {
@@ -248,12 +300,29 @@ class FitbitOAuth2:
             return token
         except Exception as e:
             error_msg = str(e).lower()
-            if "expired_token" in error_msg:
-                raise ExpiredTokenException(
-                    message="Access token expired", status_code=401, error_type="expired_token"
-                ) from e
-            if "invalid_grant" in error_msg:
-                raise InvalidGrantException(
-                    message="Refresh token invalid", status_code=400, error_type="invalid_grant"
-                ) from e
-            raise
+
+            # Use standard error mapping from ERROR_TYPE_EXCEPTIONS
+            # Local imports
+            from fitbit_client.exceptions import ERROR_TYPE_EXCEPTIONS
+            from fitbit_client.exceptions import OAuthException
+
+            # Check for known error types
+            for error_type, exception_class in ERROR_TYPE_EXCEPTIONS.items():
+                if error_type in error_msg:
+                    self.logger.error(
+                        f"{exception_class.__name__}: {error_type} error during token refresh: {str(e)}"
+                    )
+
+                    raise exception_class(
+                        message=str(e),
+                        status_code=(
+                            401 if "token" in error_type or error_type == "authorization" else 400
+                        ),
+                        error_type=error_type,
+                    ) from e
+
+            # If no specific error type found, use OAuthException
+            self.logger.error(
+                f"OAuthException during token refresh: {e.__class__.__name__}: {str(e)}"
+            )
+            raise OAuthException(message=str(e), status_code=400, error_type="oauth") from e

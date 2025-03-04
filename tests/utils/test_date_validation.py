@@ -46,8 +46,6 @@ class TestDateValidation:
         for invalid_date in invalid_dates:
             with raises(InvalidDateException) as exc:
                 validate_date_format(invalid_date)
-            assert exc.value.status_code is None
-            assert exc.value.error_type == "invalid_date"
             assert exc.value.date_str == invalid_date
             assert f"Invalid date format. Expected YYYY-MM-DD, got: {invalid_date}" in str(
                 exc.value

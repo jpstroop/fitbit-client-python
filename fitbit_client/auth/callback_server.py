@@ -54,7 +54,7 @@ class CallbackServer:
             raise InvalidRequestException(
                 message="Request to invalid domain: redirect_uri must use HTTPS protocol.",
                 status_code=400,
-                error_type="request",
+                error_type="invalid_request",
                 field_name="redirect_uri",
             )
 
@@ -237,9 +237,10 @@ class CallbackServer:
 
         self.logger.error("Callback wait timed out")
         raise InvalidRequestException(
-            message="OAuth callback timed out waiting for response",
+            message=f"OAuth callback timed out after {timeout} seconds",
             status_code=400,
             error_type="invalid_request",
+            field_name="oauth_callback",
         )
 
     def stop(self) -> None:

@@ -8,6 +8,7 @@
 from pytest import raises
 
 # Local imports
+from fitbit_client.exceptions import IntradayValidationException
 from fitbit_client.exceptions import InvalidDateException
 from fitbit_client.resources.constants import Period
 
@@ -73,7 +74,7 @@ def test_get_azm_timeseries_by_date_with_user_id(azm_resource, mock_response):
 
 
 def test_get_azm_timeseries_by_date_invalid_period(azm_resource):
-    """Test that using any period other than ONE_DAY raises ValueError"""
+    """Test that using any period other than ONE_DAY raises IntradayValidationException"""
     invalid_periods = [
         Period.SEVEN_DAYS,
         Period.THIRTY_DAYS,
@@ -85,9 +86,12 @@ def test_get_azm_timeseries_by_date_invalid_period(azm_resource):
         Period.MAX,
     ]
     for period in invalid_periods:
-        with raises(ValueError) as exc_info:
+        with raises(IntradayValidationException) as exc_info:
             azm_resource.get_azm_timeseries_by_date(date="2025-02-01", period=period)
         assert "Only 1d period is supported for AZM time series" in str(exc_info.value)
+        assert exc_info.value.field_name == "period"
+        assert exc_info.value.allowed_values == ["1d"]
+        assert exc_info.value.resource_name == "active zone minutes"
 
 
 def test_get_azm_timeseries_by_date_invalid_date(azm_resource):
