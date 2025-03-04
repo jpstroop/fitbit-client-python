@@ -10,6 +10,7 @@ from pytest import raises
 # Local imports
 from fitbit_client.exceptions import InvalidDateException
 from fitbit_client.exceptions import InvalidDateRangeException
+from fitbit_client.exceptions import ParameterValidationException
 
 
 def test_get_heartrate_timeseries_by_date_range_success(heartrate_resource, mock_response):
@@ -75,9 +76,10 @@ def test_get_heartrate_timeseries_by_date_range_invalid_range(heartrate_resource
 
 
 def test_get_heartrate_timeseries_by_date_range_invalid_timezone(heartrate_resource):
-    """Test that invalid timezone raises ValueError"""
-    with raises(ValueError) as exc_info:
+    """Test that invalid timezone raises ParameterValidationException"""
+    with raises(ParameterValidationException) as exc_info:
         heartrate_resource.get_heartrate_timeseries_by_date_range(
             start_date="2024-02-10", end_date="2024-02-11", timezone="EST"
         )
     assert str(exc_info.value) == "Only 'UTC' timezone is supported"
+    assert exc_info.value.field_name == "timezone"

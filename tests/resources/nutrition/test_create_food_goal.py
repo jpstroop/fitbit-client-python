@@ -8,6 +8,7 @@
 from pytest import raises
 
 # Local imports
+from fitbit_client.exceptions import MissingParameterException
 from fitbit_client.resources.constants import FoodPlanIntensity
 
 
@@ -49,7 +50,8 @@ def test_create_food_goal_with_intensity_success(nutrition_resource, mock_respon
 
 
 def test_create_food_goal_validation_error(nutrition_resource):
-    """Test that creating a food goal without required parameters raises ValueError"""
-    with raises(ValueError) as exc_info:
+    """Test that creating a food goal without required parameters raises MissingParameterException"""
+    with raises(MissingParameterException) as exc_info:
         nutrition_resource.create_food_goal()
     assert "Must provide either calories or intensity" in str(exc_info.value)
+    assert exc_info.value.field_name == "calories/intensity"

@@ -99,7 +99,6 @@ def test_create_food_calories_from_fat_must_be_integer(nutrition_resource):
         )  # Float instead of integer
 
     # Verify exception details
-    assert exc_info.value.error_type == "client_validation"
     assert exc_info.value.field_name == "CALORIES_FROM_FAT"
     assert "Calories from fat must be an integer" in str(exc_info.value)
 

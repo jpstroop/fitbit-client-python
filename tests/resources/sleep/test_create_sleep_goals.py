@@ -7,6 +7,9 @@
 # Third party imports
 from pytest import raises
 
+# Local imports
+from fitbit_client.exceptions import ParameterValidationException
+
 
 def test_create_sleep_goals_success(sleep_resource, mock_oauth_session, mock_response_factory):
     """Test successful creation of sleep goal"""
@@ -25,7 +28,8 @@ def test_create_sleep_goals_success(sleep_resource, mock_oauth_session, mock_res
 
 
 def test_create_sleep_goals_invalid_duration(sleep_resource):
-    """Test that negative duration raises ValueError"""
-    with raises(ValueError) as exc_info:
+    """Test that negative duration raises ParameterValidationException"""
+    with raises(ParameterValidationException) as exc_info:
         sleep_resource.create_sleep_goals(min_duration=-1)
     assert "min_duration must be positive" in str(exc_info.value)
+    assert exc_info.value.field_name == "min_duration"

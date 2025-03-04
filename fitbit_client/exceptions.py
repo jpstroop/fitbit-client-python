@@ -119,23 +119,23 @@ class ValidationException(RequestException):
 ## PreRequestValidaton Exceptions
 
 
-class ClientValidationException(FitbitAPIException):
-    """Superclass for validations that take place before making a request"""
+class ClientValidationException(ValueError):
+    """Superclass for validations that take place before making any API request.
 
-    def __init__(
-        self,
-        message: str,
-        error_type: str = "client_validation",
-        field_name: Optional[str] = None,
-        raw_response: Optional[Dict[str, Any]] = None,
-    ):
-        super().__init__(
-            message=message,
-            error_type=error_type,
-            status_code=None,
-            raw_response=raw_response,
-            field_name=field_name,
-        )
+    These exceptions indicate that input validation failed locally, without making
+    any network requests. This helps preserve API rate limits and gives more specific
+    error information than would be available from the API response."""
+
+    def __init__(self, message: str, field_name: Optional[str] = None):
+        """Initialize client validation exception.
+
+        Args:
+            message: Human-readable error message
+            field_name: Optional name of the invalid field
+        """
+        self.message = message
+        self.field_name = field_name
+        super().__init__(self.message)
 
 
 class InvalidDateException(ClientValidationException):
@@ -144,9 +144,15 @@ class InvalidDateException(ClientValidationException):
     def __init__(
         self, date_str: str, field_name: Optional[str] = None, message: Optional[str] = None
     ):
+        """Initialize invalid date exception.
+
+        Args:
+            date_str: The invalid date string
+            field_name: Optional name of the date field
+            message: Optional custom error message. If not provided, a default message is generated.
+        """
         super().__init__(
             message=message or f"Invalid date format. Expected YYYY-MM-DD, got: {date_str}",
-            error_type="invalid_date",
             field_name=field_name,
         )
         self.date_str = date_str
@@ -163,10 +169,19 @@ class InvalidDateRangeException(ClientValidationException):
         max_days: Optional[int] = None,
         resource_name: Optional[str] = None,
     ):
+        """Initialize invalid date range exception.
+
+        Args:
+            start_date: The start date of the invalid range
+            end_date: The end date of the invalid range
+            reason: Specific reason why the date range is invalid
+            max_days: Optional maximum number of days allowed for this request
+            resource_name: Optional resource or endpoint name for context
+        """
         # Use the provided reason directly - don't override it
         message = f"Invalid date range: {reason}"
 
-        super().__init__(message=message, error_type="invalid_date_range", field_name="date_range")
+        super().__init__(message=message, field_name="date_range")
         self.start_date = start_date
         self.end_date = end_date
         self.max_days = max_days
@@ -183,7 +198,7 @@ class PaginationException(ClientValidationException):
             message: Error message describing the validation failure
             field_name: Optional name of the invalid field
         """
-        super().__init__(message=message, error_type="pagination", field_name=field_name)
+        super().__init__(message=message, field_name=field_name)
 
 
 class IntradayValidationException(ClientValidationException):
@@ -210,9 +225,35 @@ class IntradayValidationException(ClientValidationException):
         if resource_name:
             error_msg = f"{error_msg} for {resource_name}"
 
-        super().__init__(message=error_msg, field_name=field_name, error_type="intraday_validation")
+        super().__init__(message=error_msg, field_name=field_name)
         self.allowed_values = allowed_values
         self.resource_name = resource_name
+
+
+class ParameterValidationException(ClientValidationException):
+    """Raised when a parameter value is invalid (e.g., negative when positive required)"""
+
+    def __init__(self, message: str, field_name: Optional[str] = None):
+        """Initialize parameter validation exception
+
+        Args:
+            message: Error message describing the validation failure
+            field_name: Optional name of the invalid field
+        """
+        super().__init__(message=message, field_name=field_name)
+
+
+class MissingParameterException(ClientValidationException):
+    """Raised when required parameters are missing or parameter combinations are invalid"""
+
+    def __init__(self, message: str, field_name: Optional[str] = None):
+        """Initialize missing parameter exception
+
+        Args:
+            message: Error message describing the validation failure
+            field_name: Optional name of the invalid or missing field
+        """
+        super().__init__(message=message, field_name=field_name)
 
 
 # Map HTTP status codes to exception classes
