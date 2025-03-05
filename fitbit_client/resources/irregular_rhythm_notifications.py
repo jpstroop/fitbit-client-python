@@ -10,6 +10,7 @@ from fitbit_client.resources.constants import SortDirection
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.pagination_validation import validate_pagination_params
 from fitbit_client.utils.types import JSONDict
+from fitbit_client.utils.types import ParamDict
 
 
 class IrregularRhythmNotificationsResource(BaseResource):
@@ -93,7 +94,7 @@ class IrregularRhythmNotificationsResource(BaseResource):
             - The alertTime is when the notification was generated, while detectedTime is
               when the irregular rhythm was detected (usually during sleep)
         """
-        params = {"sort": sort.value, "limit": limit, "offset": offset}
+        params: ParamDict = {"sort": sort.value, "limit": limit, "offset": offset}
 
         if before_date:
             params["beforeDate"] = before_date

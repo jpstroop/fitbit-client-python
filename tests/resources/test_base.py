@@ -247,38 +247,10 @@ def test_log_response_for_error_without_content(base_resource, mock_logger):
 
 
 # -----------------------------------------------------------------------------
-# 6. Debug Curl Command Generation
+# 6. Debug Mode Testing
 # -----------------------------------------------------------------------------
 
-
-def test_build_curl_command_with_json_data(base_resource):
-    """Test generating curl command with JSON data"""
-    # This tests lines 217-218 in base.py
-    base_resource.oauth.token = {"access_token": "test_token"}
-
-    json_data = {"name": "Test Activity", "type": "run", "duration": 3600}
-    result = base_resource._build_curl_command(
-        url="https://api.fitbit.com/1/user/-/activities.json", http_method="POST", json=json_data
-    )
-
-    # Assert command contains JSON data and correct header
-    assert '-d \'{"name": "Test Activity", "type": "run", "duration": 3600}\'' in result
-    assert '-H "Content-Type: application/json"' in result
-
-
-def test_build_curl_command_with_form_data(base_resource):
-    """Test generating curl command with form data"""
-    # This tests lines 220-221 in base.py
-    base_resource.oauth.token = {"access_token": "test_token"}
-
-    form_data = {"date": "2023-01-01", "foodId": "12345", "amount": "1", "mealTypeId": "1"}
-    result = base_resource._build_curl_command(
-        url="https://api.fitbit.com/1/user/-/foods/log.json", http_method="POST", data=form_data
-    )
-
-    # Assert command contains form data and correct header
-    assert "-d 'date=2023-01-01&foodId=12345&amount=1&mealTypeId=1'" in result
-    assert '-H "Content-Type: application/x-www-form-urlencoded"' in result
+# Debug mode tests are now in tests/utils/test_curl_debug_mixin.py
 
 
 # -----------------------------------------------------------------------------

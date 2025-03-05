@@ -15,6 +15,7 @@ from fitbit_client.utils.date_validation import validate_date_format
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range
 from fitbit_client.utils.date_validation import validate_date_range_params
+from fitbit_client.utils.types import JSONDict
 
 
 class TestDateValidation:
@@ -106,7 +107,7 @@ class TestDateValidation:
         """Test the validate_date_range_params decorator"""
 
         @validate_date_range_params(max_days=30)
-        def dummy_func(start_date: str, end_date: str) -> Dict[str, Any]:
+        def dummy_func(start_date: str, end_date: str) -> JSONDict:
             return {"start": start_date, "end": end_date}
 
         result = dummy_func("2024-02-01", "2024-02-13")
@@ -148,7 +149,7 @@ class TestDateValidation:
         @validate_date_range_params(max_days=30)
         def dummy_func(
             start_date: Optional[str] = None, end_date: Optional[str] = None
-        ) -> Dict[str, Any]:
+        ) -> JSONDict:
             return {"start": start_date, "end": end_date}
 
         # Should work with no parameters
@@ -169,7 +170,7 @@ class TestDateValidation:
         """Test that validate_date_range_params respects custom field names"""
 
         @validate_date_range_params(start_field="begin_date", end_field="finish_date", max_days=30)
-        def dummy_func(begin_date: str, finish_date: str) -> Dict[str, Any]:
+        def dummy_func(begin_date: str, finish_date: str) -> JSONDict:
             return {"start": begin_date, "end": finish_date}
 
         # Test valid dates

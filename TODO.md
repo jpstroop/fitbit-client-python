@@ -1,49 +1,31 @@
 # Project TODO and Notes
 
-## Refactoring TODOs
+## TODOs:
 
-- Typing
+- PyPi deployment
 
-  - Try to get rid of `Optional[Dict[str, Any]]` args
+- For all `create_...`methods, add the ID from the response to logs and maybe
+  something human readable, like the first n characters of the name??. Right
+  now:
+
+```log
+[2025-02-05 06:09:34,828] INFO [fitbit_client.NutritionResource] create_food_log succeeded for foods/log.json (status 201)
+```
 
 - base.py: reorganize and see what we can move out.
 
   - Rename to `_base`? Files it first, makes it clearer that everything in it is
     private
-  - Move the methods for building `curl` commands into a mixin? It's a lot of
-    code for an isolated and tightly scoped feature.
-  - refactor `_make_request`.
-    - do we need both `data` and `json`? Also, could we simplify a lot of typing
-      if we separated GET, POST, and DELETE methods? Maybe even a separate,
-      second non-auth GET? Could use `@overload`
-    - we had to makee a `ParamDict` type in `nutrition.py`. Use this everywhere?
-    - start by looking at how many methods use which params
 
 - client.py:
 
   - Creat and Test that all methods have an alias in `Client` and that the
     signatures match
 
-```python
-if not food_id and not (food_name and calories):
-    raise ClientValidationException(
-        "Must provide either food_id or (food_name and calories)"
-    )
-```
+- CI:
 
-- nutrition.py:
-- It doesn't seem like this should be passing tests when CALORIES is not an int:
-
-```python
-        # Handle both enum and string nutritional values
-       for key, value in nutritional_values.items():
-           if isinstance(key, NutritionalValue):
-               params[key.value] = float(value)
-           else:
-               params[str(key)] = float(value)
-```
-
-see: test_create_food_calories_from_fat_must_be_integer(nutrition_resource)
+* Read and implement:
+  https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/configuring-advanced-setup-for-code-scanning#configuring-advanced-setup-for-code-scanning-with-codeql
 
 - exceptions.py Consider:
   - Add automatic token refresh for ExpiredTokenException
@@ -77,14 +59,6 @@ see: test_create_food_calories_from_fat_must_be_integer(nutrition_resource)
     be reused.
   - We may need a public version of a generic `make_request` method.
 
-- For all `create_...`methods, add the ID from the response to logs and maybe
-  something human readable, like the first n characters of the name??. Right
-  now:
-
-```log
-[2025-02-05 06:09:34,828] INFO [fitbit_client.NutritionResource] create_food_log succeeded for foods/log.json (status 201)
-```
-
 - Form to change scopes are part of OAuth flow? Maybe get rid of the cut and
   paste method altogether? It's less to test...
 
@@ -101,19 +75,4 @@ see: test_create_food_calories_from_fat_must_be_integer(nutrition_resource)
     one. (there might be several of these that make sense--just take an ID and
     then the signature of the "create" method).
 
-- PyPI deployment
-
 - Enum for units? (it'll be big, maybe just common ones?)
-
-## CI/CD/Linting
-
-- GitHub Actions Setup
-
-  - Linting
-    - black
-    - isort
-    - mdformat
-    - mypy
-  - Test running (TBD)
-  - Coverage reporting (TBD)
-  - Automated PyPI deployment
