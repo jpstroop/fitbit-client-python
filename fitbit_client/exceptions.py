@@ -6,6 +6,9 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
+# Local imports
+from fitbit_client.utils.types import JSONDict
+
 
 class FitbitAPIException(Exception):
     """Base exception for all Fitbit API errors"""
@@ -15,7 +18,7 @@ class FitbitAPIException(Exception):
         message: str,
         error_type: str,
         status_code: Optional[int] = None,
-        raw_response: Optional[Dict[str, Any]] = None,
+        raw_response: Optional[JSONDict] = None,
         field_name: Optional[str] = None,
     ):
         self.message = message

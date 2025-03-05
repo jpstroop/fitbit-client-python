@@ -18,6 +18,10 @@ JSONList = List[JSONType]
 ParamValue = Union[str, int, float, bool, None]
 ParamDict = Dict[str, ParamValue]
 
+# Type for form data (typically used with data parameter in requests)
+FormDataValue = Union[str, int, float, bool, None]
+FormDataDict = Dict[str, FormDataValue]
+
 
 # Type definitions for token structure
 class TokenDict(TypedDict, total=False):

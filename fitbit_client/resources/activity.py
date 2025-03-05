@@ -18,6 +18,7 @@ from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.pagination_validation import validate_pagination_params
 from fitbit_client.utils.types import JSONDict
 from fitbit_client.utils.types import JSONList
+from fitbit_client.utils.types import ParamDict
 
 
 class ActivityResource(BaseResource):
@@ -88,7 +89,7 @@ class ActivityResource(BaseResource):
                 field_name="value",
             )
 
-        params = {"type": type.value, "value": value}
+        params: ParamDict = {"type": type.value, "value": value}
         result = self._make_request(
             f"activities/goals/{period.value}.json",
             params=params,
@@ -152,24 +153,26 @@ class ActivityResource(BaseResource):
             - Start time should be in 24-hour format (e.g., "14:30" for 2:30 PM)
         """
         if activity_id:
-            params = {
+            activity_params: ParamDict = {
                 "activityId": activity_id,
                 "startTime": start_time,
                 "durationMillis": duration_millis,
                 "date": date,
             }
             if distance is not None:
-                params["distance"] = distance
+                activity_params["distance"] = distance
                 if distance_unit:
-                    params["distanceUnit"] = distance_unit
+                    activity_params["distanceUnit"] = distance_unit
+            params = activity_params
         elif activity_name and manual_calories:
-            params = {
+            name_params: ParamDict = {
                 "activityName": activity_name,
                 "manualCalories": manual_calories,
                 "startTime": start_time,
                 "durationMillis": duration_millis,
                 "date": date,
             }
+            params = name_params
         else:
             raise MissingParameterException(
                 message="Must provide either activity_id or (activity_name and manual_calories)",
@@ -229,7 +232,7 @@ class ActivityResource(BaseResource):
             - The source field indicates whether the activity was logged manually by the user
               or automatically by a Fitbit device
         """
-        params = {"sort": sort.value, "limit": limit, "offset": offset}
+        params: ParamDict = {"sort": sort.value, "limit": limit, "offset": offset}
         if before_date:
             params["beforeDate"] = before_date
         if after_date:
@@ -651,7 +654,9 @@ class ActivityResource(BaseResource):
             - Not all activities have TCX data available (e.g., manually logged activities)
             - To check if an activity has GPS data, look for hasGps=True in the activity log
         """
-        params = {"includePartialTCX": include_partial_tcx} if include_partial_tcx else None
+        params: Optional[ParamDict] = (
+            {"includePartialTCX": include_partial_tcx} if include_partial_tcx else None
+        )
         result = self._make_request(
             f"activities/{log_id}.tcx", params=params, user_id=user_id, debug=debug
         )
