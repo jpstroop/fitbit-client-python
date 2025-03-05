@@ -12,6 +12,7 @@ from fitbit_client.resources.constants import SortDirection
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.pagination_validation import validate_pagination_params
 from fitbit_client.utils.types import JSONDict
+from fitbit_client.utils.types import ParamDict
 
 
 class ElectrocardiogramResource(BaseResource):
@@ -56,7 +57,7 @@ class ElectrocardiogramResource(BaseResource):
         offset: int = 0,
         user_id: str = "-",
         debug: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> JSONDict:
         """Returns a list of user's ECG log entries before or after a given day.
 
         API Reference: https://dev.fitbit.com/build/reference/web-api/electrocardiogram/get-ecg-log-list/
@@ -92,7 +93,7 @@ class ElectrocardiogramResource(BaseResource):
             - resultClassification indicates the assessment outcome (normal, afib, inconclusive)
             - For research purposes only, not for clinical or diagnostic use
         """
-        params = {"sort": sort.value, "limit": limit, "offset": offset}
+        params: ParamDict = {"sort": sort.value, "limit": limit, "offset": offset}
 
         if before_date:
             params["beforeDate"] = before_date

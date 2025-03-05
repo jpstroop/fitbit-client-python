@@ -384,10 +384,15 @@ class NutritionResource(BaseResource):
             Food IDs can be obtained from food search results or the user's custom foods.
         """
         # snakes to camels
-        foods = [{to_camel_case(k): v for k, v in d.items()} for d in foods]
-        data = {"name": name, "description": description, "mealFoods": foods}
+        foods_list = [{to_camel_case(k): v for k, v in d.items()} for d in foods]
+        # Use cast to handle the complex structure
+        data_dict = {"name": name, "description": description, "mealFoods": foods_list}
         result = self._make_request(
-            "meals.json", json=data, user_id=user_id, http_method="POST", debug=debug
+            "meals.json",
+            json=cast(JSONDict, data_dict),
+            user_id=user_id,
+            http_method="POST",
+            debug=debug,
         )
         return cast(JSONDict, result)
 
@@ -1179,10 +1184,15 @@ class NutritionResource(BaseResource):
             Meal IDs can be obtained from the get_meals method. Updating a meal does not
             affect any food logs that were previously created using this meal.
         """
-        foods = [{to_camel_case(k): v for k, v in d.items()} for d in foods]
-        data = {"name": name, "description": description, "mealFoods": foods}
+        foods_list = [{to_camel_case(k): v for k, v in d.items()} for d in foods]
+        # Use cast to handle the complex structure
+        data_dict = {"name": name, "description": description, "mealFoods": foods_list}
         result = self._make_request(
-            f"meals/{meal_id}.json", json=data, user_id=user_id, http_method="POST", debug=debug
+            f"meals/{meal_id}.json",
+            json=cast(JSONDict, data_dict),
+            user_id=user_id,
+            http_method="POST",
+            debug=debug,
         )
         return cast(JSONDict, result)
 
