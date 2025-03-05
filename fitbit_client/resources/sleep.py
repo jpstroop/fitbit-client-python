@@ -14,6 +14,7 @@ from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range_params
 from fitbit_client.utils.pagination_validation import validate_pagination_params
 from fitbit_client.utils.types import JSONDict
+from fitbit_client.utils.types import ParamDict
 
 
 class SleepResource(BaseResource):
@@ -124,7 +125,7 @@ class SleepResource(BaseResource):
                 message="duration_millis must be positive", field_name="duration_millis"
             )
 
-        params = {"startTime": start_time, "duration": duration_millis, "date": date}
+        params: ParamDict = {"startTime": start_time, "duration": duration_millis, "date": date}
         result = self._make_request(
             "sleep.json",
             params=params,
@@ -355,7 +356,7 @@ class SleepResource(BaseResource):
 
             This endpoint uses API version 1.2, unlike most other Fitbit API endpoints.
         """
-        params = {"sort": sort.value, "limit": limit, "offset": offset}
+        params: ParamDict = {"sort": sort.value, "limit": limit, "offset": offset}
         if before_date:
             params["beforeDate"] = before_date
         if after_date:

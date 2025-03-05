@@ -9,6 +9,7 @@ from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import BodyGoalType
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.types import JSONDict
+from fitbit_client.utils.types import ParamDict
 
 
 class BodyResource(BaseResource):
@@ -101,7 +102,7 @@ class BodyResource(BaseResource):
             The 'source' field will be set to "API" for entries created through this endpoint.
             Multiple entries can be logged for the same day with different timestamps.
         """
-        params = {"fat": fat, "date": date}
+        params: ParamDict = {"fat": fat, "date": date}
         if time:
             params["time"] = time
         result = self._make_request(
@@ -151,7 +152,7 @@ class BodyResource(BaseResource):
             - If target > start: "GAIN"
             - If target = start: "MAINTAIN"
         """
-        params = {"startDate": start_date, "startWeight": start_weight}
+        params: ParamDict = {"startDate": start_date, "startWeight": start_weight}
         if weight is not None:
             params["weight"] = weight
         result = self._make_request(
@@ -208,7 +209,7 @@ class BodyResource(BaseResource):
             The 'source' field will be set to "API" for entries created through this endpoint.
             Multiple weight entries can be logged for the same day with different timestamps.
         """
-        params = {"weight": weight, "date": date}
+        params: ParamDict = {"weight": weight, "date": date}
         if time:
             params["time"] = time
         result = self._make_request(

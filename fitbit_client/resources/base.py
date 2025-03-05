@@ -11,6 +11,7 @@ from typing import Dict
 from typing import Optional
 from typing import Set
 from typing import cast
+from typing import overload
 from urllib.parse import urlencode
 
 # Third party imports
@@ -21,7 +22,12 @@ from requests_oauthlib import OAuth2Session
 from fitbit_client.exceptions import ERROR_TYPE_EXCEPTIONS
 from fitbit_client.exceptions import FitbitAPIException
 from fitbit_client.exceptions import STATUS_CODE_EXCEPTIONS
+from fitbit_client.utils.curl_debug_mixin import CurlDebugMixin
+from fitbit_client.utils.types import FormDataDict
+from fitbit_client.utils.types import JSONDict
+from fitbit_client.utils.types import JSONList
 from fitbit_client.utils.types import JSONType
+from fitbit_client.utils.types import ParamDict
 
 # Constants for important fields to track in logging
 IMPORTANT_RESPONSE_FIELDS: Set[str] = {
@@ -41,7 +47,7 @@ IMPORTANT_RESPONSE_FIELDS: Set[str] = {
 }
 
 
-class BaseResource:
+class BaseResource(CurlDebugMixin):
     """Provides foundational functionality for all Fitbit API resource classes.
 
     The BaseResource class implements core functionality that all specific resource
@@ -61,7 +67,7 @@ class BaseResource:
      - Request handling with comprehensive error management
      - Response parsing with type safety
      - Detailed logging of requests, responses, and errors
-     - Debug capabilities for API troubleshooting
+     - Debug capabilities for API troubleshooting (via CurlDebugMixin)
      - OAuth2 authentication management
 
     Note:
@@ -134,7 +140,7 @@ class BaseResource:
             return f"{self.API_BASE}/{api_version}/user/{user_id}/{endpoint}"
         return f"{self.API_BASE}/{api_version}/{endpoint}"
 
-    def _extract_important_fields(self, data: Dict[str, JSONType]) -> Dict[str, int | str]:
+    def _extract_important_fields(self, data: JSONDict) -> Dict[str, JSONType]:
         """
         Extract important fields from response data for logging.
 
@@ -150,7 +156,7 @@ class BaseResource:
         """
         extracted = {}
 
-        def extract_recursive(d: Dict[str, Any], prefix: str = "") -> None:
+        def extract_recursive(d: JSONDict, prefix: str = "") -> None:
             for key, value in d.items():
                 full_key = f"{prefix}.{key}" if prefix else key
 
@@ -188,69 +194,6 @@ class BaseResource:
                 return frame.f_code.co_name
             frame = frame.f_back
         return "unknown"
-
-    def _build_curl_command(
-        self,
-        url: str,
-        http_method: str,
-        data: Optional[Dict[str, Any]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        params: Optional[Dict[str, Any]] = None,
-    ) -> str:
-        """
-        Build a curl command string for debugging API requests.
-        
-        Args:
-            url: Full API URL
-            http_method: HTTP method (GET, POST, DELETE)
-            data: Optional form data for POST requests
-            json: Optional JSON data for POST requests
-            params: Optional query parameters for GET requests
-            
-        Returns:
-            Complete curl command as a multi-line string
-
-        The generated command includes:
-        - The HTTP method (for non-GET requests)
-        - Authorization header with OAuth token
-        - Request body (if data or json is provided)
-        - Query parameters (if provided)
-        
-        The command is formatted with line continuations for readability and
-        can be copied directly into a terminal for testing.
-
-        Example output:
-            curl \\
-              -X POST \\
-              -H "Authorization: Bearer <token>" \\
-              -H "Content-Type: application/json" \\
-              -d '{"name": "value"}' \\
-              'https://api.fitbit.com/1/user/-/foods/log.json'
-        """
-        # Start with base command
-        cmd_parts = ["curl -v"]
-
-        # Add method
-        if http_method != "GET":
-            cmd_parts.append(f"-X {http_method}")
-
-        # Add auth header
-        cmd_parts.append(f'-H "Authorization: Bearer {self.oauth.token["access_token"]}"')
-
-        # Add data if present
-        if json:
-            cmd_parts.append(f"-d '{dumps(json)}'")
-            cmd_parts.append('-H "Content-Type: application/json"')
-        elif data:
-            cmd_parts.append(f"-d '{urlencode(data)}'")
-            cmd_parts.append('-H "Content-Type: application/x-www-form-urlencoded"')
-
-        # Add URL with parameters if present
-        if params:
-            url = f"{url}?{urlencode(params)}"
-        cmd_parts.append(f"'{url}'")
-
-        return " \\\n  ".join(cmd_parts)
 
     def _log_response(
         self, calling_method: str, endpoint: str, response: Response, content: Optional[Dict] = None
@@ -391,10 +334,10 @@ class BaseResource:
     def _make_request(
         self,
         endpoint: str,
-        data: Optional[Dict[str, Any]] = None,
-        json: Optional[Dict[str, Any]] = None,
-        params: Optional[Dict[str, Any]] = None,
-        headers: Dict[str, Any] = {},
+        data: Optional[FormDataDict] = None,
+        json: Optional[JSONDict] = None,
+        params: Optional[ParamDict] = None,
+        headers: Dict[str, str] = {},
         user_id: str = "-",
         requires_user_id: bool = True,
         http_method: str = "GET",
@@ -421,7 +364,7 @@ class BaseResource:
 
         Returns:
             JSONType: The API response in one of these formats:
-                - Dict[str, Any]: For most JSON object responses
+                - JSONDict: For most JSON object responses
                 - List[Any]: For endpoints that return JSON arrays
                 - str: For XML/TCX responses
                 - None: For successful DELETE operations or debug mode

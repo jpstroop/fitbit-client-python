@@ -11,6 +11,7 @@ from fitbit_client.resources.constants import Gender
 from fitbit_client.resources.constants import StartDayOfWeek
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.types import JSONDict
+from fitbit_client.utils.types import ParamDict
 
 
 class UserResource(BaseResource):
@@ -173,7 +174,8 @@ class UserResource(BaseResource):
             "strideLengthRunning": stride_length_running,
         }
 
-        params = {key: value for key, value in updates.items() if value is not None}
+        # Create a ParamDict from the non-None values
+        params: ParamDict = {key: value for key, value in updates.items() if value is not None}
         result = self._make_request(
             "profile.json", params=params, user_id=user_id, http_method="POST", debug=debug
         )

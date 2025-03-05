@@ -12,6 +12,7 @@ from fitbit_client.resources.constants import Period
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range_params
 from fitbit_client.utils.types import JSONDict
+from fitbit_client.utils.types import ParamDict
 
 
 class HeartrateTimeSeriesResource(BaseResource):
@@ -105,7 +106,7 @@ class HeartrateTimeSeriesResource(BaseResource):
                 message="Only 'UTC' timezone is supported", field_name="timezone"
             )
 
-        params = {"timezone": timezone} if timezone else None
+        params: Optional[ParamDict] = {"timezone": timezone} if timezone else None
         result = self._make_request(
             f"activities/heart/date/{date}/{period.value}.json",
             params=params,
@@ -169,7 +170,7 @@ class HeartrateTimeSeriesResource(BaseResource):
                 message="Only 'UTC' timezone is supported", field_name="timezone"
             )
 
-        params = {"timezone": timezone} if timezone else None
+        params: Optional[ParamDict] = {"timezone": timezone} if timezone else None
         result = self._make_request(
             f"activities/heart/date/{start_date}/{end_date}.json",
             params=params,
