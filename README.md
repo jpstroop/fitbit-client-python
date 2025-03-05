@@ -59,9 +59,7 @@ The response will always be the body of the API response, and is almost always a
 `Dict`, `List` or `None`. `nutrition.get_activity_tcx` is the exception. It
 returns XML (as a `str`).
 
-## Authentication Methods
-
-### 1. Automatic (Recommended)
+## Authentication
 
 Uses a local callback server to automatically handle the OAuth2 flow:
 
@@ -69,40 +67,26 @@ Uses a local callback server to automatically handle the OAuth2 flow:
 client = FitbitClient(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
-    redirect_uri="https://localhost:8080",
-    use_callback_server=True  # default is True
+    redirect_uri="YOUR_REGISTERED_REDIRECT_URI",
+    token_cache_path="/tmp/fb_tokens.json"  # Optional: saves tokens between sessions
 )
 
 # Will open browser and handle callback automatically
 client.authenticate()
 ```
 
-### 2. Manual URL Copy/Paste
+The `token_cache_path` parameter allows you to persist authentication tokens
+between sessions. If provided, the client will:
 
-If you prefer not to use a local server:
-
-```python
-client = FitbitClient(
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-    redirect_uri="YOUR_REGISTERED_REDIRECT_URI",
-    token_cache_path="/tmp/fb_tokens.json",
-    use_callback_server=True
-)
-
-# Will open a browser and start a server to complete the flow (default), or 
-# prompt you on the command line to copy/paste the callback URL from the 
-# browser (see `use_callback_server`)
-client.authenticate()
-```
+1. Load existing tokens from this file if available (avoiding re-authentication)
+2. Save new or refreshed tokens to this file automatically
+3. Handle token refresh when expired tokens are detected
 
 ## Setting Up Your Fitbit App
 
 1. Go to dev.fitbit.com and create a new application
 2. Set OAuth 2.0 Application Type to "Personal"
-3. Set Callback URL to:
-   - For automatic method: "https://localhost:8080"
-   - For manual method: Your preferred redirect URI
+3. Set Callback URL to "https://localhost:8080" (or your preferred local URL)
 4. Copy your Client ID and Client Secret
 
 Additional documentation:
@@ -124,9 +108,13 @@ This client does not currently support the
 and
 [deletion](https://dev.fitbit.com/build/reference/web-api/subscription/delete-subscription/)
 of
-[webhook subscrptions](https://dev.fitbit.com/build/reference/web-api/developer-guide/using-subscriptions/).
-The methods are implemented in comments and _should_ work, but I have not had a
-chance to verify a user confirm this.
+[webhook subscriptions](https://dev.fitbit.com/build/reference/web-api/developer-guide/using-subscriptions/).
+The methods are implemented in comments and should work, but I have not had a
+chance to verify them since this requires a publicly accessible server to
+receive webhook notifications.
+
+If you're using this library with subscriptions and would like to help test and
+implement this functionality, please open an issue or pull request!
 
 ## License
 

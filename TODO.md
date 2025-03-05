@@ -2,6 +2,23 @@
 
 ## TODOs:
 
+- Improve README for end users:
+
+  - Add more common use cases examples beyond basic profile retrieval
+  - Explain token persistence between sessions (DONE)
+  - Provide overview of available resources/endpoints
+  - Verify correct callback URI guidance (check if "https://localhost:8080" is
+    actually the correct/optimal value to recommend)
+
+- Review and improve all documentation files in docs/ from an end-user
+  perspective:
+
+  - DEVELOPMENT.md
+  - LOGGING.md
+  - NAMING_AND_TYPING.md
+  - STYLE.md
+  - VALIDATIONS_AND_EXCEPTIONS.md
+
 - PyPi deployment
 
 - For all `create_...`methods, add the ID from the response to logs and maybe
