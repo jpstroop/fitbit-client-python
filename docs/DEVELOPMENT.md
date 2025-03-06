@@ -339,18 +339,32 @@ TODO
 - Use issue templates when reporting bugs
 - Include Python version and environment details in bug reports
 
-## Scope and Limitations - Intraday Data Support
+## Intraday Data Support
 
-This client explicitly does not implement intraday data endpoints (detailed
-heart rate, steps, etc). These endpoints:
+This client implements intraday data endpoints (detailed heart rate, steps, etc)
+through the `IntradayResource` class. These endpoints:
 
 - Require special access from Fitbit (typically limited to research
   applications)
 - Have different rate limits than standard endpoints
-- Need additional OAuth2 scopes
-- Often require institutional review board (IRB) approval
+- Need additional OAuth2 scopes (specifically the 'activity' and 'heartrate'
+  scopes)
+- Often require institutional review board (IRB) approval for research
+  applications
 
-If you need intraday data access:
+To use intraday data:
 
-1. Apply through Fitbit's developer portal
-2. Pull requests welcome!
+1. Apply for intraday access through the
+   [Fitbit developer portal](https://dev.fitbit.com/)
+2. Ensure your application requests the appropriate scopes
+3. Use the intraday methods with appropriate detail level parameters:
+   ```python
+   client.intraday.get_heartrate_intraday_by_date(
+       date="today",
+       detail_level="1min"  # or "1sec" depending on your access level
+   )
+   ```
+
+See the
+[Intraday API documentation](https://dev.fitbit.com/build/reference/web-api/intraday/)
+for more details on available endpoints and access requirements.
