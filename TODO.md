@@ -2,6 +2,9 @@
 
 ## TODOs:
 
+- Create and Test that all methods have an alias in `Client` and that the
+  signatures match
+
 - Improve README for end users:
 
   - Add more common use cases examples beyond basic profile retrieval
@@ -10,14 +13,15 @@
   - Verify correct callback URI guidance (check if "https://localhost:8080" is
     actually the correct/optimal value to recommend)
 
-- Review and improve all documentation files in docs/ from an end-user
-  perspective:
+- ✅ Review and improve all documentation files in docs/ from an end-user
+  perspective
 
-  - DEVELOPMENT.md
-  - LOGGING.md
-  - NAMING_AND_TYPING.md
-  - STYLE.md
-  - VALIDATIONS_AND_EXCEPTIONS.md
+  - ✅ Split NAMING_AND_TYPING.md into TYPES.md and NAMING.md
+  - ✅ Split VALIDATIONS_AND_EXCEPTIONS.md into VALIDATIONS.md and
+    ERROR_HANDLING.md
+  - ✅ Update cross-references between documentation files
+  - ✅ Fix intraday data support information in DEVELOPMENT.md
+  - ✅ Add information about disabling data logging to LOGGING.md
 
 - PyPi deployment
 
@@ -33,11 +37,6 @@
 
   - Rename to `_base`? Files it first, makes it clearer that everything in it is
     private
-
-- client.py:
-
-  - Creat and Test that all methods have an alias in `Client` and that the
-    signatures match
 
 - CI:
 

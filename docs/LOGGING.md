@@ -79,10 +79,10 @@ The data logger uses INFO level for all entries, with a structured JSON format:
 ```
 
 As you can see, this is really just summary of the response body that makes it
-easy to get back in information you may not have captured in a one-off script.
+easy to get back information you may not have captured in a one-off script.
 
-Note that the log will not be valid JSON file, but each line will be a valid
-object and it is be trivial to read it in at as `List[Dict[str, Any]]`.
+Note that the log will not be a valid JSON file, but each line will be a valid
+JSON object and it is trivial to read it in as `List[Dict[str, Any]]`.
 
 ## Important Fields
 
@@ -129,6 +129,24 @@ data_logger.setLevel("INFO")
 data_logger.propagate = False  # Prevent duplicate logging
 ```
 
+### Disabling Data Logging
+
+If you don't need the data logging feature, you can disable it completely by
+setting the level to CRITICAL:
+
+```python
+data_logger = getLogger("fitbit_client.data")
+data_logger.setLevel("CRITICAL")  # Effectively disables data logging
+```
+
+You can also disable it by not adding any handlers to the data logger:
+
+```python
+data_logger = getLogger("fitbit_client.data")
+data_logger.propagate = False  # Ensures logs don't propagate to parent loggers
+# No handlers added = no logging output
+```
+
 ## Error Logging
 
 The client automatically logs all API errors with rich context including:
@@ -138,3 +156,8 @@ The client automatically logs all API errors with rich context including:
 - Affected resource/endpoint
 - Field-specific validation errors
 - Raw error response when available
+
+## Cross-References
+
+For more information on error handling, see
+[ERROR_HANDLING.md](ERROR_HANDLING.md).

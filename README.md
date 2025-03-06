@@ -89,17 +89,24 @@ between sessions. If provided, the client will:
 3. Set Callback URL to "https://localhost:8080" (or your preferred local URL)
 4. Copy your Client ID and Client Secret
 
-Additional documentation:
+## Additional Documentation
 
-- To understand the logging implemementation, see [LOGGING](docs/LOGGING.md)
-- To understand validations and the exception hierarchy, see
-  [VALIDATIONS_AND_EXCEPTIONS](docs/VALIDATIONS_AND_EXCEPTIONS.md)
-- It's work checking out
-  [Fitbit's Best Practices](https://dev.fitbit.com/build/reference/web-api/developer-guide/best-practices/)
-- For some general development guidelines, see
-  [DEVELOPMENT](docs/DEVELOPMENT.md).
-- For style guidelines (mostly enforced through varius linters and formatters)
-  see [STYLE](docs/STYLE.md).
+### For API Library Users
+
+- [LOGGING.md](docs/LOGGING.md): Understanding the dual-logger system
+- [TYPES.md](docs/TYPES.md): JSON type system and method return types
+- [NAMING.md](docs/NAMING.md): API method naming conventions
+- [VALIDATIONS.md](docs/VALIDATIONS.md): Input parameter validation
+- [ERROR_HANDLING.md](docs/ERROR_HANDLING.md): Exception hierarchy and handling
+
+It's also worth reviewing
+[Fitbit's Best Practices](https://dev.fitbit.com/build/reference/web-api/developer-guide/best-practices/)
+for API usage.
+
+### Project Best Practices
+
+- [DEVELOPMENT.md](docs/DEVELOPMENT.md): Development environment and guidelines
+- [STYLE.md](docs/STYLE.md): Code style and formatting standards
 
 ## Important Note - Subscription Support
 
