@@ -1,29 +1,53 @@
-# Method Naming and Typing
+# JSON Type System
 
-Typing and JSON is awkward, but it's useful to know what you should expect to
-get back when you call a method. For this reason, all of the resource methods
-(i.e. API endpoints) return either `JSONDict`, `JSONList`, `None`. In the case
-of the latter two, you're on your own once you're inside the structure, but
-knowing the wrapper is at least a good start at sanity.
+## Overview
 
-Note that we deviate from the native API a little bit in that the content-type
-and response body of `delete_*` methods is not consistent: some return an empty
-body, some return `null`, and at least one returns `{}`. Here's the deal: if the
-reponse status from a API call is `204`, you will get `None`. This is
-[in line with the documentation](https://dev.fitbit.com/build/reference/web-api/troubleshooting-guide/error-messages/#204-no-content).
+This library uses a type system to help you understand what to expect from API
+responses. All resource methods (API endpoints) return one of three types:
 
-An area where it's tempting to deviate, but we don't, is in data structures in
-the body of the responses. To start, the interns who developed the
-[Web API](https://dev.fitbit.com/build/reference/web-api/) were not very
-consistent with naming and typing of the API endpoints or the responses. Just a
-few examples:
+- `JSONDict`: A dictionary containing JSON data
+- `JSONList`: A list containing JSON data
+- `None`: For operations that don't return data (typically delete operations)
 
-- `create_activity_goals` only allows you to create one goal at a time
-- `add_favorite_foods` adds one food at a time, and "add" is only used here.
-  It's "create" everywhere else.
-- Method names that suggest they would return a list usually don't. They use
-  this structure (for example, from
-  `activity_timeseries#get_time_series_by_date`)
+While Python's dynamic typing doesn't enforce these types at runtime, they
+provide valuable documentation and enable IDE autocompletion.
+
+## Understanding Response Types
+
+### JSONDict and JSONList
+
+The base types represent the outermost wrapper of API responses:
+
+```python
+# These are the actual definitions from utils/types.py
+JSONDict = Dict[str, JSONType]  # A dictionary with string keys and JSON values
+JSONList = List[JSONType]       # A list of JSON values
+```
+
+Where `JSONType` is a recursive type that can be any valid JSON value:
+
+```python
+JSONType = Union[str, int, float, bool, None, Dict[str, Any], List[Any]]
+```
+
+This typing helps you know the outer structure of the response but doesn't
+specify the inner details.
+
+### Empty and Special Responses
+
+The library standardizes response handling in these cases:
+
+- HTTP 204 responses (No Content): Return `None`
+- DELETE operations: Return `None` (regardless of how the API responds)
+- Special formats like TCX/XML: Return as raw strings (not JSON)
+
+## Response Inconsistencies
+
+The Fitbit API has some inconsistencies in response structures. Some methods
+that suggest they would return lists (by their plural names) actually return
+dictionaries with embedded lists.
+
+For example, `get_activity_timeseries_by_date()` returns:
 
 ```json
 {
@@ -40,15 +64,15 @@ few examples:
 }
 ```
 
-This would be a lovely and reliable convention! Except that:
+This is typed as a `JSONDict`, not a `JSONList`, despite containing a list of
+items.
+
+In contrast, these methods do return direct lists (typed as `JSONList`):
 
 ```
 get_favorite_activities
 get_frequent_activities
-get_recent_activity_types
-get_favorite_activities
-get_frequent_activities
-get_recent_activity_types
+get_recent_activity_types 
 get_devices
 get_food_locales
 get_food_units
@@ -57,19 +81,9 @@ get_recent_foods
 get_spo2_summary_by_interval
 ```
 
-All return lists. If there is a rhyme or reason for this, I've not found it yet.
+## Method Return Types Reference
 
-## Naming
-
-Methods are named exactly as they appear in the
-[Web API Documentation](https://dev.fitbit.com/build/reference/web-api/). When
-there are inconsistencies (frequently) the documentation;s URL slug is the
-deciding factor. For example, for "Get AZM Time Series by Date"
-https://dev.fitbit.com/build/reference/web-api/active-zone-minutes-timeseries/get-azm-timeseries-by-date/,
-(which is it--"Time Series" or "timeseries"?) the method in our code will be
-`get_azm_timeseries_by_date()`.
-
-## Method Return Types
+Below is a comprehensive list of all method return types by resource class:
 
 ### ActiveZoneMinutesResource
 
@@ -86,8 +100,8 @@ https://dev.fitbit.com/build/reference/web-api/active-zone-minutes-timeseries/ge
 - `create_activity_goals -> JSONDict`
 - `create_activity_goal -> JSONDict` (alias for create_activity_goals)
 - `create_activity_log -> JSONDict`
-- `create_favorite_activity -> Dict[Never, Never]` ??
-- `delete_activity_log -> Dict[Never, Never]` ??
+- `create_favorite_activity -> Dict[Never, Never]`
+- `delete_activity_log -> Dict[Never, Never]`
 - `get_activity_log_list -> JSONDict`
 - `delete_favorite_activity -> None`
 - `get_activity_goals -> JSONDict`

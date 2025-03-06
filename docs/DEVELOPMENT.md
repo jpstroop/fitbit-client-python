@@ -16,6 +16,9 @@
 - [Logging System](#logging-system)
   - [Application Logger](#application-logger)
   - [Data Logger](#data-logger)
+- [API Design](#api-design)
+  - [Resource-Based API](#resource-based-api)
+  - [Method Aliases](#method-aliases)
 - [Testing](#testing)
   - [Test Organization](#test-organization)
   - [Standard Test Fixtures](#standard-test-fixtures)
@@ -235,6 +238,63 @@ Data log entries contain:
 This logging system provides both operational visibility through the application
 logger and structured data capture through the data logger.
 
+## API Design
+
+The client implements a dual-level API design pattern that balances both
+organization and ease-of-use.
+
+### Resource-Based API
+
+The primary API structure is resource-based, organizing related endpoints into
+dedicated resource classes:
+
+- `client.user` - User profile and badges endpoints
+- `client.activity` - Activity tracking, goals, and summaries
+- `client.sleep` - Sleep logs and goals
+- etc.
+
+This organization provides a clean separation of concerns and makes the code
+more maintainable by grouping related functionality.
+
+### Method Aliases
+
+To improve developer experience, all resource methods are also available
+directly from the client instance through aliases. This means developers can
+choose between two equivalent approaches:
+
+```python
+# Standard resource-based access
+client.user.get_profile()
+client.activity.get_daily_activity_summary(date="2025-03-06")
+
+# Direct access via method aliases
+client.get_profile()
+client.get_daily_activity_summary(date="2025-03-06")
+```
+
+#### Rationale for Method Aliases
+
+Method aliases were implemented for several important reasons:
+
+1. **Reduced Verbosity**: Typing `client.resource_name.method_name(...)` with
+   many parameters can be tedious, especially when used frequently.
+
+2. **Flatter API Surface**: Many modern APIs prefer a flatter design that avoids
+   deep nesting, making the API more straightforward to use.
+
+3. **Method Name Uniqueness**: All resource methods in the Fitbit API have
+   unique names (e.g., there's only one `get_profile()` method), making it safe
+   to expose these methods directly on the client.
+
+4. **Preserve Both Options**: By maintaining both the resource-based access and
+   direct aliases, developers can choose the approach that best fits their needs
+   \- organization or conciseness.
+
+All method aliases are set up in the `_setup_method_aliases()` method in the
+`FitbitClient` class, which is called during initialization. Each alias is a
+direct reference to the corresponding resource method, ensuring consistent
+behavior regardless of how the method is accessed.
+
 ## Testing
 
 The project uses pytest for testing and follows a consistent testing approach
@@ -339,18 +399,32 @@ TODO
 - Use issue templates when reporting bugs
 - Include Python version and environment details in bug reports
 
-## Scope and Limitations - Intraday Data Support
+## Intraday Data Support
 
-This client explicitly does not implement intraday data endpoints (detailed
-heart rate, steps, etc). These endpoints:
+This client implements intraday data endpoints (detailed heart rate, steps, etc)
+through the `IntradayResource` class. These endpoints:
 
 - Require special access from Fitbit (typically limited to research
   applications)
 - Have different rate limits than standard endpoints
-- Need additional OAuth2 scopes
-- Often require institutional review board (IRB) approval
+- Need additional OAuth2 scopes (specifically the 'activity' and 'heartrate'
+  scopes)
+- Often require institutional review board (IRB) approval for research
+  applications
 
-If you need intraday data access:
+To use intraday data:
 
-1. Apply through Fitbit's developer portal
-2. Pull requests welcome!
+1. Apply for intraday access through the
+   [Fitbit developer portal](https://dev.fitbit.com/)
+2. Ensure your application requests the appropriate scopes
+3. Use the intraday methods with appropriate detail level parameters:
+   ```python
+   client.intraday.get_heartrate_intraday_by_date(
+       date="today",
+       detail_level="1min"  # or "1sec" depending on your access level
+   )
+   ```
+
+See the
+[Intraday API documentation](https://dev.fitbit.com/build/reference/web-api/intraday/)
+for more details on available endpoints and access requirements.
