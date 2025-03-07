@@ -26,7 +26,6 @@
   - [Response Mocking](#response-mocking)
 - [OAuth Callback Implementation](#oauth-callback-implementation)
   - [Implementation Flow](#implementation-flow)
-  - [Security Notes](#security-notes)
 - [Git Workflow](#git-workflow)
 - [Release Process](#release-process)
 - [Getting Help](#getting-help)
@@ -45,8 +44,8 @@
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/fitbit-client.git
-cd fitbit-client
+git clone https://github.com/jpstroop/fitbit-client-python.git
+cd fitbit-client-python
 ```
 
 2. Install asdf plugins and required versions:
