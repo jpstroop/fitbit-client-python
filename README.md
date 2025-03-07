@@ -95,6 +95,8 @@ client = FitbitClient(
     client_secret="YOUR_CLIENT_SECRET",
     redirect_uri="YOUR_REGISTERED_REDIRECT_URI",
     token_cache_path="/tmp/fb_tokens.json"  # Optional: saves tokens between sessions
+    redirect_uri="YOUR_REGISTERED_REDIRECT_URI",
+    token_cache_path="/tmp/fb_tokens.json"  # Optional: saves tokens between sessions
 )
 
 # Will open browser and handle callback automatically
@@ -107,14 +109,39 @@ between sessions. If provided, the client will:
 1. Load existing tokens from this file if available (avoiding re-authentication)
 2. Save new or refreshed tokens to this file automatically
 3. Handle token refresh when expired tokens are detected
+The `token_cache_path` parameter allows you to persist authentication tokens
+between sessions. If provided, the client will:
+
+1. Load existing tokens from this file if available (avoiding re-authentication)
+2. Save new or refreshed tokens to this file automatically
+3. Handle token refresh when expired tokens are detected
 
 ## Setting Up Your Fitbit App
 
 1. Go to dev.fitbit.com and create a new application
 2. Set OAuth 2.0 Application Type to "Personal"
 3. Set Callback URL to "https://localhost:8080" (or your preferred local URL)
+3. Set Callback URL to "https://localhost:8080" (or your preferred local URL)
 4. Copy your Client ID and Client Secret
 
+## Additional Documentation
+
+### For API Library Users
+
+- [LOGGING.md](docs/LOGGING.md): Understanding the dual-logger system
+- [TYPES.md](docs/TYPES.md): JSON type system and method return types
+- [NAMING.md](docs/NAMING.md): API method naming conventions
+- [VALIDATIONS.md](docs/VALIDATIONS.md): Input parameter validation
+- [ERROR_HANDLING.md](docs/ERROR_HANDLING.md): Exception hierarchy and handling
+
+It's also worth reviewing
+[Fitbit's Best Practices](https://dev.fitbit.com/build/reference/web-api/developer-guide/best-practices/)
+for API usage.
+
+### Project Best Practices
+
+- [DEVELOPMENT.md](docs/DEVELOPMENT.md): Development environment and guidelines
+- [STYLE.md](docs/STYLE.md): Code style and formatting standards
 ## Additional Documentation
 
 ### For API Library Users
@@ -141,6 +168,13 @@ This client does not currently support the
 and
 [deletion](https://dev.fitbit.com/build/reference/web-api/subscription/delete-subscription/)
 of
+[webhook subscriptions](https://dev.fitbit.com/build/reference/web-api/developer-guide/using-subscriptions/).
+The methods are implemented in comments and should work, but I have not had a
+chance to verify them since this requires a publicly accessible server to
+receive webhook notifications.
+
+If you're using this library with subscriptions and would like to help test and
+implement this functionality, please open an issue or pull request!
 [webhook subscriptions](https://dev.fitbit.com/build/reference/web-api/developer-guide/using-subscriptions/).
 The methods are implemented in comments and should work, but I have not had a
 chance to verify them since this requires a publicly accessible server to
