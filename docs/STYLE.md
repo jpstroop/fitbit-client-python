@@ -3,9 +3,9 @@
 Linting and formatting are handled by [Black](https://github.com/psf/black),
 [isort](https://github.com/pycqa/isort/),
 [mdformat](https://github.com/pycqa/isort/),
-[autoflake](https://github.com/PyCQA/autoflake) and a \[small script that adds a
-path comment)[lint/add_file_headers.py]. That said, here are some general
-guidelines:
+[autoflake](https://github.com/PyCQA/autoflake) and a
+[small script that adds a path comment](lint/add_file_headers.py). That said,
+here are some general guidelines:
 
 ## Code Organization and Structure
 

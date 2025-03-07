@@ -2,6 +2,10 @@
 
 ## TODOs:
 
+- be able to set scopes when initializing the client
+
+- security notes
+
 - PyPi deployment
 
 - For all `create_...`methods, add the ID from the response to logs and maybe

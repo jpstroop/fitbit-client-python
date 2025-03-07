@@ -77,19 +77,23 @@ fitbit-client/
 │   │   ├── callback_handler.py
 │   │   ├── callback_server.py
 │   │   └── oauth.py
-│   ├── client/
-│   │   ├── __init__.py
-│   │   ├── fitbit_client.py
-│   │   └── resource_methods_mixin.py
+│   ├── client.py
 │   ├── resources/
 │   │   ├── __init__.py
 │   │   ├── [resource files]
 │   │   └── constants.py
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   ├── curl_debug_mixin.py
+│   │   ├── date_validation.py
+│   │   ├── helpers.py
+│   │   ├── pagination_validation.py
+│   │   └── types.py
 │   └── exceptions.py
 ├── tests/
 │   ├── auth/
-│   ├── client/
-│   └── resources/
+│   ├── resources/
+│   └── utils/
 └── [project files]
 ```
 
@@ -129,8 +133,8 @@ import typing
 import datetime
 ```
 
-The one excpetion to this rule is when an entire module needs to be `mock`ed for
-testing, in which case, at least for the `json` package from the standare
+The one exception to this rule is when an entire module needs to be `mock`ed for
+testing, in which case, at least for the `json` package from the standard
 library, the entire package has to be imported. So `import json` is ok when that
 circumstance arises.
 
@@ -378,10 +382,6 @@ The OAuth callback mechanism is implemented using two main classes:
    - Removing temporary certificate files
    - Clearing internal state
 
-### Security Notes
-
-TODO
-
 ## Git Workflow
 
 1. Create a new branch for your feature/fix
@@ -391,7 +391,7 @@ TODO
 
 ## Release Process
 
-TODO
+This section will be documented as we near our first release.
 
 ## Getting Help
 
