@@ -107,22 +107,26 @@ The `token_cache_path` parameter allows you to persist authentication tokens
 between sessions. If provided, the client will:
 
 1. Load existing tokens from this file if available (avoiding re-authentication)
-2. Save new or refreshed tokens to this file automatically
-3. Handle token refresh when expired tokens are detected
-The `token_cache_path` parameter allows you to persist authentication tokens
-between sessions. If provided, the client will:
 
-1. Load existing tokens from this file if available (avoiding re-authentication)
 2. Save new or refreshed tokens to this file automatically
-3. Handle token refresh when expired tokens are detected
+
+3. Handle token refresh when expired tokens are detected The `token_cache_path`
+   parameter allows you to persist authentication tokens between sessions. If
+   provided, the client will:
+
+4. Load existing tokens from this file if available (avoiding re-authentication)
+
+5. Save new or refreshed tokens to this file automatically
+
+6. Handle token refresh when expired tokens are detected
 
 ## Setting Up Your Fitbit App
 
 1. Go to dev.fitbit.com and create a new application
 2. Set OAuth 2.0 Application Type to "Personal"
 3. Set Callback URL to "https://localhost:8080" (or your preferred local URL)
-3. Set Callback URL to "https://localhost:8080" (or your preferred local URL)
-4. Copy your Client ID and Client Secret
+4. Set Callback URL to "https://localhost:8080" (or your preferred local URL)
+5. Copy your Client ID and Client Secret
 
 ## Additional Documentation
 
@@ -142,6 +146,7 @@ for API usage.
 
 - [DEVELOPMENT.md](docs/DEVELOPMENT.md): Development environment and guidelines
 - [STYLE.md](docs/STYLE.md): Code style and formatting standards
+
 ## Additional Documentation
 
 ### For API Library Users
