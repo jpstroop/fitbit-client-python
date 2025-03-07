@@ -45,8 +45,8 @@
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/fitbit-client.git
-cd fitbit-client
+git clone https://github.com/jpstroop/fitbit-client-python.git
+cd fitbit-client-python
 ```
 
 2. Install asdf plugins and required versions:
@@ -129,8 +129,8 @@ import typing
 import datetime
 ```
 
-The one excpetion to this rule is when an entire module needs to be `mock`ed for
-testing, in which case, at least for the `json` package from the standare
+The one exception to this rule is when an entire module needs to be `mock`ed for
+testing, in which case, at least for the `json` package from the standard
 library, the entire package has to be imported. So `import json` is ok when that
 circumstance arises.
 
@@ -378,10 +378,6 @@ The OAuth callback mechanism is implemented using two main classes:
    - Removing temporary certificate files
    - Clearing internal state
 
-### Security Notes
-
-TODO
-
 ## Git Workflow
 
 1. Create a new branch for your feature/fix
@@ -391,7 +387,8 @@ TODO
 
 ## Release Process
 
-TODO
+The release process will be documented as the project nears its first public
+release.
 
 ## Getting Help
 
