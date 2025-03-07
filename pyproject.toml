@@ -1,0 +1,140 @@
+[project]
+name = "fitbit-client"
+version = "0.2.0"
+authors = [
+    { name = "Jon Stroop", email = "jsfitbit-client@jopast.io" },
+]
+description = "A Python client for the Fitbit API"
+readme = "README.md"
+requires-python = ">=3.13"
+classifiers = [
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Natural Language :: English",
+    "Typing :: Typed"
+]
+
+license = "AGPL-3.0-only"
+license-files = ["LICENSE"]
+
+dependencies = [
+    "requests-oauthlib>=2.0.0",
+    "pyOpenSSL>=25.0.0",
+    "cryptography>=44.0.0",
+    "mdformat-config>=0.2.1",
+]
+
+[dependency-groups]
+dev = [
+    "mdformat>=0.7.22",
+    "mdformat-gfm>=0.4.1",
+    "black>=25.1.0",
+    "isort>=6.0.0",
+    "mdformat-pyproject>=0.0.2",
+    "pytest>=8.3.4",
+    "pytest-cov>=6.0.0",
+    "pytest-mock>=3.14.0",
+    "autoflake>=2.3.1",
+    "mypy>=1.15.0",
+]
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.black]
+line-length = 100
+target-version = ['py313']
+preview = true
+quiet = true
+skip-magic-trailing-comma = true
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+force_single_line = true
+force_sort_within_sections = true
+quiet = true
+known_first_party = ["fitbit_client"]
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+import_heading_stdlib = "Standard library imports"
+import_heading_thirdparty = "Third party imports"
+import_heading_firstparty = "Local imports"
+import_heading_localfolder = "Local folder imports"
+
+[tool.mdformat]
+number = true
+wrap = 80
+codeformatters = [
+     "python",
+     "json"
+]
+extensions = [
+    "gfm"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+minversion = 6.0
+python_files = "test_*.py"
+addopts = "-ra -q --cov=fitbit_client --cache-clear --cov-report=term-missing --tb=native -W error::DeprecationWarning"
+pythonpath = ["."]
+
+# https://pytest-cov.readthedocs.io/en/latest/config.html
+# https://coverage.readthedocs.io/en/latest/config.html 
+[tool.coverage.run]
+source = ["fitbit_client"]
+branch = true
+omit = [ ]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.:",
+    "pass",
+]
+
+[tool.mypy]
+files = "fitbit_client"
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+# disallow_untyped_decorators = true
+no_implicit_optional = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+# disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+# output formatting
+show_error_codes = true
+pretty = true
+error_summary = true
+show_error_context = true
+
+[[tool.mypy.overrides]]
+module = [
+    "requests.*",
+    "requests_oauthlib.*",
+]
+ignore_missing_imports = true
+
+
+[tool.pdm.scripts]
+autoflake = { cmd = "autoflake . -r --remove-unused-variables --remove-all-unused-imports --ignore-pass-after-docstring --exclude ./.venv/*,./_scripts/*" }
+headers = { cmd = "python lint/add_file_headers.py" }
+mypy = { cmd = "mypy --pretty --no-incremental --warn-unused-configs fitbit_client" }
+black = { cmd = "black ." }
+isort = { cmd = "isort ." }
+mdformat = { cmd = "mdformat ." }
+format = { composite = [ "headers", "black", "isort", "mdformat", ] }
+
+
