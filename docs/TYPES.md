@@ -21,7 +21,7 @@ The base types represent the outermost wrapper of API responses:
 ```python
 # These are the actual definitions from utils/types.py
 JSONDict = Dict[str, JSONType]  # A dictionary with string keys and JSON values
-JSONList = List[JSONType]       # A list of JSON values
+JSONList = List[JSONType]       # A list of JSON objects
 ```
 
 Where `JSONType` is a recursive type that can be any valid JSON value:
@@ -38,8 +38,9 @@ specify the inner details.
 The library standardizes response handling in these cases:
 
 - HTTP 204 responses (No Content): Return `None`
-- DELETE operations: Return `None` (regardless of how the API responds)
-- Special formats like TCX/XML: Return as raw strings (not JSON)
+- DELETE operations: Return `None` (regardless of how the API responds - the
+  native response is always empty, but can vary between `""`, `null`, and `{}`).
+- TCX/XML is returned as a string
 
 ## Response Inconsistencies
 
@@ -64,8 +65,8 @@ For example, `get_activity_timeseries_by_date()` returns:
 }
 ```
 
-This is typed as a `JSONDict`, not a `JSONList`, despite containing a list of
-items.
+Accordingly, this is typed as a `JSONDict`, not a `JSONList`, despite containing
+a list of items.
 
 In contrast, these methods do return direct lists (typed as `JSONList`):
 
@@ -113,10 +114,6 @@ Below is a comprehensive list of all method return types by resource class:
 - `get_recent_activity_types -> JSONList`
 - `get_lifetime_stats -> JSONDict`
 - `get_activity_tcx -> str` (XML)
-
-### BaseResource
-
-- `_make_request -> JSONType` (gets `cast` as a more specific type when called)
 
 ### BodyTimeSeriesResource
 

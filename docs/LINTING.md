@@ -8,7 +8,7 @@ Linting and formatting are handled by [Black](https://github.com/psf/black),
 
 ## Running the Linters
 
-You can run all formatters using:
+Run all formatters using:
 
 ```bash
 pdm run format
@@ -61,6 +61,7 @@ from fitbit_client.resources.base import BaseResource
 The test suite verifies that all public methods have comprehensive docstrings
 that follow the Google style format with specific sections:
 
+- API Reference
 - Args
 - Returns
 - Raises
