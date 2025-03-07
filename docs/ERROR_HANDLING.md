@@ -163,6 +163,95 @@ except FitbitAPIException as e:
     print(f"API error: {e.message}")  # Catches all other API errors
 ```
 
+### Handling OAuth-Specific Exceptions
+
+OAuth errors require special handling. Here's how to handle different OAuth
+exception subtypes:
+
+```python
+from fitbit_client.exceptions import ExpiredTokenException, InvalidTokenException
+from fitbit_client.exceptions import InvalidClientException, InvalidGrantException
+
+try:
+    # Make an API call that requires authentication
+    client.get_profile()
+except ExpiredTokenException as e:
+    # Token has expired but couldn't be auto-refreshed
+    print(f"Token expired: {e.message}")
+    # Attempt to re-authenticate
+    client.authenticate()
+except InvalidTokenException as e:
+    # Token is invalid (e.g., revoked by user)
+    print(f"Token invalid: {e.message}")
+    # Re-authenticate from scratch
+    client.authenticate()
+except InvalidClientException as e:
+    # Client credentials are incorrect
+    print(f"Client credentials error: {e.message}")
+    # Check client_id and client_secret
+except InvalidGrantException as e:
+    # Refresh token is invalid
+    print(f"Invalid refresh token: {e.message}")
+    # Re-authenticate to get a new refresh token
+    client.authenticate()
+```
+
+## Token Refresh Strategies
+
+The client automatically handles token refresh when tokens expire. However, you
+may want to implement custom token refresh strategies for your application.
+
+### Automatic Token Refresh
+
+By default, the client refreshes tokens automatically:
+
+1. When initializing the client with cached tokens
+2. During API calls when a token expires
+3. When explicitly calling a method that requires authentication
+
+```python
+# Tokens are automatically refreshed
+client = FitbitClient(
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+    redirect_uri="https://localhost:8080",
+    token_cache_path="/path/to/tokens.json"  # Enable persistent token caching
+)
+
+# If cached tokens exist and are valid or can be refreshed, no browser prompt occurs
+client.authenticate()
+
+# If the token expires during this call, it will be refreshed automatically
+client.get_profile()
+```
+
+### Handling Failed Token Refresh
+
+When automatic token refresh fails, the client raises an appropriate OAuth
+exception. Here's a complete error handling pattern:
+
+```python
+from fitbit_client.exceptions import OAuthException, ExpiredTokenException
+
+try:
+    result = client.get_profile()
+    # Process result normally
+except ExpiredTokenException:
+    # Token expired and auto-refresh failed
+    try:
+        # Try to authenticate again
+        client.authenticate()
+        # Retry the original request
+        result = client.get_profile()
+    except OAuthException as oauth_error:
+        # Handle authentication failure (e.g., user closed browser window)
+        print(f"Authentication failed: {oauth_error.message}")
+        # Log the user out or provide error message
+except OAuthException as e:
+    # Handle other OAuth errors
+    print(f"OAuth error: {e.message}")
+```
+
 ## Debugging APIs
 
 Every method accepts a `debug` parameter that prints the equivalent cURL

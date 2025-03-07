@@ -173,7 +173,7 @@ for API usage.
 ### Project Best Practices
 
 - [DEVELOPMENT.md](docs/DEVELOPMENT.md): Development environment and guidelines
-- [STYLE.md](docs/STYLE.md): Code style and formatting standards
+- [LINTING.md](docs/LINTING.md): Code style and linting configuration
 
 ## Important Note - Subscription Support
 
