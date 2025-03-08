@@ -1,41 +1,10 @@
 # Conventions, Patterns, and Development Guide
 
-## Contents
-
-- [Development Environment Setup](#development-environment-setup)
-  - [Prerequisites](#prerequisites)
-  - [Initial Setup](#initial-setup)
-- [Project Structure](#project-structure)
-- [Goals, Notes, and TODOs](#goals-notes-and-todos)
-- [Development Tools and Standards](#development-tools-and-standards)
-  - [Code Formatting and Style](#code-formatting-and-style)
-  - [Import Style](#import-style)
-  - [Resource Implementation Guidelines](#resource-implementation-guidelines)
-  - [Error Handling](#error-handling)
-  - [Enum Usage](#enum-usage)
-- [Logging System](#logging-system)
-  - [Application Logger](#application-logger)
-  - [Data Logger](#data-logger)
-- [API Design](#api-design)
-  - [Resource-Based API](#resource-based-api)
-  - [Method Aliases](#method-aliases)
-- [Testing](#testing)
-  - [Test Organization](#test-organization)
-  - [Standard Test Fixtures](#standard-test-fixtures)
-  - [Error Handling Tests](#error-handling-tests)
-  - [Response Mocking](#response-mocking)
-- [OAuth Callback Implementation](#oauth-callback-implementation)
-  - [Implementation Flow](#implementation-flow)
-- [Git Workflow](#git-workflow)
-- [Release Process](#release-process)
-- [Getting Help](#getting-help)
-- [Scope and Limitations - Intraday Data Support](#scope-and-limitations---intraday-data-support)
-
 ## Development Environment Setup
 
 ### Prerequisites
 
-- Python 3.12+
+- Python 3.13+
 - PDM
 - Git
 
@@ -53,9 +22,9 @@ cd fitbit-client-python
 ```bash
 asdf plugin add python
 asdf plugin add pdm
-asdf install python 3.12.0
+asdf install python 3.13.0
 asdf install pdm latest
-asdf local python 3.12.0
+asdf local python 3.13.0
 asdf local pdm latest
 ```
 
@@ -79,7 +48,8 @@ fitbit-client/
 │   ├── client.py
 │   ├── resources/
 │   │   ├── __init__.py
-│   │   ├── [resource files]
+│   │   ├── [resource modules]
+│   │   ├── base.py
 │   │   └── constants.py
 │   ├── utils/
 │   │   ├── __init__.py
@@ -186,84 +156,29 @@ The codebase implements a comprehensive error handling system through
 
 ## Logging System
 
-The project implements dual logging through the BaseResource class: application
-logging for API interactions and data logging for tracking important response
-fields.
-
-### Application Logger
-
-Each resource class inherits logging functionality from BaseResource, which
-initializes a logger with the resource's class name:
-
-```python
-self.logger = getLogger(f"fitbit_client.{self.__class__.__name__}")
-```
-
-The application logger handles:
-
-- Success responses at INFO level
-- Error responses at ERROR level
-- Debug information about requests and responses
-- Internal server logging
-
-The BaseResource.\_log_response method standardizes log message formats:
-
-- For errors: "[error_type] field_name: message" (if field name available)
-- For success: "method succeeded for endpoint (status code)"
-
-### Data Logger
-
-The data logger specifically tracks important fields from API responses.
-BaseResource defines these fields in IMPORTANT_RESPONSE_FIELDS:
-
-```python
-IMPORTANT_RESPONSE_FIELDS: Set[str] = {
-    "access",   # PUBLIC/PRIVATE/SHARED
-    "date",     # Dates
-    "dateTime", # Timestamps
-    "deviceId", # Device IDs
-    "foodId",   # Food resource IDs
-    "logId",    # Log entry IDs
-    "name",     # Resource names
-    "subscriptionId"  # Subscription IDs
-}
-```
-
-The BaseResource.\_log_data method extracts and logs these fields when present
-in API responses.
-
-Data log entries contain:
-
-- Timestamp (ISO format)
-- Method name
-- Important fields found in the response
-
-This logging system provides both operational visibility through the application
-logger and structured data capture through the data logger.
+The project implements two different logs in through the
+[`BaseResource`](fitbit_client/resources/base.py) class: application logging for
+API interactions and data logging for tracking important response fields. See
+[LOGGING](docs/LOGGING.md) for details.
 
 ## API Design
-
-The client implements a dual-level API design pattern that balances both
-organization and ease-of-use.
 
 ### Resource-Based API
 
 The primary API structure is resource-based, organizing related endpoints into
-dedicated resource classes:
+dedicated resource classes based on the structure and organzation of the
+[Fibit Web API](https://dev.fitbit.com/build/reference/web-api/) itself, e.g.
 
 - `client.user` - User profile and badges endpoints
 - `client.activity` - Activity tracking, goals, and summaries
 - `client.sleep` - Sleep logs and goals
 - etc.
 
-This organization provides a clean separation of concerns and makes the code
-more maintainable by grouping related functionality.
-
 ### Method Aliases
 
-To improve developer experience, all resource methods are also available
-directly from the client instance through aliases. This means developers can
-choose between two equivalent approaches:
+All resource methods are also available directly from the client instance
+through aliases. This means developers can choose between two equivalent
+approaches:
 
 ```python
 # Standard resource-based access
@@ -274,8 +189,6 @@ client.activity.get_daily_activity_summary(date="2025-03-06")
 client.get_profile()
 client.get_daily_activity_summary(date="2025-03-06")
 ```
-
-#### Rationale for Method Aliases
 
 Method aliases were implemented for several important reasons:
 
@@ -294,9 +207,9 @@ Method aliases were implemented for several important reasons:
    \- organization or conciseness.
 
 All method aliases are set up in the `_setup_method_aliases()` method in the
-`FitbitClient` class, which is called during initialization. Each alias is a
-direct reference to the corresponding resource method, ensuring consistent
-behavior regardless of how the method is accessed.
+[`FitbitClient`](fitbit_client/client.py) class, which is called during
+initialization. Each alias is a direct reference to the corresponding resource
+method, ensuring consistent behavior regardless of how the method is accessed.
 
 ## Testing
 
@@ -305,8 +218,9 @@ across all components.
 
 ### Test Organization
 
-The test directory mirrors the main package structure, with corresponding test
-modules for each component:
+The test directory mirrors the main package structure (except that the root is
+named "test" rather than "fitbit_client"), with corresponding test modules for
+each component:
 
 - auth/: Tests for authentication and OAuth functionality
 - client/: Tests for the main client implementation
@@ -384,46 +298,19 @@ The OAuth callback mechanism is implemented using two main classes:
 ## Git Workflow
 
 1. Create a new branch for your feature/fix
-2. Make your changes, following the style guidelines
-3. Run formatting checks (`pdm format`)
+2. Make your changes, following the style guidelines (see also:
+   [LINTING](docs/LINTING.md))
+3. Run formatting checks (`pdm format`) and tests (`pdm run pytest`)
 4. Submit a pull request with a clear description of changes
 
 ## Release Process
 
 This section will be documented as we near our first release.
 
-## Getting Help
-
-- Check existing issues before creating new ones
-- Use issue templates when reporting bugs
-- Include Python version and environment details in bug reports
-
 ## Intraday Data Support
 
 This client implements intraday data endpoints (detailed heart rate, steps, etc)
-through the `IntradayResource` class. These endpoints:
-
-- Require special access from Fitbit (typically limited to research
-  applications)
-- Have different rate limits than standard endpoints
-- Need additional OAuth2 scopes (specifically the 'activity' and 'heartrate'
-  scopes)
-- Often require institutional review board (IRB) approval for research
-  applications
-
-To use intraday data:
-
-1. Apply for intraday access through the
-   [Fitbit developer portal](https://dev.fitbit.com/)
-2. Ensure your application requests the appropriate scopes
-3. Use the intraday methods with appropriate detail level parameters:
-   ```python
-   client.intraday.get_heartrate_intraday_by_date(
-       date="today",
-       detail_level="1min"  # or "1sec" depending on your access level
-   )
-   ```
-
-See the
+through the `IntradayResource` class. These endpoints have some special
+requirements if you're using them for anyone other that yourself. See the
 [Intraday API documentation](https://dev.fitbit.com/build/reference/web-api/intraday/)
-for more details on available endpoints and access requirements.
+for more details.
