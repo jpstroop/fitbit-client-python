@@ -99,10 +99,7 @@ def test_get_irn_alerts_list_creates_iterator(
 ):
     """Test that get_irn_alerts_list properly creates a paginated iterator"""
     # Create a simplified response with pagination - no need for next URL
-    simple_response = {
-        "alerts": [{"alertTime": "2022-09-28T17:12:30.000"}],
-        "pagination": {}
-    }
+    simple_response = {"alerts": [{"alertTime": "2022-09-28T17:12:30.000"}], "pagination": {}}
 
     # Mock a single response
     mock_response = mock_response_factory(200, simple_response)
@@ -123,29 +120,28 @@ def test_get_irn_alerts_list_creates_iterator(
     assert mock_oauth_session.request.call_count == 1
 
 
-def test_irn_alerts_list_pagination_attributes(irn_resource, mock_oauth_session, mock_response_factory):
+def test_irn_alerts_list_pagination_attributes(
+    irn_resource, mock_oauth_session, mock_response_factory
+):
     """Test that the iterator has the right pagination attributes but don't attempt iteration"""
     # Create a response with pagination
     sample_response = {
         "alerts": [{"alertTime": f"2022-09-28T{i:02d}:12:30.000"} for i in range(3)],
-        "pagination": {"offset": 0, "limit": 5}
+        "pagination": {"offset": 0, "limit": 5},
     }
-    
+
     # Mock the response
     mock_response = mock_response_factory(200, sample_response)
     mock_oauth_session.request.return_value = mock_response
-    
+
     # Get iterator but don't iterate
     iterator = irn_resource.get_irn_alerts_list(
-        before_date="2022-09-29", 
-        sort=SortDirection.DESCENDING, 
-        limit=5,
-        as_iterator=True
+        before_date="2022-09-29", sort=SortDirection.DESCENDING, limit=5, as_iterator=True
     )
-    
+
     # Verify iterator properties
     assert iterator.initial_response == sample_response
-    
+
     # Check that the API call was made correctly
     mock_oauth_session.request.assert_called_once_with(
         "GET",

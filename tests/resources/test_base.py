@@ -659,11 +659,11 @@ def test_429_rate_limit(base_resource, mock_oauth_session, mock_response_factory
         "errors": [{"errorType": "rate_limit_exceeded", "message": "Too many requests"}]
     }
     mock_response = mock_response_factory(429, error_response, content_type="application/json")
-    
+
     # Important: We need to set a simple side_effect rather than return_value to prevent retries
     # which might cause the test to hang
     mock_oauth_session.request.side_effect = [mock_response]
-    
+
     # Set retries to 0 to prevent the test from attempting retries
     base_resource.max_retries = 0
 

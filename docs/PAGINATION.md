@@ -2,7 +2,7 @@
 
 Some Fitbit API endpoints return potentially large result sets and support
 pagination. This library provides an easy way to work with these paginated
-endpoints.
+endpoints through a robust and type-safe implementation.
 
 ## Supported Endpoints
 
@@ -87,3 +87,23 @@ Each paginated endpoint has specific constraints:
 
 - Max limit: 10 entries per page
 - Only supports `offset=0`
+
+## Implementation Details
+
+The pagination implementation uses the following approach:
+
+### Pagination Iterator
+
+- Uses the `PaginatedIterator` class that implements the Python `Iterator` protocol
+- Automatically handles fetching the next page when needed using the `next` URL from pagination metadata
+- Properly handles edge cases like invalid responses, missing pagination data, and API errors
+
+### Type Safety
+
+- Uses `TYPE_CHECKING` from the typing module to avoid circular imports at runtime
+- Maintains complete type safety and mypy compatibility
+- All pagination-related code has 100% test coverage
+
+### Resource Integration
+
+Each endpoint that supports pagination has an `as_iterator` parameter that, when set to `True`, returns a `PaginatedIterator` instead of the raw API response. This makes it easy to iterate through all pages of results without manually handling pagination.

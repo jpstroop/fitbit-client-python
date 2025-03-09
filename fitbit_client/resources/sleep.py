@@ -4,6 +4,7 @@
 from typing import Any
 from typing import Dict
 from typing import Optional
+from typing import TYPE_CHECKING
 from typing import Union
 from typing import cast
 
@@ -11,11 +12,16 @@ from typing import cast
 from fitbit_client.exceptions import ParameterValidationException
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import SortDirection
+from fitbit_client.resources.pagination import create_paginated_iterator
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range_params
 from fitbit_client.utils.pagination_validation import validate_pagination_params
 from fitbit_client.utils.types import JSONDict
 from fitbit_client.utils.types import ParamDict
+
+if TYPE_CHECKING:
+    # Local imports
+    from fitbit_client.resources.pagination import PaginatedIterator
 
 
 class SleepResource(BaseResource):
@@ -385,17 +391,14 @@ class SleepResource(BaseResource):
             return cast(JSONDict, result)
 
         # Return as iterator if requested
-        # We use string literal type annotation 'PaginatedIterator' to avoid circular imports
+        # We use TYPE_CHECKING for PaginatedIterator type to avoid circular imports
         if as_iterator:
-            # Local imports
-            from fitbit_client.resources.pagination import create_paginated_iterator
-
             return create_paginated_iterator(
                 response=cast(JSONDict, result),
                 resource=self,
                 endpoint=endpoint,
                 method_params=params,
-                debug=debug
+                debug=debug,
             )
 
         return cast(JSONDict, result)

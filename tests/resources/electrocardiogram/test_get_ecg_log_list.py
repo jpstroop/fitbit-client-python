@@ -114,29 +114,28 @@ def test_get_ecg_log_list_creates_iterator(ecg_resource, mock_oauth_session, moc
     assert mock_oauth_session.request.call_count == 1
 
 
-def test_ecg_log_list_pagination_attributes(ecg_resource, mock_oauth_session, mock_response_factory):
+def test_ecg_log_list_pagination_attributes(
+    ecg_resource, mock_oauth_session, mock_response_factory
+):
     """Test that the iterator has the right pagination attributes but don't attempt iteration"""
     # Create a response with pagination
     sample_response = {
         "ecgRecordings": [{"id": f"id{i}"} for i in range(3)],
-        "pagination": {"offset": 0, "limit": 5}
+        "pagination": {"offset": 0, "limit": 5},
     }
-    
+
     # Mock the response
     mock_response = mock_response_factory(200, sample_response)
     mock_oauth_session.request.return_value = mock_response
-    
+
     # Get iterator but don't iterate
     iterator = ecg_resource.get_ecg_log_list(
-        before_date="2024-02-14", 
-        sort=SortDirection.DESCENDING, 
-        limit=5,
-        as_iterator=True
+        before_date="2024-02-14", sort=SortDirection.DESCENDING, limit=5, as_iterator=True
     )
-    
+
     # Verify iterator properties
     assert iterator.initial_response == sample_response
-    
+
     # Check that the API call was made correctly
     mock_oauth_session.request.assert_called_once_with(
         "GET",

@@ -552,10 +552,7 @@ class BaseResource(CurlDebugMixin):
                 )
                 raise
 
-            # If we successfully made a request and got a valid response, break the loop
-            break
-
-    def _make_direct_request(self, path: str, debug: bool = False) -> JSONDict:
+    def _make_direct_request(self, path: str, debug: bool = False) -> JSONType:
         """Makes a request directly to the specified path.
 
         This method is used internally for pagination to follow "next" URLs.
@@ -639,6 +636,3 @@ class BaseResource(CurlDebugMixin):
                     error_type="request",
                     status_code=500,
                 )
-
-            # If we successfully made a request and got a valid response, break the loop
-            break
