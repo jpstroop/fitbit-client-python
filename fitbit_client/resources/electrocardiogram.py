@@ -4,6 +4,7 @@
 from typing import Any
 from typing import Dict
 from typing import Optional
+from typing import Union
 from typing import cast
 
 # Local imports
@@ -57,7 +58,8 @@ class ElectrocardiogramResource(BaseResource):
         offset: int = 0,
         user_id: str = "-",
         debug: bool = False,
-    ) -> JSONDict:
+        as_iterator: bool = False,
+    ) -> Union[JSONDict, "PaginatedIterator"]:
         """Returns a list of user's ECG log entries before or after a given day.
 
         API Reference: https://dev.fitbit.com/build/reference/web-api/electrocardiogram/get-ecg-log-list/
@@ -73,9 +75,13 @@ class ElectrocardiogramResource(BaseResource):
             offset: Pagination offset (only 0 is supported by the Fitbit API)
             user_id: Optional user ID, defaults to current user ("-")
             debug: If True, prints a curl command to stdout to help with debugging (default: False)
+            as_iterator: If True, returns a PaginatedIterator instead of the raw response (default: False)
 
         Returns:
-            JSONDict: ECG readings with classifications and pagination information
+            If as_iterator=False (default):
+                JSONDict: ECG readings with classifications and pagination information
+            If as_iterator=True:
+                PaginatedIterator: An iterator that yields each page of ECG readings
 
         Raises:
             fitbit_client.exceptions.PaginationException: If neither before_date nor after_date is specified
@@ -89,6 +95,14 @@ class ElectrocardiogramResource(BaseResource):
             - Either before_date or after_date must be specified, but not both
             - The offset parameter only supports 0; use the "next" URL in the pagination response
               to iterate through results
+
+            When using as_iterator=True, you can iterate through all pages like this:
+            ```python
+            for page in client.get_ecg_log_list(before_date="2025-01-01", as_iterator=True):
+                for reading in page["ecgReadings"]:
+                    print(reading["startTime"])
+            ```
+
             - waveformSamples contains the actual ECG data points (300 samples per second)
             - resultClassification indicates the assessment outcome (normal, afib, inconclusive)
             - For research purposes only, not for clinical or diagnostic use
@@ -100,5 +114,25 @@ class ElectrocardiogramResource(BaseResource):
         if after_date:
             params["afterDate"] = after_date
 
-        response = self._make_request("ecg/list.json", params=params, user_id=user_id, debug=debug)
-        return cast(JSONDict, response)
+        endpoint = "ecg/list.json"
+        result = self._make_request(endpoint, params=params, user_id=user_id, debug=debug)
+
+        # If debug mode is enabled, result will be None
+        if debug or result is None:
+            return cast(JSONDict, result)
+
+        # Return as iterator if requested
+        # We use string literal type annotation 'PaginatedIterator' to avoid circular imports
+        if as_iterator:
+            # Local imports
+            from fitbit_client.resources.pagination import create_paginated_iterator
+
+            return create_paginated_iterator(
+                response=cast(JSONDict, result), 
+                resource=self, 
+                endpoint=endpoint,
+                method_params=params,
+                debug=debug
+            )
+
+        return cast(JSONDict, result)

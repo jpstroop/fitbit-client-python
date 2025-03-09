@@ -4,6 +4,7 @@
 
 # Standard library imports
 from unittest.mock import Mock
+from unittest.mock import call
 
 # Third party imports
 from pytest import raises
@@ -79,3 +80,66 @@ def test_get_activity_log_list_invalid_dates(activity_resource):
         )
     assert "invalid-date" in str(exc_info.value)
     assert exc_info.value.field_name == "after_date"
+
+
+def test_get_activity_log_list_creates_iterator(
+    activity_resource, mock_oauth_session, mock_response_factory
+):
+    """Test that get_activity_log_list properly creates a paginated iterator"""
+    # Create a simplified response with pagination - no next URL needed since we ignore it
+    simple_response = {
+        "activities": [{"logId": 1}], 
+        "pagination": {}
+    }
+
+    # Mock a single response
+    mock_response = mock_response_factory(200, simple_response)
+    mock_oauth_session.request.return_value = mock_response
+
+    # Get the iterator - but don't consume it yet
+    result = activity_resource.get_activity_log_list(
+        before_date="2024-02-13", sort=SortDirection.DESCENDING, as_iterator=True
+    )
+
+    # Just verify the type is PaginatedIterator
+    # Local imports
+    from fitbit_client.resources.pagination import PaginatedIterator
+
+    assert isinstance(result, PaginatedIterator)
+
+    # Check that the initial API call was made, but don't iterate
+    assert mock_oauth_session.request.call_count == 1
+
+
+def test_activity_log_list_pagination_attributes(activity_resource, mock_oauth_session, mock_response_factory):
+    """Test that the iterator has the right pagination attributes but don't attempt iteration"""
+    # Create a response with pagination
+    sample_response = {
+        "activities": [{"logId": i} for i in range(5)],
+        "pagination": {"offset": 0, "limit": 10}
+    }
+    
+    # Mock the response
+    mock_response = mock_response_factory(200, sample_response)
+    mock_oauth_session.request.return_value = mock_response
+    
+    # Get iterator but don't iterate
+    iterator = activity_resource.get_activity_log_list(
+        before_date="2024-02-13", 
+        sort=SortDirection.DESCENDING, 
+        limit=10,
+        as_iterator=True
+    )
+    
+    # Verify iterator properties
+    assert iterator.initial_response == sample_response
+    
+    # Check that the API call was made correctly
+    mock_oauth_session.request.assert_called_once_with(
+        "GET",
+        "https://api.fitbit.com/1/user/-/activities/list.json",
+        data=None,
+        json=None,
+        params={"sort": "desc", "limit": 10, "offset": 0, "beforeDate": "2024-02-13"},
+        headers={"Accept-Locale": "en_US", "Accept-Language": "en_US"},
+    )

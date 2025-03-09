@@ -405,7 +405,131 @@ def test_handle_error_response_with_empty_error_data(base_resource, mock_logger)
 
 
 # -----------------------------------------------------------------------------
-# 10. API Error Status Codes
+# 10. Rate Limiting and Retry Logic
+# -----------------------------------------------------------------------------
+
+
+@patch("fitbit_client.resources.base.sleep")
+def test_rate_limit_retries(
+    mock_sleep, base_resource, mock_oauth_session, mock_response_factory, mock_logger
+):
+    """Test that rate limiting exceptions cause retries with backoff"""
+    # Configure the resource with custom retry settings
+    base_resource.max_retries = 2
+    base_resource.retry_after_seconds = 10
+    base_resource.retry_backoff_factor = 2.0
+
+    # Create rate limit error response
+    rate_limit_response = mock_response_factory(
+        429, {"errors": [{"errorType": "rate_limit_exceeded", "message": "Too many requests"}]}
+    )
+
+    # Create success response for after retry
+    success_response = mock_response_factory(200, {"data": "success"})
+
+    # Set up mock to return rate limit error first, then success
+    mock_oauth_session.request.side_effect = [rate_limit_response, success_response]
+
+    # Make the request that will initially fail but then retry and succeed
+    result = base_resource._make_request("test/endpoint")
+
+    # Verify the result after retry is successful
+    assert result == {"data": "success"}
+
+    # Verify retry was logged
+    assert mock_logger.warning.call_count == 1
+    assert "Rate limit exceeded" in mock_logger.warning.call_args[0][0]
+
+    # Verify sleep was called with the expected backoff value (10 seconds)
+    mock_sleep.assert_called_once_with(10)
+
+    # Verify request was called twice (initial + retry)
+    assert mock_oauth_session.request.call_count == 2
+
+
+@patch("fitbit_client.resources.base.sleep")
+def test_rate_limit_retry_with_backoff(
+    mock_sleep, base_resource, mock_oauth_session, mock_response_factory
+):
+    """Test backoff strategy when no Retry-After header is provided"""
+    # Configure the resource with custom retry settings
+    base_resource.max_retries = 2
+    base_resource.retry_after_seconds = 10
+    base_resource.retry_backoff_factor = 2.0
+
+    # Create two rate limit error responses without Retry-After headers
+    rate_limit_response1 = mock_response_factory(
+        429, {"errors": [{"errorType": "rate_limit_exceeded", "message": "Too many requests"}]}
+    )
+
+    rate_limit_response2 = mock_response_factory(
+        429, {"errors": [{"errorType": "rate_limit_exceeded", "message": "Too many requests"}]}
+    )
+
+    # Create success response for after retries
+    success_response = mock_response_factory(200, {"data": "success"})
+
+    # Set up mock to return rate limit errors twice, then success
+    mock_oauth_session.request.side_effect = [
+        rate_limit_response1,
+        rate_limit_response2,
+        success_response,
+    ]
+
+    # Make the request that will fail twice but then succeed
+    result = base_resource._make_request("test/endpoint")
+
+    # Verify the result after retries is successful
+    assert result == {"data": "success"}
+
+    # Verify exponential backoff was used (10 seconds, then 10*2 = 20 seconds)
+    assert mock_sleep.call_count == 2
+    assert mock_sleep.call_args_list[0][0][0] == 10  # First retry: base wait time
+    assert mock_sleep.call_args_list[1][0][0] == 20  # Second retry: base time * backoff factor
+
+    # Verify request was called three times (initial + 2 retries)
+    assert mock_oauth_session.request.call_count == 3
+
+
+@patch("fitbit_client.resources.base.sleep")
+def test_rate_limit_max_retries_exhausted(
+    mock_sleep, base_resource, mock_oauth_session, mock_response_factory
+):
+    """Test exception is raised when max retries are exhausted"""
+    # Configure the resource with custom retry settings
+    base_resource.max_retries = 2
+    base_resource.retry_after_seconds = 5
+    base_resource.retry_backoff_factor = 1.5
+
+    # Create rate limit error responses
+    rate_limit_response = mock_response_factory(
+        429, {"errors": [{"errorType": "rate_limit_exceeded", "message": "Too many requests"}]}
+    )
+
+    # Set up mock to return rate limit errors for all requests
+    mock_oauth_session.request.side_effect = [
+        rate_limit_response,
+        rate_limit_response,
+        rate_limit_response,
+    ]
+
+    # Make the request that will fail and exhaust all retries
+    with raises(RateLimitExceededException) as exc_info:
+        base_resource._make_request("test/endpoint")
+
+    # Verify the exception is a rate limit exception
+    assert exc_info.value.status_code == 429
+    assert exc_info.value.error_type == "rate_limit_exceeded"
+
+    # Verify retry was attempted the expected number of times
+    assert mock_sleep.call_count == 2
+
+    # Verify request was made the expected number of times (initial + 2 retries)
+    assert mock_oauth_session.request.call_count == 3
+
+
+# -----------------------------------------------------------------------------
+# 11. API Error Status Codes
 # -----------------------------------------------------------------------------
 
 
@@ -535,7 +659,13 @@ def test_429_rate_limit(base_resource, mock_oauth_session, mock_response_factory
         "errors": [{"errorType": "rate_limit_exceeded", "message": "Too many requests"}]
     }
     mock_response = mock_response_factory(429, error_response, content_type="application/json")
-    mock_oauth_session.request.return_value = mock_response
+    
+    # Important: We need to set a simple side_effect rather than return_value to prevent retries
+    # which might cause the test to hang
+    mock_oauth_session.request.side_effect = [mock_response]
+    
+    # Set retries to 0 to prevent the test from attempting retries
+    base_resource.max_retries = 0
 
     with raises(RateLimitExceededException) as exc_info:
         base_resource._make_request("test/endpoint")
