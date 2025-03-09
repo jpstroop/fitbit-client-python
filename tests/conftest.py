@@ -75,10 +75,17 @@ def mock_logger():
 def mock_response_factory():
     """Factory fixture for creating mock responses with specific attributes"""
 
-    def _create_mock_response(status_code, json_data=None, content_type="application/json"):
+    def _create_mock_response(
+        status_code, json_data=None, headers=None, content_type="application/json"
+    ):
         response = Mock(spec=Response)
         response.status_code = status_code
+
+        # Start with content-type, then add any additional headers
         response.headers = {"content-type": content_type}
+        if headers:
+            response.headers.update(headers)
+
         response.text = ""  # Default empty text
         if json_data:
             response.json.return_value = json_data
@@ -93,7 +100,14 @@ def mock_response_factory():
 def base_resource(mock_oauth_session, mock_logger):
     """Fixture to provide a BaseResource instance with standard locale settings"""
     with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
-        resource = BaseResource(oauth_session=mock_oauth_session, locale="en_US", language="en_US")
+        resource = BaseResource(
+            oauth_session=mock_oauth_session,
+            locale="en_US",
+            language="en_US",
+            max_retries=3,
+            retry_after_seconds=60,
+            retry_backoff_factor=1.5,
+        )
         return resource
 
 

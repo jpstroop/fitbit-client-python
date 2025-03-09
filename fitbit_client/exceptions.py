@@ -5,6 +5,10 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from requests import Response
 
 # Local imports
 from fitbit_client.utils.types import JSONDict
@@ -102,9 +106,47 @@ class NotFoundException(RequestException):
 
 
 class RateLimitExceededException(RequestException):
-    """Raised when the application hits rate limiting quotas"""
+    """Raised when the application hits rate limiting quotas.
 
-    pass
+    The Fitbit API enforces a limit of 150 API calls per hour per user.
+    When this limit is reached, the API returns a 429 status code, with
+    headers indicating the limit, remaining calls, and seconds until reset.
+
+    Attributes:
+        message: Human-readable error message
+        status_code: HTTP status code (429)
+        error_type: The API error type ("rate_limit_exceeded")
+        raw_response: Raw response from the API
+        field_name: Optional field name associated with the error
+        rate_limit: The total number of allowed calls (usually 150)
+        rate_limit_remaining: The number of calls remaining before hitting the limit
+        rate_limit_reset: The number of seconds until the rate limit resets
+        response: The original response object (for retry logic)
+    """
+
+    def __init__(
+        self,
+        message: str,
+        error_type: str,
+        status_code: Optional[int] = None,
+        raw_response: Optional[JSONDict] = None,
+        field_name: Optional[str] = None,
+        rate_limit: Optional[int] = None,
+        rate_limit_remaining: Optional[int] = None,
+        rate_limit_reset: Optional[int] = None,
+        response: Optional["Response"] = None,
+    ):
+        super().__init__(
+            message=message,
+            error_type=error_type,
+            status_code=status_code,
+            raw_response=raw_response,
+            field_name=field_name,
+        )
+        self.rate_limit = rate_limit
+        self.rate_limit_remaining = rate_limit_remaining
+        self.rate_limit_reset = rate_limit_reset
+        self.response = response
 
 
 class SystemException(RequestException):

@@ -60,3 +60,33 @@ def test_client_authenticate_system_error(client, mock_oauth):
     with raises(SystemException) as exc_info:
         client.authenticate()
     assert "System failure" in str(exc_info.value)
+
+
+def test_client_rate_limiting_config():
+    """Test that client passes rate limiting config to resources"""
+    with (
+        patch("fitbit_client.client.FitbitOAuth2") as mock_oauth2,
+        patch("fitbit_client.client.SleepResource") as mock_sleep_resource,
+    ):
+
+        # Set up mocks
+        mock_auth = MagicMock()
+        mock_auth.session = "mock_session"
+        mock_oauth2.return_value = mock_auth
+
+        # Create client with custom rate limiting config
+        client = FitbitClient(
+            client_id="test_id",
+            client_secret="test_secret",
+            redirect_uri="http://localhost:8080/callback",
+            max_retries=5,
+            retry_after_seconds=30,
+            retry_backoff_factor=2.0,
+        )
+
+        # Verify rate limiting params were passed to SleepResource
+        assert mock_sleep_resource.call_args is not None
+        args, kwargs = mock_sleep_resource.call_args
+        assert kwargs["max_retries"] == 5
+        assert kwargs["retry_after_seconds"] == 30
+        assert kwargs["retry_backoff_factor"] == 2.0

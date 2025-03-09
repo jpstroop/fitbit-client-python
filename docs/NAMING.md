@@ -2,10 +2,10 @@
 
 ## Naming Principles
 
-The method names in this library are designed to align with the official Fitbit
-Web API Documentation. When there are inconsistencies in the official
-documentation, we prioritize the URL slug. For example, if the documentation
-page title says "Get **Time Series** by Date" but the URL is
+The API method names are designed to align with the official Fitbit Web API
+Documentation. When there are inconsistencies in the official documentation, we
+prefer the URL slug for the page. For example, if the documentation page title
+says "Get **Time Series** by Date" but the URL is
 ".../get-azm-timeseries-by-date/", our method will be named
 `get_azm_timeseries_by_date()`. (not `get_azm_time_series_by_date()`).
 
@@ -20,13 +20,16 @@ you navigate the API more effectively:
 
 ### Method Name vs. Functionality Inconsistencies
 
+Examples:
+
 - `create_activity_goals` creates only one goal at a time, despite the plural
   name
-- `add_favorite_foods` adds one food at a time, while all other creation methods
-  start with "create".
+- `add_favorite_foods` adds one food at a time; also, all other creation/POST
+  methods start with "`create_`".
 - `get_sleep_goals` returns a single goal, not multiple goals
 - Additionally, some pluralized methods return lists, while others return
-  dictionaries containing lists
+  dictionaries containing lists (see
+  [Response Structure Inconsistencies](#response-structure-inconsistencies))
 
 For user convenience, these inconsistencies have aliases:
 

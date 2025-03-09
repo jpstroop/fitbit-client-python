@@ -2,15 +2,13 @@
 
 ## Overview
 
-This library uses a type system to help you understand what to expect from API
-responses. All resource methods (API endpoints) return one of three types:
+Strong typing JSON is complicated. The primary goal for typing in this library
+is to help you at least understand at least the outermost data structure of the
+API responses. All resource methods (API endpoints) return one of three types:
 
 - `JSONDict`: A dictionary containing JSON data
 - `JSONList`: A list containing JSON data
 - `None`: For operations that don't return data (typically delete operations)
-
-While Python's dynamic typing doesn't enforce these types at runtime, they
-provide valuable documentation and enable IDE autocompletion.
 
 ## Understanding Response Types
 
@@ -19,7 +17,6 @@ provide valuable documentation and enable IDE autocompletion.
 The base types represent the outermost wrapper of API responses:
 
 ```python
-# These are the actual definitions from utils/types.py
 JSONDict = Dict[str, JSONType]  # A dictionary with string keys and JSON values
 JSONList = List[JSONType]       # A list of JSON objects
 ```
@@ -29,9 +26,6 @@ Where `JSONType` is a recursive type that can be any valid JSON value:
 ```python
 JSONType = Union[str, int, float, bool, None, Dict[str, Any], List[Any]]
 ```
-
-This typing helps you know the outer structure of the response but doesn't
-specify the inner details.
 
 ### Empty and Special Responses
 
@@ -65,8 +59,8 @@ For example, `get_activity_timeseries_by_date()` returns:
 }
 ```
 
-Accordingly, this is typed as a `JSONDict`, not a `JSONList`, despite containing
-a list of items.
+Accordingly, this is typed as a `JSONDict`, not a `JSONList`, despite the name
+suggesting a list of items and the meat of the response being a list.
 
 In contrast, these methods do return direct lists (typed as `JSONList`):
 

@@ -5,6 +5,8 @@ from typing import Any
 from typing import Dict
 from typing import Never
 from typing import Optional
+from typing import TYPE_CHECKING
+from typing import Union
 from typing import cast
 
 # Local imports
@@ -14,11 +16,18 @@ from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import ActivityGoalPeriod
 from fitbit_client.resources.constants import ActivityGoalType
 from fitbit_client.resources.constants import SortDirection
+from fitbit_client.resources.pagination import create_paginated_iterator
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.pagination_validation import validate_pagination_params
 from fitbit_client.utils.types import JSONDict
 from fitbit_client.utils.types import JSONList
 from fitbit_client.utils.types import ParamDict
+
+# Use TYPE_CHECKING to avoid circular imports
+if TYPE_CHECKING:
+    # Local imports - only imported during type checking
+    # Local imports
+    from fitbit_client.resources.pagination import PaginatedIterator
 
 
 class ActivityResource(BaseResource):
@@ -196,7 +205,8 @@ class ActivityResource(BaseResource):
         offset: int = 0,
         user_id: str = "-",
         debug: bool = False,
-    ) -> JSONDict:
+        as_iterator: bool = False,
+    ) -> Union[JSONDict, "PaginatedIterator"]:
         """Returns a list of user's activity log entries before or after a given day.
 
         API Reference: https://dev.fitbit.com/build/reference/web-api/activity/get-activity-log-list/
@@ -212,9 +222,13 @@ class ActivityResource(BaseResource):
             offset: Offset for pagination (only 0 is reliably supported)
             user_id: Optional user ID, defaults to current user ("-")
             debug: If True, prints a curl command to stdout to help with debugging (default: False)
+            as_iterator: If True, returns a PaginatedIterator instead of the raw response (default: False)
 
         Returns:
-            JSONDict: Activity logs matching the criteria with pagination information
+            If as_iterator=False (default):
+                JSONDict: Activity logs matching the criteria with pagination information
+            If as_iterator=True:
+                PaginatedIterator: An iterator that yields each page of activity logs
 
         Raises:
             fitbit_client.exceptions.PaginationException: If neither before_date nor after_date is specified
@@ -225,6 +239,14 @@ class ActivityResource(BaseResource):
             - Either before_date or after_date must be specified, but not both
             - The offset parameter only reliably supports 0; use the "next" URL in the
               pagination response to iterate through results
+
+            When using as_iterator=True, you can iterate through all pages like this:
+            ```python
+            for page in client.get_activity_log_list(before_date="2025-01-01", as_iterator=True):
+                for activity in page["activities"]:
+                    print(activity["logId"])
+            ```
+
             - Includes both manual and automatic activity entries
             - Each activity entry contains detailed information about the activity, including
               duration, calories, heart rate (if available), steps, and other metrics
@@ -238,9 +260,23 @@ class ActivityResource(BaseResource):
         if after_date:
             params["afterDate"] = after_date
 
-        result = self._make_request(
-            "activities/list.json", params=params, user_id=user_id, debug=debug
-        )
+        endpoint = "activities/list.json"
+        result = self._make_request(endpoint, params=params, user_id=user_id, debug=debug)
+
+        # If debug mode is enabled, result will be None
+        if debug or result is None:
+            return cast(JSONDict, result)
+
+        # Return as iterator if requested
+        if as_iterator:
+            return create_paginated_iterator(
+                response=cast(JSONDict, result),
+                resource=self,
+                endpoint=endpoint,
+                method_params=params,
+                debug=debug,
+            )
+
         return cast(JSONDict, result)
 
     def create_favorite_activity(

@@ -307,6 +307,33 @@ The OAuth callback mechanism is implemented using two main classes:
 
 This section will be documented as we near our first release.
 
+## Pagination Implementation
+
+The pagination implementation uses the following approach:
+
+### Pagination Iterator
+
+- Uses the `PaginatedIterator` class that implements the Python `Iterator`
+  protocol
+- Automatically handles fetching the next page when needed using the `next` URL
+  from pagination metadata
+- Properly handles edge cases like invalid responses, missing pagination data,
+  and API errors
+
+### Type Safety
+
+- Uses `TYPE_CHECKING` from the typing module to avoid circular imports at
+  runtime
+- Maintains complete type safety and mypy compatibility
+- All pagination-related code has 100% test coverage
+
+### Resource Integration
+
+Each endpoint that supports pagination has an `as_iterator` parameter that, when
+set to `True`, returns a `PaginatedIterator` instead of the raw API response.
+This makes it easy to iterate through all pages of results without manually
+handling pagination.
+
 ## Intraday Data Support
 
 This client implements intraday data endpoints (detailed heart rate, steps, etc)

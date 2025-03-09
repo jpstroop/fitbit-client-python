@@ -66,6 +66,17 @@ def test_get_devices_error_responses(
         status_code, {"errors": [{"errorType": "system", "message": f"Error {status_code}"}]}
     )
     mock_oauth_session.request.return_value = mock_response
-    with raises(Exception) as exc_info:
-        device_resource.get_devices()
-    assert exc_info.value.status_code == status_code
+
+    # Disable retry for rate limit tests to prevent hanging
+    if status_code == 429:
+        original_max_retries = device_resource.max_retries
+        device_resource.max_retries = 0
+
+    try:
+        with raises(Exception) as exc_info:
+            device_resource.get_devices()
+        assert exc_info.value.status_code == status_code
+    finally:
+        # Restore original retry setting
+        if status_code == 429:
+            device_resource.max_retries = original_max_retries
