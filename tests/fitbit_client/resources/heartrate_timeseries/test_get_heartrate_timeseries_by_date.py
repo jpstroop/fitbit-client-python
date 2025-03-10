@@ -11,7 +11,7 @@ from pytest import raises
 from fitbit_client.exceptions import IntradayValidationException
 from fitbit_client.exceptions import InvalidDateException
 from fitbit_client.exceptions import ParameterValidationException
-from fitbit_client.resources.constants import Period
+from fitbit_client.resources._constants import Period
 
 
 def test_get_heartrate_timeseries_by_date_success(

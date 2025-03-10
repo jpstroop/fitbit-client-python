@@ -13,7 +13,7 @@ from pytest import raises
 # Local imports
 from fitbit_client.exceptions import InvalidDateException
 from fitbit_client.exceptions import PaginationException
-from fitbit_client.resources.constants import SortDirection
+from fitbit_client.resources._constants import SortDirection
 
 
 def test_get_activity_log_list_validates_limit(activity_resource):
@@ -101,7 +101,7 @@ def test_get_activity_log_list_creates_iterator(
 
     # Just verify the type is PaginatedIterator
     # Local imports
-    from fitbit_client.resources.pagination import PaginatedIterator
+    from fitbit_client.resources._pagination import PaginatedIterator
 
     assert isinstance(result, PaginatedIterator)
 
@@ -142,7 +142,7 @@ def test_activity_log_list_pagination_attributes(
     )
 
 
-@patch("fitbit_client.resources.base.BaseResource._make_request")
+@patch("fitbit_client.resources._base.BaseResource._make_request")
 def test_get_activity_log_list_with_debug(mock_make_request, activity_resource):
     """Test that debug mode returns None from get_activity_log_list."""
     # Mock _make_request to return None when debug=True

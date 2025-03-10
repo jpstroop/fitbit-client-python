@@ -9,9 +9,9 @@ from pytest import raises
 
 # Local imports
 from fitbit_client.exceptions import InvalidDateException
-from fitbit_client.resources.constants import ClockTimeFormat
-from fitbit_client.resources.constants import Gender
-from fitbit_client.resources.constants import StartDayOfWeek
+from fitbit_client.resources._constants import ClockTimeFormat
+from fitbit_client.resources._constants import Gender
+from fitbit_client.resources._constants import StartDayOfWeek
 
 
 def test_update_profile_success(user_resource, mock_oauth_session, mock_response_factory):

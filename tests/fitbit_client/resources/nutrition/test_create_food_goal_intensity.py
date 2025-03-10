@@ -5,7 +5,7 @@
 # Local imports
 
 # Local imports
-from fitbit_client.resources.constants import FoodPlanIntensity
+from fitbit_client.resources._constants import FoodPlanIntensity
 
 
 def test_create_food_goal_intensity_without_personalized(nutrition_resource, mock_response):

@@ -28,7 +28,7 @@ from fitbit_client.exceptions import NotFoundException
 from fitbit_client.exceptions import RateLimitExceededException
 from fitbit_client.exceptions import SystemException
 from fitbit_client.exceptions import ValidationException
-from fitbit_client.resources.base import BaseResource
+from fitbit_client.resources._base import BaseResource
 
 # -----------------------------------------------------------------------------
 # 1. Initialization and Basic Setup
@@ -37,7 +37,7 @@ from fitbit_client.resources.base import BaseResource
 
 def test_initialization_sets_locale_headers(mock_oauth_session):
     """Test initialization properly sets locale-specific headers"""
-    with patch("fitbit_client.resources.base.getLogger"):
+    with patch("fitbit_client.resources._base.getLogger"):
         resource = BaseResource(mock_oauth_session, "fr_FR", "fr")
         assert resource.headers == {"Accept-Locale": "fr_FR", "Accept-Language": "fr"}
         assert resource.oauth == mock_oauth_session
@@ -84,7 +84,7 @@ def test_get_calling_method(base_resource):
     assert method_name == "wrapper_method"
 
 
-@patch("fitbit_client.resources.base.currentframe")
+@patch("fitbit_client.resources._base.currentframe")
 def test_get_calling_method_with_frames(mock_frame, base_resource):
     """Test getting the calling method name with specific frame setup"""
     # Set up the frame chain: api_method -> _make_request -> _get_calling_method
@@ -109,7 +109,7 @@ def test_get_calling_method_with_frames(mock_frame, base_resource):
 def test_get_calling_method_unknown(base_resource):
     """Test fallback value when calling method can't be determined"""
     # This tests line 165 in base.py
-    with patch("fitbit_client.resources.base.currentframe", return_value=None):
+    with patch("fitbit_client.resources._base.currentframe", return_value=None):
         method_name = base_resource._get_calling_method()
         assert method_name == "unknown"
 
@@ -471,7 +471,7 @@ def test_get_retry_after_without_header(base_resource):
     assert retry_seconds == 10
 
 
-@patch("fitbit_client.resources.base.sleep")
+@patch("fitbit_client.resources._base.sleep")
 def test_rate_limit_retries(
     mock_sleep, base_resource, mock_oauth_session, mock_response_factory, mock_logger
 ):
@@ -509,7 +509,7 @@ def test_rate_limit_retries(
     assert mock_oauth_session.request.call_count == 2
 
 
-@patch("fitbit_client.resources.base.sleep")
+@patch("fitbit_client.resources._base.sleep")
 def test_rate_limit_retry_with_backoff(
     mock_sleep, base_resource, mock_oauth_session, mock_response_factory
 ):
@@ -553,7 +553,7 @@ def test_rate_limit_retry_with_backoff(
     assert mock_oauth_session.request.call_count == 3
 
 
-@patch("fitbit_client.resources.base.sleep")
+@patch("fitbit_client.resources._base.sleep")
 def test_rate_limit_max_retries_exhausted(
     mock_sleep, base_resource, mock_oauth_session, mock_response_factory
 ):
@@ -596,7 +596,7 @@ def test_rate_limit_max_retries_exhausted(
 
 
 @patch("builtins.print")
-@patch("fitbit_client.resources.base.CurlDebugMixin._build_curl_command")
+@patch("fitbit_client.resources._base.CurlDebugMixin._build_curl_command")
 def test_make_direct_request_with_debug(mock_build_curl, mock_print, base_resource):
     """Test that _make_direct_request returns empty dict when debug=True."""
     # Mock the _build_curl_command method
@@ -617,7 +617,7 @@ def test_make_direct_request_with_debug(mock_build_curl, mock_print, base_resour
         mock_print.assert_any_call("\n# Debug curl command for test_pagination (pagination):")
 
 
-@patch("fitbit_client.resources.base.BaseResource._handle_json_response")
+@patch("fitbit_client.resources._base.BaseResource._handle_json_response")
 def test_make_direct_request_success(mock_handle_json, base_resource):
     """Test successful direct request with JSON response."""
     # Mock the OAuth session
@@ -643,7 +643,7 @@ def test_make_direct_request_success(mock_handle_json, base_resource):
     mock_handle_json.assert_called_once()
 
 
-@patch("fitbit_client.resources.base.BaseResource._get_calling_method")
+@patch("fitbit_client.resources._base.BaseResource._get_calling_method")
 def test_make_direct_request_unexpected_content_type(mock_get_calling, base_resource, mock_logger):
     """Test handling of unexpected content type in direct request."""
     mock_get_calling.return_value = "test_method"
@@ -668,8 +668,8 @@ def test_make_direct_request_unexpected_content_type(mock_get_calling, base_reso
     assert "Unexpected content type" in mock_logger.error.call_args[0][0]
 
 
-@patch("fitbit_client.resources.base.sleep")
-@patch("fitbit_client.resources.base.BaseResource._get_retry_after")
+@patch("fitbit_client.resources._base.sleep")
+@patch("fitbit_client.resources._base.BaseResource._get_retry_after")
 def test_direct_request_rate_limit_retry(mock_get_retry, mock_sleep, base_resource, mock_logger):
     """Test rate limit retry for direct requests."""
 
@@ -727,9 +727,9 @@ def test_direct_request_rate_limit_retry(mock_get_retry, mock_sleep, base_resour
                 assert False, "Rate limit warning log not found"
 
 
-@patch("fitbit_client.resources.base.sleep")
-@patch("fitbit_client.resources.base.BaseResource._handle_error_response")
-@patch("fitbit_client.resources.base.BaseResource._should_retry_request")
+@patch("fitbit_client.resources._base.sleep")
+@patch("fitbit_client.resources._base.BaseResource._handle_error_response")
+@patch("fitbit_client.resources._base.BaseResource._should_retry_request")
 def test_make_direct_request_rate_limit_retry(
     mock_should_retry, mock_handle_error, mock_sleep, base_resource, mock_logger
 ):
@@ -763,7 +763,7 @@ def test_make_direct_request_rate_limit_retry(
 
     # Call the method
     with patch(
-        "fitbit_client.resources.base.BaseResource._handle_json_response"
+        "fitbit_client.resources._base.BaseResource._handle_json_response"
     ) as mock_handle_json:
         mock_handle_json.return_value = {"data": "success"}
         result = base_resource._make_direct_request("/test")
@@ -775,7 +775,7 @@ def test_make_direct_request_rate_limit_retry(
     assert mock_logger.warning.call_count == 1
 
 
-@patch("fitbit_client.resources.base.BaseResource._get_calling_method")
+@patch("fitbit_client.resources._base.BaseResource._get_calling_method")
 def test_make_direct_request_exception(mock_get_calling, base_resource, mock_logger):
     """Test handling of exceptions in direct request."""
     mock_get_calling.return_value = "test_method"
@@ -1015,7 +1015,7 @@ def test_rate_limit_headers_logging(base_resource, mock_logger):
         assert False, "Rate limit status log not found"
 
 
-@patch("fitbit_client.resources.base.sleep")
+@patch("fitbit_client.resources._base.sleep")
 def test_rate_limit_retry_with_fitbit_headers(
     mock_sleep, base_resource, mock_oauth_session, mock_logger
 ):
@@ -1076,7 +1076,7 @@ def test_rate_limit_retry_with_fitbit_headers(
             assert False, "Rate limit warning log not found"
 
 
-@patch("fitbit_client.resources.base.sleep")
+@patch("fitbit_client.resources._base.sleep")
 def test_rate_limit_retry_without_response(
     mock_sleep, base_resource, mock_oauth_session, mock_logger
 ):
@@ -1114,7 +1114,7 @@ def test_rate_limit_retry_without_response(
         mock_sleep.assert_called_once_with(60)  # First retry is just base value
 
 
-@patch("fitbit_client.resources.base.sleep")
+@patch("fitbit_client.resources._base.sleep")
 def test_direct_request_retry_without_response(mock_sleep, base_resource, mock_logger):
     """Test direct request retry for rate limit errors without a response object."""
     error_response = Mock()
@@ -1154,8 +1154,8 @@ def test_direct_request_retry_without_response(mock_sleep, base_resource, mock_l
         mock_sleep.assert_called_once_with(60)  # Just the base value for first retry
 
 
-@patch("fitbit_client.resources.base.sleep")
-@patch("fitbit_client.resources.base.BaseResource._get_retry_after")
+@patch("fitbit_client.resources._base.sleep")
+@patch("fitbit_client.resources._base.BaseResource._get_retry_after")
 def test_direct_request_retry_with_fitbit_headers(
     mock_get_retry, mock_sleep, base_resource, mock_logger
 ):

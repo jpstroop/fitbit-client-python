@@ -9,7 +9,7 @@ from pytest import raises
 
 # Local imports
 from fitbit_client.exceptions import InvalidDateException
-from fitbit_client.resources.constants import WaterUnit
+from fitbit_client.resources._constants import WaterUnit
 
 
 def test_create_water_log_success(nutrition_resource, mock_response):

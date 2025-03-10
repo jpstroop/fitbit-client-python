@@ -14,8 +14,8 @@ from unittest.mock import patch
 from pytest import fixture
 
 # Local imports
-from fitbit_client.resources.pagination import PaginatedIterator
-from fitbit_client.resources.pagination import create_paginated_iterator
+from fitbit_client.resources._pagination import PaginatedIterator
+from fitbit_client.resources._pagination import create_paginated_iterator
 from fitbit_client.utils.types import JSONDict
 
 
@@ -69,15 +69,15 @@ def test_import_with_type_checking():
         typing.TYPE_CHECKING = True
 
         # Force reload of the module
-        if "fitbit_client.resources.pagination" in sys.modules:
-            del sys.modules["fitbit_client.resources.pagination"]
+        if "fitbit_client.resources._pagination" in sys.modules:
+            del sys.modules["fitbit_client.resources._pagination"]
 
         # Now import the module with TYPE_CHECKING as True
         # Local imports
-        from fitbit_client.resources.pagination import PaginatedIterator
+        from fitbit_client.resources._pagination import PaginatedIterator
 
         # This should have imported BaseResource due to TYPE_CHECKING being True
-        assert "fitbit_client.resources.base" in sys.modules
+        assert "fitbit_client.resources._base" in sys.modules
 
     finally:
         # Restore TYPE_CHECKING to its original value

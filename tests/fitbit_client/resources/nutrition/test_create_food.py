@@ -8,8 +8,8 @@ from pytest import raises
 # Local imports
 from fitbit_client.exceptions import ClientValidationException
 from fitbit_client.exceptions import ValidationException
-from fitbit_client.resources.constants import FoodFormType
-from fitbit_client.resources.constants import NutritionalValue
+from fitbit_client.resources._constants import FoodFormType
+from fitbit_client.resources._constants import NutritionalValue
 
 
 def test_create_food_success(nutrition_resource, mock_response):

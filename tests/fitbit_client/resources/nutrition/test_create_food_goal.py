@@ -9,7 +9,7 @@ from pytest import raises
 
 # Local imports
 from fitbit_client.exceptions import MissingParameterException
-from fitbit_client.resources.constants import FoodPlanIntensity
+from fitbit_client.resources._constants import FoodPlanIntensity
 
 
 def test_create_food_goal_with_calories_success(nutrition_resource, mock_response):

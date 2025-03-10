@@ -61,7 +61,7 @@ except InvalidDateRangeException as e:
 The library provides enums for many parameters to ensure valid values:
 
 ```python
-from fitbit_client.resources.constants import Period, ActivityGoalType
+from fitbit_client.resources._constants import Period, ActivityGoalType
 
 # Valid - using provided enum
 client.activity.get_activity_timeseries_by_date(

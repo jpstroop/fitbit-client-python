@@ -5,7 +5,7 @@
 # Local imports
 
 # Local imports
-from fitbit_client.resources.constants import MealType
+from fitbit_client.resources._constants import MealType
 
 
 def test_custom_user_id(nutrition_resource, mock_response):

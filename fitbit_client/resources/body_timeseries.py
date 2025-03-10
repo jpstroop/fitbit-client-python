@@ -5,10 +5,10 @@ from typing import cast
 
 # Local imports
 from fitbit_client.exceptions import ValidationException
-from fitbit_client.resources.base import BaseResource
-from fitbit_client.resources.constants import BodyResourceType
-from fitbit_client.resources.constants import BodyTimePeriod
-from fitbit_client.resources.constants import MaxRanges
+from fitbit_client.resources._base import BaseResource
+from fitbit_client.resources._constants import BodyResourceType
+from fitbit_client.resources._constants import BodyTimePeriod
+from fitbit_client.resources._constants import MaxRanges
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range
 from fitbit_client.utils.date_validation import validate_date_range_params

@@ -11,7 +11,7 @@ from pytest import raises
 # Local imports
 from fitbit_client.exceptions import InvalidDateException
 from fitbit_client.exceptions import PaginationException
-from fitbit_client.resources.constants import SortDirection
+from fitbit_client.resources._constants import SortDirection
 
 
 def test_get_irn_alerts_list_success(irn_resource, mock_oauth_session, mock_response_factory):
@@ -115,7 +115,7 @@ def test_get_irn_alerts_list_creates_iterator(
 
     # Just verify the type is PaginatedIterator
     # Local imports
-    from fitbit_client.resources.pagination import PaginatedIterator
+    from fitbit_client.resources._pagination import PaginatedIterator
 
     assert isinstance(result, PaginatedIterator)
 
@@ -156,7 +156,7 @@ def test_irn_alerts_list_pagination_attributes(
     )
 
 
-@patch("fitbit_client.resources.base.BaseResource._make_request")
+@patch("fitbit_client.resources._base.BaseResource._make_request")
 def test_get_irn_alerts_list_with_debug(mock_make_request, irn_resource):
     """Test that debug mode returns None from get_irn_alerts_list."""
     # Mock _make_request to return None when debug=True

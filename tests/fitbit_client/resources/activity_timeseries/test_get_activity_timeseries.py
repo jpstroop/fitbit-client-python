@@ -5,8 +5,8 @@
 # Local imports
 
 # Local imports
-from fitbit_client.resources.constants import ActivityTimeSeriesPath
-from fitbit_client.resources.constants import Period
+from fitbit_client.resources._constants import ActivityTimeSeriesPath
+from fitbit_client.resources._constants import Period
 
 
 def test_get_activity_timeseries_with_today_date(activity_timeseries_resource, mock_response):

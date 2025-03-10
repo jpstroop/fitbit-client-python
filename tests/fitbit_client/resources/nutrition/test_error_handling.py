@@ -15,7 +15,7 @@ from fitbit_client.exceptions import NotFoundException
 from fitbit_client.exceptions import RateLimitExceededException
 from fitbit_client.exceptions import SystemException
 from fitbit_client.exceptions import ValidationException
-from fitbit_client.resources.constants import MealType
+from fitbit_client.resources._constants import MealType
 
 
 def test_error_handling():

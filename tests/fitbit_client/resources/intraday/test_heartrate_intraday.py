@@ -6,7 +6,7 @@ from pytest import raises
 # Local imports
 from fitbit_client.exceptions import IntradayValidationException
 from fitbit_client.exceptions import InvalidDateException
-from fitbit_client.resources.constants import IntradayDetailLevel
+from fitbit_client.resources._constants import IntradayDetailLevel
 
 
 def test_get_heartrate_intraday_by_date_success(

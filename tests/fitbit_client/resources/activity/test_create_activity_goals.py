@@ -10,8 +10,8 @@ from pytest import raises
 
 # Local imports
 from fitbit_client.exceptions import ValidationException
-from fitbit_client.resources.constants import ActivityGoalPeriod
-from fitbit_client.resources.constants import ActivityGoalType
+from fitbit_client.resources._constants import ActivityGoalPeriod
+from fitbit_client.resources._constants import ActivityGoalType
 
 
 def test_create_activity_goals(activity_resource):

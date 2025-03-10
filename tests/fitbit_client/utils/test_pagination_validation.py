@@ -6,7 +6,7 @@ from pytest import raises
 
 # Local imports
 from fitbit_client.exceptions import PaginationException
-from fitbit_client.resources.constants import SortDirection
+from fitbit_client.resources._constants import SortDirection
 from fitbit_client.utils.pagination_validation import validate_pagination_params
 
 

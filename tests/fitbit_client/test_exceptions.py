@@ -31,7 +31,7 @@ from fitbit_client.exceptions import RequestException
 from fitbit_client.exceptions import STATUS_CODE_EXCEPTIONS
 from fitbit_client.exceptions import SystemException
 from fitbit_client.exceptions import ValidationException
-from fitbit_client.resources.constants import IntradayDetailLevel
+from fitbit_client.resources._constants import IntradayDetailLevel
 
 
 class TestBaseException:

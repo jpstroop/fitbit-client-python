@@ -8,7 +8,7 @@
 from unittest.mock import Mock
 
 # Local imports
-from fitbit_client.resources.constants import ActivityGoalPeriod
+from fitbit_client.resources._constants import ActivityGoalPeriod
 
 
 def test_get_activity_goals(activity_resource):

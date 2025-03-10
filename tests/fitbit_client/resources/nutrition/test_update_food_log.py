@@ -9,7 +9,7 @@ from pytest import raises
 
 # Local imports
 from fitbit_client.exceptions import MissingParameterException
-from fitbit_client.resources.constants import MealType
+from fitbit_client.resources._constants import MealType
 
 
 def test_update_food_log_with_unit_amount_success(nutrition_resource, mock_response):

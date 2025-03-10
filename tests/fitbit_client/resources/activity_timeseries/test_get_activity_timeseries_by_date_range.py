@@ -11,7 +11,7 @@ from pytest import raises
 from fitbit_client.exceptions import InvalidDateException
 from fitbit_client.exceptions import InvalidDateRangeException
 from fitbit_client.exceptions import ValidationException
-from fitbit_client.resources.constants import ActivityTimeSeriesPath
+from fitbit_client.resources._constants import ActivityTimeSeriesPath
 
 
 def test_get_activity_timeseries_by_date_range_success(activity_timeseries_resource, mock_response):

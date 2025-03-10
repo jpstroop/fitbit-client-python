@@ -1,4 +1,4 @@
-# fitbit_client/resources/base.py
+# fitbit_client/resources/_base.py
 
 # Standard library imports
 from datetime import datetime

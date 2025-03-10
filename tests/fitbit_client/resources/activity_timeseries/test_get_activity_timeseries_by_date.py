@@ -9,8 +9,8 @@ from pytest import raises
 
 # Local imports
 from fitbit_client.exceptions import InvalidDateException
-from fitbit_client.resources.constants import ActivityTimeSeriesPath
-from fitbit_client.resources.constants import Period
+from fitbit_client.resources._constants import ActivityTimeSeriesPath
+from fitbit_client.resources._constants import Period
 
 
 def test_get_activity_timeseries_by_date_success(activity_timeseries_resource, mock_response):

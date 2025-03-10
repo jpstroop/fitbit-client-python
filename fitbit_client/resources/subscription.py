@@ -5,8 +5,8 @@ from typing import Optional
 from typing import cast
 
 # Local imports
-from fitbit_client.resources.base import BaseResource
-from fitbit_client.resources.constants import SubscriptionCategory
+from fitbit_client.resources._base import BaseResource
+from fitbit_client.resources._constants import SubscriptionCategory
 from fitbit_client.utils.types import JSONDict
 
 

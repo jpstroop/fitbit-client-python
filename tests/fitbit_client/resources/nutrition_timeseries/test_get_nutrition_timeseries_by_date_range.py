@@ -10,7 +10,7 @@ from pytest import raises
 # Local imports
 from fitbit_client.exceptions import InvalidDateException
 from fitbit_client.exceptions import InvalidDateRangeException
-from fitbit_client.resources.constants import NutritionResource
+from fitbit_client.resources._constants import NutritionResource
 
 
 def test_get_nutrition_timeseries_by_date_range_success(

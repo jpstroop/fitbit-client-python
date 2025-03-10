@@ -8,7 +8,7 @@
 from unittest.mock import Mock
 
 # Local imports
-from fitbit_client.resources.constants import SubscriptionCategory
+from fitbit_client.resources._constants import SubscriptionCategory
 
 
 def test_get_subscription_list_success(subscription_resource):

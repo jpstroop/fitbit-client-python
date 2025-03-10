@@ -8,7 +8,7 @@ from pytest import raises
 # Local imports
 from fitbit_client.exceptions import InvalidDateException
 from fitbit_client.exceptions import ValidationException
-from fitbit_client.resources.constants import BodyTimePeriod
+from fitbit_client.resources._constants import BodyTimePeriod
 
 
 def test_get_weight_timeseries_by_date_validates_date(body_timeseries):

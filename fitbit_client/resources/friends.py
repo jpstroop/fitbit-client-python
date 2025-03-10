@@ -4,7 +4,7 @@
 from typing import cast
 
 # Local imports
-from fitbit_client.resources.base import BaseResource
+from fitbit_client.resources._base import BaseResource
 from fitbit_client.utils.types import JSONDict
 
 

@@ -1,4 +1,4 @@
-# fitbit_client/resources/pagination.py
+# fitbit_client/resources/_pagination.py
 
 # Standard library imports
 from collections.abc import Iterator
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 if TYPE_CHECKING:
     # Local imports - only imported during type checking
     # Local imports
-    from fitbit_client.resources.base import BaseResource
+    from fitbit_client.resources._base import BaseResource
 
 
 class PaginatedIterator(Iterator[JSONDict]):

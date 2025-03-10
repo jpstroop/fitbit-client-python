@@ -10,8 +10,8 @@ from pytest import raises
 # Local imports
 from fitbit_client.exceptions import ClientValidationException
 from fitbit_client.exceptions import InvalidDateException
-from fitbit_client.resources.constants import MealType
-from fitbit_client.resources.constants import NutritionalValue
+from fitbit_client.resources._constants import MealType
+from fitbit_client.resources._constants import NutritionalValue
 
 
 def test_create_food_log_with_food_id_success(nutrition_resource, mock_response):

@@ -5,7 +5,7 @@
 # Local imports
 
 # Local imports
-from fitbit_client.resources.constants import BodyGoalType
+from fitbit_client.resources._constants import BodyGoalType
 
 
 def test_get_body_goals_fat(body_resource, mock_oauth_session, mock_response_factory):

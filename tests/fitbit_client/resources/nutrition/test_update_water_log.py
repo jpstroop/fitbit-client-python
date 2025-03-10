@@ -5,7 +5,7 @@
 # Local imports
 
 # Local imports
-from fitbit_client.resources.constants import WaterUnit
+from fitbit_client.resources._constants import WaterUnit
 
 
 def test_update_water_log_success(nutrition_resource, mock_response):

@@ -244,7 +244,7 @@ def mock_logger():
 @fixture
 def base_resource(mock_oauth_session, mock_logger):
     """Creates a resource instance with mocked dependencies"""
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return BaseResource(mock_oauth_session, "en_US", "en_US")
 ```
 

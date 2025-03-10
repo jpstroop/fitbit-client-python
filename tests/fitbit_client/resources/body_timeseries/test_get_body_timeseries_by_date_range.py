@@ -8,8 +8,8 @@ from pytest import raises
 # Local imports
 from fitbit_client.exceptions import InvalidDateException
 from fitbit_client.exceptions import InvalidDateRangeException
-from fitbit_client.resources.constants import BodyResourceType
-from fitbit_client.resources.constants import MaxRanges
+from fitbit_client.resources._constants import BodyResourceType
+from fitbit_client.resources._constants import MaxRanges
 
 
 def test_get_body_timeseries_by_date_range_validates_dates(body_timeseries):
