@@ -281,7 +281,7 @@ class ActivityResource(BaseResource):
 
     def create_favorite_activity(
         self, activity_id: int, user_id: str = "-", debug: bool = False
-    ) -> Dict[Never, Never]:
+    ) -> None:
         """Adds an activity to the user's list of favorite activities.
 
         Favorite activities appear in a special section of the Fitbit app and website,
@@ -295,7 +295,7 @@ class ActivityResource(BaseResource):
             debug: If True, prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
-            Dict[Never, Never]: Empty dictionary on success, with HTTP 201 status code
+            None: Returns None on success, with HTTP 201 status code
 
         Raises:
             fitbit_client.exceptions.InvalidRequestException: If activity_id is invalid
@@ -314,11 +314,11 @@ class ActivityResource(BaseResource):
             http_method="POST",
             debug=debug,
         )
-        return cast(Dict[Never, Never], result)
+        return cast(None, result)
 
     def delete_activity_log(
         self, activity_log_id: int, user_id: str = "-", debug: bool = False
-    ) -> Dict[Never, Never]:
+    ) -> None:
         """Deletes a specific activity log entry from the user's activity history.
 
         This endpoint permanently removes an activity from the user's activity history.
@@ -333,7 +333,7 @@ class ActivityResource(BaseResource):
             debug: If True, prints a curl command to stdout to help with debugging (default: False)
 
         Returns:
-            Dict[Never, Never]: Empty dictionary on success, with HTTP 204 status code
+            None: Returns None on success, with HTTP 204 status code
 
         Raises:
             fitbit_client.exceptions.InvalidRequestException: If activity_log_id is invalid
@@ -351,7 +351,7 @@ class ActivityResource(BaseResource):
         result = self._make_request(
             f"activities/{activity_log_id}.json", user_id=user_id, http_method="DELETE", debug=debug
         )
-        return cast(Dict[Never, Never], result)
+        return cast(None, result)
 
     def delete_favorite_activity(
         self, activity_id: int, user_id: str = "-", debug: bool = False
