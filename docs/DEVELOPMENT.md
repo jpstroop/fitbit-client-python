@@ -299,9 +299,36 @@ The OAuth callback mechanism is implemented using two main classes:
 
 1. Create a new branch for your feature/fix
 2. Make your changes, following the style guidelines (see also:
-   [LINTING](docs/LINTING.md))
-3. Run formatting checks (`pdm format`) and tests (`pdm run pytest`)
+   [LINTING](docs/LINTING.md)) and [Git Hooks](#git-hooks)
+3. Run formatting checks (`pdm run format`) and tests (`pdm run pytest`)
 4. Submit a pull request with a clear description of changes
+   - Keep messages concise and focused on what was changed
+   - Use present tense
+
+### Git Hooks
+
+The project includes pre-commit hooks to ensure code quality. To set up the
+hooks:
+
+```bash
+# From the repository root
+./lint/set-up-hooks.sh
+```
+
+This will set up a pre-commit hook that automatically runs:
+
+1. `pdm run format` - Runs black, isort, and adds file headers
+2. `pdm run mypy` - Runs type checking
+3. `pdm run pytest` - Runs all tests
+
+If any of these checks fail, the commit will be blocked. Any formatting changes
+made by the hook will be automatically added to the commit.
+
+To bypass the hooks for a specific commit (not recommended for normal usage):
+
+```bash
+git commit --no-verify -m "Your commit message"
+```
 
 ## Release Process
 
