@@ -2,6 +2,9 @@
 
 """Tests for the get_irn_alerts_list endpoint."""
 
+# Standard library imports
+from unittest.mock import patch
+
 # Third party imports
 from pytest import raises
 
@@ -150,4 +153,23 @@ def test_irn_alerts_list_pagination_attributes(
         json=None,
         params={"sort": "desc", "limit": 5, "offset": 0, "beforeDate": "2022-09-29"},
         headers={"Accept-Locale": "en_US", "Accept-Language": "en_US"},
+    )
+
+
+@patch("fitbit_client.resources.base.BaseResource._make_request")
+def test_get_irn_alerts_list_with_debug(mock_make_request, irn_resource):
+    """Test that debug mode returns None from get_irn_alerts_list."""
+    # Mock _make_request to return None when debug=True
+    mock_make_request.return_value = None
+
+    result = irn_resource.get_irn_alerts_list(
+        before_date="2022-09-28", sort=SortDirection.DESCENDING, debug=True
+    )
+
+    assert result is None
+    mock_make_request.assert_called_once_with(
+        "irn/alerts/list.json",
+        params={"sort": "desc", "limit": 10, "offset": 0, "beforeDate": "2022-09-28"},
+        user_id="-",
+        debug=True,
     )

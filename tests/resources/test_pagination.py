@@ -135,7 +135,7 @@ def test_data_key_detection(mock_resource):
         response=irn_response, endpoint="irn/alerts.json", method_params={}, fetch_next_page=Mock()
     )
     assert irn_iterator._data_key == "alerts"
-    
+
     # Test unknown data key (should return None)
     unknown_response = {"unknown_key": [{"id": 1}]}
     unknown_iterator = PaginatedIterator(
@@ -170,11 +170,11 @@ def test_next_params_extraction():
     # Test with no next URL
     iterator._last_page = {"pagination": {"next": None}}
     assert iterator._get_next_params() is None
-    
+
     # Test with pagination not a dict
     iterator._last_page = {"pagination": "not-a-dict"}
     assert iterator._get_next_params() is None
-    
+
     # Test with next URL not a string
     iterator._last_page = {"pagination": {"next": 123}}
     assert iterator._get_next_params() is None

@@ -29,6 +29,7 @@ from fitbit_client.utils.types import ParamDict
 # https://docs.python.org/3/library/typing.html#typing.TYPE_CHECKING
 if TYPE_CHECKING:
     # Local imports - only imported during type checking
+    # Local imports
     from fitbit_client.resources.pagination import PaginatedIterator
 
 

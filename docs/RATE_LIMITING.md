@@ -30,7 +30,7 @@ client = FitbitClient(
     
     # Rate limiting options (all optional)
     max_retries=5,                # Maximum retry attempts (default: 3)
-    retry_after_seconds=10,       # Base wait time in seconds (default: 5)
+    retry_after_seconds=30,       # Base wait time in seconds (default: 60)
     retry_backoff_factor=2.0      # Multiplier for successive waits (default: 1.5)
 )
 ```

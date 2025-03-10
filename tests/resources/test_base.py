@@ -409,6 +409,54 @@ def test_handle_error_response_with_empty_error_data(base_resource, mock_logger)
 # -----------------------------------------------------------------------------
 
 
+def test_get_retry_after_with_valid_header(base_resource):
+    """Test that _get_retry_after correctly parses a valid Retry-After header with a digit."""
+    # Line 337: response.headers.get("Retry-After")
+    mock_response = Mock()
+    mock_response.headers = {"Retry-After": "30"}
+
+    # Set up retry parameters
+    base_resource.retry_after_seconds = 10
+    base_resource.retry_backoff_factor = 2
+
+    retry_seconds = base_resource._get_retry_after(mock_response, 1)
+
+    # Should use the header value (30) instead of calculated backoff
+    assert retry_seconds == 30
+
+
+def test_get_retry_after_with_invalid_header(base_resource):
+    """Test that _get_retry_after falls back to calculated backoff when Retry-After header is not a digit."""
+    mock_response = Mock()
+    mock_response.headers = {"Retry-After": "not-a-number"}
+
+    # Set up retry parameters
+    base_resource.retry_after_seconds = 10
+    base_resource.retry_backoff_factor = 2
+
+    # For retry_count=1, should be 10 * (2^1) = 20
+    retry_seconds = base_resource._get_retry_after(mock_response, 1)
+
+    # Should use calculated backoff
+    assert retry_seconds == 20
+
+
+def test_get_retry_after_without_header(base_resource):
+    """Test that _get_retry_after falls back to calculated backoff when Retry-After header is missing."""
+    mock_response = Mock()
+    mock_response.headers = {}  # No Retry-After header
+
+    # Set up retry parameters
+    base_resource.retry_after_seconds = 10
+    base_resource.retry_backoff_factor = 2
+
+    # For retry_count=0, should be 10 * (2^0) = 10
+    retry_seconds = base_resource._get_retry_after(mock_response, 0)
+
+    # Should use calculated backoff
+    assert retry_seconds == 10
+
+
 @patch("fitbit_client.resources.base.sleep")
 def test_rate_limit_retries(
     mock_sleep, base_resource, mock_oauth_session, mock_response_factory, mock_logger
@@ -529,7 +577,146 @@ def test_rate_limit_max_retries_exhausted(
 
 
 # -----------------------------------------------------------------------------
-# 11. API Error Status Codes
+# 11. Direct Request Testing
+# -----------------------------------------------------------------------------
+
+
+@patch("builtins.print")
+@patch("fitbit_client.resources.base.CurlDebugMixin._build_curl_command")
+def test_make_direct_request_with_debug(mock_build_curl, mock_print, base_resource):
+    """Test that _make_direct_request returns empty dict when debug=True."""
+    # Mock the _build_curl_command method
+    mock_build_curl.return_value = "curl -X GET https://example.com"
+
+    # The actual method signature is different from what we tried to test
+    result = base_resource._make_direct_request("/test", debug=True)
+
+    # Should return empty dict in debug mode
+    assert result == {}
+
+    # Should print the curl command
+    mock_print.assert_called()
+
+
+@patch("fitbit_client.resources.base.BaseResource._handle_json_response")
+def test_make_direct_request_success(mock_handle_json, base_resource):
+    """Test successful direct request with JSON response."""
+    # Mock the OAuth session
+    base_resource.oauth = Mock()
+
+    # Create a mock response
+    mock_response = Mock()
+    mock_response.status_code = 200
+    mock_response.headers = {"content-type": "application/json"}
+    base_resource.oauth.request.return_value = mock_response
+
+    # Mock the _handle_json_response method
+    mock_handle_json.return_value = {"data": "test"}
+
+    # Call the method
+    result = base_resource._make_direct_request("/test")
+
+    # Should return the JSON data
+    assert result == {"data": "test"}
+
+    # Verify the request was made
+    base_resource.oauth.request.assert_called_once()
+    mock_handle_json.assert_called_once()
+
+
+@patch("fitbit_client.resources.base.BaseResource._get_calling_method")
+def test_make_direct_request_unexpected_content_type(mock_get_calling, base_resource, mock_logger):
+    """Test handling of unexpected content type in direct request."""
+    mock_get_calling.return_value = "test_method"
+
+    # Mock the OAuth session
+    base_resource.oauth = Mock()
+
+    # Create a mock response
+    mock_response = Mock()
+    mock_response.status_code = 200
+    mock_response.headers = {"content-type": "text/plain"}
+    base_resource.oauth.request.return_value = mock_response
+
+    # Call the method
+    result = base_resource._make_direct_request("/test")
+
+    # Should return empty dict for unexpected content type
+    assert result == {}
+
+    # Should log an error about unexpected content type
+    mock_logger.error.assert_called_once()
+    assert "Unexpected content type" in mock_logger.error.call_args[0][0]
+
+
+@patch("fitbit_client.resources.base.sleep")
+@patch("fitbit_client.resources.base.BaseResource._handle_error_response")
+@patch("fitbit_client.resources.base.BaseResource._should_retry_request")
+def test_make_direct_request_rate_limit_retry(
+    mock_should_retry, mock_handle_error, mock_sleep, base_resource, mock_logger
+):
+    """Test retry behavior for rate-limited requests."""
+    # Configure the resource with custom retry settings
+    base_resource.max_retries = 1
+    base_resource.retry_after_seconds = 10
+    base_resource.retry_backoff_factor = 1
+
+    # Mock the OAuth session
+    base_resource.oauth = Mock()
+
+    # Create a mock response for error and success
+    error_response = Mock()
+    error_response.status_code = 429
+    error_response.headers = {"Retry-After": "5"}
+
+    success_response = Mock()
+    success_response.status_code = 200
+    success_response.headers = {"content-type": "application/json"}
+    success_response.json.return_value = {"data": "success"}
+
+    # Set up the mock to return error first, then success
+    base_resource.oauth.request.side_effect = [error_response, success_response]
+
+    # Set up mocks for retry logic
+    mock_handle_error.side_effect = RateLimitExceededException(
+        message="Too many requests", status_code=429, error_type="rate_limit_exceeded"
+    )
+    mock_should_retry.return_value = True
+
+    # Call the method
+    with patch(
+        "fitbit_client.resources.base.BaseResource._handle_json_response"
+    ) as mock_handle_json:
+        mock_handle_json.return_value = {"data": "success"}
+        result = base_resource._make_direct_request("/test")
+
+    # Verify results
+    assert result == {"data": "success"}
+    assert base_resource.oauth.request.call_count == 2
+    assert mock_sleep.call_count == 1
+    assert mock_logger.warning.call_count == 1
+
+
+@patch("fitbit_client.resources.base.BaseResource._get_calling_method")
+def test_make_direct_request_exception(mock_get_calling, base_resource, mock_logger):
+    """Test handling of exceptions in direct request."""
+    mock_get_calling.return_value = "test_method"
+
+    # Mock the OAuth session
+    base_resource.oauth = Mock()
+    base_resource.oauth.request.side_effect = ConnectionError("Network error")
+
+    # Call the method
+    with raises(Exception) as exc_info:
+        base_resource._make_direct_request("/test")
+
+    # Verify exception and logging
+    assert "Pagination request failed" in str(exc_info.value)
+    assert mock_logger.error.call_count == 1
+
+
+# -----------------------------------------------------------------------------
+# 12. API Error Status Codes
 # -----------------------------------------------------------------------------
 
 

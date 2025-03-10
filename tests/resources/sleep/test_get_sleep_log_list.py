@@ -4,6 +4,7 @@
 
 # Standard library imports
 from unittest.mock import call
+from unittest.mock import patch
 
 # Third party imports
 from pytest import raises
@@ -144,4 +145,24 @@ def test_sleep_log_list_pagination_attributes(
         json=None,
         params={"sort": "desc", "limit": 10, "offset": 0, "beforeDate": "2024-02-13"},
         headers={"Accept-Locale": "en_US", "Accept-Language": "en_US"},
+    )
+
+
+@patch("fitbit_client.resources.base.BaseResource._make_request")
+def test_get_sleep_log_list_with_debug(mock_make_request, sleep_resource):
+    """Test that debug mode returns None from get_sleep_log_list."""
+    # Mock _make_request to return None when debug=True
+    mock_make_request.return_value = None
+
+    result = sleep_resource.get_sleep_log_list(
+        before_date="2024-02-13", sort=SortDirection.DESCENDING, debug=True
+    )
+
+    assert result is None
+    mock_make_request.assert_called_once_with(
+        "sleep/list.json",
+        params={"sort": "desc", "limit": 100, "offset": 0, "beforeDate": "2024-02-13"},
+        user_id="-",
+        api_version="1.2",
+        debug=True,
     )
