@@ -5,10 +5,7 @@
 # Standard library imports
 import sys
 import typing
-from typing import Any
-from typing import Dict
 from unittest.mock import Mock
-from unittest.mock import patch
 
 # Third party imports
 from pytest import fixture
@@ -74,7 +71,6 @@ def test_import_with_type_checking():
 
         # Now import the module with TYPE_CHECKING as True
         # Local imports
-        from fitbit_client.resources._pagination import PaginatedIterator
 
         # This should have imported BaseResource due to TYPE_CHECKING being True
         assert "fitbit_client.resources._base" in sys.modules

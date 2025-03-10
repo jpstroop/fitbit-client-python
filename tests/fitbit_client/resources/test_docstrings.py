@@ -3,7 +3,6 @@
 # Standard library imports
 from inspect import getdoc
 from inspect import getmembers
-from inspect import isclass
 from inspect import isfunction
 from re import search
 from typing import List

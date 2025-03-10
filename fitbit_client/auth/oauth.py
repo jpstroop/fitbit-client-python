@@ -21,11 +21,8 @@ from requests_oauthlib.oauth2_session import OAuth2Session
 
 # Local imports
 from fitbit_client.auth.callback_server import CallbackServer
-from fitbit_client.exceptions import ExpiredTokenException
-from fitbit_client.exceptions import InvalidClientException
 from fitbit_client.exceptions import InvalidGrantException
 from fitbit_client.exceptions import InvalidRequestException
-from fitbit_client.exceptions import InvalidTokenException
 from fitbit_client.utils.types import TokenDict
 
 

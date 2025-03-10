@@ -1,7 +1,6 @@
 # fitbit_client/resources/cardio_fitness_score.py
 
 # Standard library imports
-from typing import Dict
 from typing import cast
 
 # Local imports

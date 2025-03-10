@@ -3,7 +3,6 @@
 """Tests for the get_sleep_log_list endpoint."""
 
 # Standard library imports
-from unittest.mock import call
 from unittest.mock import patch
 
 # Third party imports

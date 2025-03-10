@@ -4,7 +4,6 @@
 from functools import wraps
 from inspect import signature
 from typing import Callable
-from typing import Optional
 from typing import ParamSpec
 from typing import TypeVar
 from typing import cast

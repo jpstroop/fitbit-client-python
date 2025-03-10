@@ -4,7 +4,6 @@
 
 # Standard library imports
 from unittest.mock import Mock
-from unittest.mock import call
 from unittest.mock import patch
 
 # Third party imports

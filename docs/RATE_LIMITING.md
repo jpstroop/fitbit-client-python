@@ -48,9 +48,9 @@ client = FitbitClient(
     redirect_uri="https://localhost:8080",
     
     # Rate limiting options (all optional)
-    max_retries=5,                # Maximum retry attempts (default: 3)
-    retry_after_seconds=30,       # Base wait time if headers missing (default: 60)
-    retry_backoff_factor=2.0      # Multiplier for successive waits (default: 1.5)
+    max_retries=3,                # Maximum retry attempts (default: 5)
+    retry_after_seconds=10,       # Base wait time if headers missing (default: 30)
+    retry_backoff_factor=1.5      # Multiplier for successive waits (default: 2.0)
 )
 ```
 
@@ -70,9 +70,10 @@ The client uses the following strategy for retries:
 
 With the default settings and no headers:
 
-- First retry: Wait 60 seconds
-- Second retry: Wait 90 seconds (60 * 1.5)
-- Third retry: Wait 135 seconds (60 * 1.5²)
+- First retry: Wait 30 seconds
+- Second retry: Wait 60 seconds (30 * 2.0)
+- Third retry: Wait 240 seconds (60 * 2.0²)
+- Fourth retry: Wait 240 seconds (240 * 2.0²)
 
 ## Logging
 
