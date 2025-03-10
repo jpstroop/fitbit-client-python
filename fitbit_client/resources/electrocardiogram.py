@@ -1,8 +1,6 @@
 # fitbit_client/resources/electrocardiogram.py
 
 # Standard library imports
-from typing import Any
-from typing import Dict
 from typing import Optional
 from typing import TYPE_CHECKING
 from typing import Union

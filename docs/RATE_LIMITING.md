@@ -49,8 +49,8 @@ client = FitbitClient(
     
     # Rate limiting options (all optional)
     max_retries=5,                # Maximum retry attempts (default: 3)
-    retry_after_seconds=30,       # Base wait time if headers missing (default: 60)
-    retry_backoff_factor=2.0      # Multiplier for successive waits (default: 1.5)
+    retry_after_seconds=60,       # Base wait time if headers missing (default: 60)
+    retry_backoff_factor=1.5      # Multiplier for successive waits (default: 1.5)
 )
 ```
 
@@ -68,11 +68,13 @@ The client uses the following strategy for retries:
    retry_time = retry_after_seconds * (retry_backoff_factor ^ retry_count)
    ```
 
-With the default settings and no headers:
+With example settings of 5 retries and no headers:
 
-- First retry: Wait 60 seconds
-- Second retry: Wait 90 seconds (60 * 1.5)
+- First retry: Wait 60 seconds (base time)
+- Second retry: Wait 90 seconds (60 * 1.5¹)
 - Third retry: Wait 135 seconds (60 * 1.5²)
+- Fourth retry: Wait 202.5 seconds (60 * 1.5³)
+- Fifth retry: Wait 303.75 seconds (60 * 1.5⁴)
 
 ## Logging
 
@@ -92,7 +94,7 @@ client = FitbitClient(...)
 You'll see log messages like:
 
 ```
-WARNING:fitbit_client.SleepResource:Rate limit exceeded for get_sleep_log_list to sleep/list.json. [Rate Limit: 0/150, Reset in: 600s] (Will retry after 600 seconds if retries are enabled)
+WARNING:fitbit_client.SleepResource:Rate limit exceeded for get_sleep_log_list to sleep/list.json. [Rate Limit: 0/150] Retrying in 600 seconds. (4 retries remaining)
 ```
 
 ## Handling Unrecoverable Rate Limits
@@ -132,3 +134,27 @@ except RateLimitExceededException as e:
 
 These can be used to implement more sophisticated retry or backoff strategies in
 your application.
+
+## Advanced Usage
+
+You can implement custom strategies by combining rate limit information with
+your own timing logic:
+
+```python
+from datetime import datetime, timedelta
+from time import sleep
+
+try:
+    client.get_daily_activity_summary(date="today")
+except RateLimitExceededException as e:
+    # Calculate next reset time (typically the top of the next hour)
+    reset_time = datetime.now() + timedelta(seconds=e.rate_limit_reset)
+    print(f"Rate limit reached. Pausing until {reset_time.strftime('%H:%M:%S')}")
+    
+    # Wait until reset time plus a small buffer
+    wait_seconds = e.rate_limit_reset + 5
+    sleep(wait_seconds)
+    
+    # Try again after waiting
+    client.get_daily_activity_summary(date="today")
+```

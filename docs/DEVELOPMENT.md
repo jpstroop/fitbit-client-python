@@ -7,6 +7,7 @@
 - Python 3.13+
 - PDM
 - Git
+- ASDF (recommended)
 
 ### Download and Install the Source Code
 
@@ -49,8 +50,9 @@ fitbit-client/
 │   ├── resources/
 │   │   ├── __init__.py
 │   │   ├── [resource modules]
-│   │   ├── base.py
-│   │   └── constants.py
+│   │   ├── _base.py
+│   │   ├── _pagination.py
+│   │   └── _constants.py
 │   ├── utils/
 │   │   ├── __init__.py
 │   │   ├── curl_debug_mixin.py
@@ -59,17 +61,13 @@ fitbit-client/
 │   │   ├── pagination_validation.py
 │   │   └── types.py
 │   └── exceptions.py
-├── tests/
-│   ├── auth/
-│   ├── resources/
-│   └── utils/
-└── [project files]
+└── tests/
+    │   ├── fitbit_client/
+    │   ├── auth/
+    │   ├── resources/
+    │   └── utils/
+    └── [project files]
 ```
-
-## Goals, Notes, and TODOs
-
-For now these are just in [TODO.md](TODO.md); bigger work will eventually move
-to Github tickets.
 
 ## Development Tools and Standards
 
@@ -77,8 +75,8 @@ to Github tickets.
 
 - Black for code formatting (100 character line length)
 - isort for import sorting
-- Type hints required for all code
-- Docstrings required for all public methods
+- Type hints required for all code (enforced by `mypy`)
+- Docstrings required for all public methods (enforced by `test_docscrings.py`)
 
 ### Import Style
 
@@ -102,7 +100,7 @@ import typing
 import datetime
 ```
 
-The one exception to this rule is when an entire module needs to be `mock`ed for
+The one exception to this rule is when an entire module needs to be mocked for
 testing, in which case, at least for the `json` package from the standard
 library, the entire package has to be imported. So `import json` is ok when that
 circumstance arises.
@@ -120,46 +118,29 @@ Follow your nose from `client.py` and the structure should be very clear.
 #### Method Structure
 
 - Include comprehensive docstrings with Args sections
-- Keep parameter naming consistent across methods
-- Use "-" as default for user_id parameters
-- Return Dict[str, Any] for most methods that return data
-- Return None for delete operations
+- Keep parameter naming consistent across methods (see [Naming](docs/NAMING.md))
+- Return `JSONDict` for `JSONList` for most methods (`get_activity_tcx` returns
+  XML as a string)
+- Return `None` for delete operations
 
 ### Error Handling
 
-The codebase implements a comprehensive error handling system through
-[`exceptions.py`](fitbit_client/exceptions.py):
-
-1. A base FitbitAPIException that captures:
-
-   - HTTP status code
-   - Error type
-   - Error message
-   - Field name (when applicable)
-
-2. Specialized exceptions for different error scenarios:
-
-   - InvalidRequestException for malformed requests
-   - ValidationException for parameter validation failures
-   - AuthorizationException for authentication issues
-   - RateLimitExceededException for API throttling
-   - SystemException for server-side errors
-
-3. Mapping from HTTP status codes and API error types to appropriate exception
-   classes
+The codebase implements a comprehensive error handling system. See
+[ERROR_HANDLING](docs/ERROR_HANDLING.md) and
+[`exceptions.py`](fitbit_client/exceptions.py).
 
 ### Enum Usage
 
 - Only use enums for validating request parameters, not responses
-- Place all enums in constants.py
+- Place all enums in [`constants.py`](fitbit_client/resources/_constants.py)
 - Only import enums that are actively used in the class
 
 ## Logging System
 
 The project implements two different logs in through the
-[`BaseResource`](fitbit_client/resources/base.py) class: application logging for
-API interactions and data logging for tracking important response fields. See
-[LOGGING](docs/LOGGING.md) for details.
+[`BaseResource`](fitbit_client/resources/_base.py) class: application logging
+for API interactions and data logging for tracking important response fields.
+See [LOGGING](docs/LOGGING.md) for details.
 
 ## API Design
 
@@ -190,23 +171,10 @@ client.get_profile()
 client.get_daily_activity_summary(date="2025-03-06")
 ```
 
-Method aliases were implemented for several important reasons:
-
-1. **Reduced Verbosity**: Typing `client.resource_name.method_name(...)` with
-   many parameters can be tedious, especially when used frequently.
-
-2. **Flatter API Surface**: Many modern APIs prefer a flatter design that avoids
-   deep nesting, making the API more straightforward to use.
-
-3. **Method Name Uniqueness**: All resource methods in the Fitbit API have
-   unique names (e.g., there's only one `get_profile()` method), making it safe
-   to expose these methods directly on the client.
-
-4. **Preserve Both Options**: By maintaining both the resource-based access and
-   direct aliases, developers can choose the approach that best fits their needs
-   \- organization or conciseness.
-
-All method aliases are set up in the `_set_up_method_aliases()` method in the
+Method aliases were implemented because yyping
+`client.resource_name.method_name(...)` with many parameters can be tedious,
+especially when used frequently. All method aliases are set up in the
+`_set_up_method_aliases()` method in the
 [`FitbitClient`](fitbit_client/client.py) class, which is called during
 initialization. Each alias is a direct reference to the corresponding resource
 method, ensuring consistent behavior regardless of how the method is accessed.
@@ -214,53 +182,16 @@ method, ensuring consistent behavior regardless of how the method is accessed.
 ## Testing
 
 The project uses pytest for testing and follows a consistent testing approach
-across all components.
+across all components. 100% coverage is expected.
 
 ### Test Organization
 
-The test directory mirrors the main package structure (except that the root is
-named "test" rather than "fitbit_client"), with corresponding test modules for
-each component:
+The test directory mirrors the main package structure within the `test`
+directory. For the most part, the naming is 1:1 (`test_blah.py`) or otherwise
+obvious--many tests modules were getting quite long and broken out either into
+directories or with names that make it obvious as to hwat they are testing.
 
-- auth/: Tests for authentication and OAuth functionality
-- client/: Tests for the main client implementation
-- resources/: Tests for individual API resource implementations
-
-### Standard Test Fixtures
-
-The test suite provides several standard fixtures for use across test modules:
-
-```python
-@fixture
-def mock_oauth_session():
-    """Provides a mock OAuth session for testing resources"""
-    return Mock()
-
-@fixture
-def mock_logger():
-    """Provides a mock logger for testing logging behavior"""
-    return Mock()
-
-@fixture
-def base_resource(mock_oauth_session, mock_logger):
-    """Creates a resource instance with mocked dependencies"""
-    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
-        return BaseResource(mock_oauth_session, "en_US", "en_US")
-```
-
-### Error Handling Tests
-
-Tests verify proper error handling across the codebase. Common patterns include:
-
-```python
-def test_http_error_handling(resource):
-    """Tests that HTTP errors are properly converted to exceptions"""
-    with raises(InvalidRequestException) as exc_info:
-        # Test code that should raise the exception
-        pass
-    assert exc_info.value.status_code == 400
-    assert exc_info.value.error_type == "validation"
-```
+All resource mocks are in the root [conftest.py](tests/conftest.py).
 
 ### Response Mocking
 
@@ -332,39 +263,4 @@ git commit --no-verify -m "Your commit message"
 
 ## Release Process
 
-This section will be documented as we near our first release.
-
-## Pagination Implementation
-
-The pagination implementation uses the following approach:
-
-### Pagination Iterator
-
-- Uses the `PaginatedIterator` class that implements the Python `Iterator`
-  protocol
-- Automatically handles fetching the next page when needed using the `next` URL
-  from pagination metadata
-- Properly handles edge cases like invalid responses, missing pagination data,
-  and API errors
-
-### Type Safety
-
-- Uses `TYPE_CHECKING` from the typing module to avoid circular imports at
-  runtime
-- Maintains complete type safety and mypy compatibility
-- All pagination-related code has 100% test coverage
-
-### Resource Integration
-
-Each endpoint that supports pagination has an `as_iterator` parameter that, when
-set to `True`, returns a `PaginatedIterator` instead of the raw API response.
-This makes it easy to iterate through all pages of results without manually
-handling pagination.
-
-## Intraday Data Support
-
-This client implements intraday data endpoints (detailed heart rate, steps, etc)
-through the `IntradayResource` class. These endpoints have some special
-requirements if you're using them for anyone other that yourself. See the
-[Intraday API documentation](https://dev.fitbit.com/build/reference/web-api/intraday/)
-for more details.
+_This section will be documented as we near our first release._

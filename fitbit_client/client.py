@@ -8,11 +8,6 @@ from urllib.parse import urlparse
 # isort: off
 # Auth imports
 from fitbit_client.auth.oauth import FitbitOAuth2
-from fitbit_client.exceptions import ExpiredTokenException
-from fitbit_client.exceptions import InvalidClientException
-from fitbit_client.exceptions import InvalidGrantException
-from fitbit_client.exceptions import InvalidRequestException
-from fitbit_client.exceptions import InvalidTokenException
 from fitbit_client.exceptions import OAuthException
 from fitbit_client.exceptions import SystemException
 

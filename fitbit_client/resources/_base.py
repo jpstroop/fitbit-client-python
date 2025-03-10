@@ -2,21 +2,15 @@
 
 # Standard library imports
 from datetime import datetime
-from datetime import timedelta
 from inspect import currentframe
 from json import JSONDecodeError
 from json import dumps
 from logging import getLogger
 from time import sleep
-from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Set
-from typing import Tuple
-from typing import Union
 from typing import cast
-from typing import overload
-from urllib.parse import urlencode
 
 # Third party imports
 from requests import Response
@@ -31,7 +25,6 @@ from fitbit_client.exceptions import STATUS_CODE_EXCEPTIONS
 from fitbit_client.utils.curl_debug_mixin import CurlDebugMixin
 from fitbit_client.utils.types import FormDataDict
 from fitbit_client.utils.types import JSONDict
-from fitbit_client.utils.types import JSONList
 from fitbit_client.utils.types import JSONType
 from fitbit_client.utils.types import ParamDict
 
@@ -532,7 +525,6 @@ class BaseResource(CurlDebugMixin):
 
         retries_left = self.max_retries
         retry_count = 0
-        last_exception = None
 
         while True:
             try:
@@ -583,7 +575,7 @@ class BaseResource(CurlDebugMixin):
                 return None
 
             except Exception as e:
-                last_exception = e
+                pass
 
                 # Decide whether to retry based on the exception
                 if retries_left > 0 and self._should_retry_request(e):

@@ -7,7 +7,6 @@ from pytest import raises
 
 # Local imports
 from fitbit_client.exceptions import ClientValidationException
-from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources._constants import FoodFormType
 from fitbit_client.resources._constants import NutritionalValue
 

@@ -4,13 +4,11 @@
 from typing import Dict
 from typing import List
 from typing import Optional
-from typing import Union
 from typing import cast
 
 # Local imports
 from fitbit_client.exceptions import ClientValidationException
 from fitbit_client.exceptions import MissingParameterException
-from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources._base import BaseResource
 from fitbit_client.resources._constants import FoodFormType
 from fitbit_client.resources._constants import FoodPlanIntensity

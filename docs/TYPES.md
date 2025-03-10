@@ -2,9 +2,10 @@
 
 ## Overview
 
-Strong typing JSON is complicated. The primary goal for typing in this library
-is to help you at least understand at least the outermost data structure of the
-API responses. All resource methods (API endpoints) return one of three types:
+Strong typing JSON is complicated to do in any meaningful way. In our case, the
+primary goal for typing is to help you at least understand at least the
+outermost data structure of the API responses. All resource methods (API
+endpoints) return one of three types:
 
 - `JSONDict`: A dictionary containing JSON data
 - `JSONList`: A list containing JSON data

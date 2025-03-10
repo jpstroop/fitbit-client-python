@@ -3,16 +3,12 @@
 """Tests for error handling in nutrition endpoints."""
 
 # Standard library imports
-from unittest.mock import Mock
 
 # Third party imports
 from pytest import raises
 
 # Local imports
-from fitbit_client.exceptions import InsufficientPermissionsException
 from fitbit_client.exceptions import InvalidTokenException
-from fitbit_client.exceptions import NotFoundException
-from fitbit_client.exceptions import RateLimitExceededException
 from fitbit_client.exceptions import SystemException
 from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources._constants import MealType

@@ -1,8 +1,6 @@
 # tests/fitbit_client/utils/test_date_validation.py
 
 # Standard library imports
-from typing import Any
-from typing import Dict
 from typing import Optional
 
 # Third party imports

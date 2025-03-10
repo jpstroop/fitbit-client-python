@@ -5,13 +5,9 @@ from http.server import BaseHTTPRequestHandler
 from http.server import HTTPServer
 from logging import Logger
 from logging import getLogger
-from socket import socket
-from typing import Any  # Used only for type declarations, not in runtime code
-from typing import Callable
+from typing import Any
 from typing import Dict
 from typing import List
-from typing import Tuple
-from typing import Type
 from typing import TypeVar
 from typing import Union
 from urllib.parse import parse_qs
@@ -20,7 +16,6 @@ from urllib.parse import urlparse
 # Local imports
 from fitbit_client.exceptions import InvalidGrantException
 from fitbit_client.exceptions import InvalidRequestException
-from fitbit_client.utils.types import JSONDict
 
 # Type variable for server
 T = TypeVar("T", bound=HTTPServer)

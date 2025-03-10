@@ -1002,7 +1002,7 @@ def test_rate_limit_headers_logging(base_resource, mock_logger):
     base_resource.oauth = Mock()
     base_resource.oauth.request.return_value = mock_response
 
-    result = base_resource._make_request("test/endpoint")
+    base_resource._make_request("test/endpoint")
 
     # Verify the debug log contains rate limit information
     for call in mock_logger.debug.call_args_list:

@@ -1,8 +1,6 @@
 # fitbit_client/resources/active_zone_minutes.py
 
 # Standard library imports
-from typing import Any
-from typing import Dict
 from typing import cast
 
 # Local imports

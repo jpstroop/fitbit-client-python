@@ -1,7 +1,6 @@
 # fitbit_client/resources/intraday.py
 
 # Standard library imports
-from logging import getLogger
 from typing import Optional
 from typing import cast
 
