@@ -13,21 +13,24 @@ from fitbit_client.exceptions import InvalidDateException
 from fitbit_client.resources._constants import Period
 
 
-def test_get_azm_timeseries_by_date_success(azm_resource, mock_response):
+def test_get_azm_timeseries_by_date_success(azm_resource, mock_response_factory):
     """Test successful retrieval of AZM time series by date with default period"""
-    mock_response.json.return_value = {
-        "activities-active-zone-minutes": [
-            {
-                "dateTime": "2025-02-01",
-                "value": {
-                    "activeZoneMinutes": 102,
-                    "fatBurnActiveZoneMinutes": 90,
-                    "cardioActiveZoneMinutes": 8,
-                    "peakActiveZoneMinutes": 4,
-                },
-            }
-        ]
-    }
+    mock_response = mock_response_factory(
+        200,
+        {
+            "activities-active-zone-minutes": [
+                {
+                    "dateTime": "2025-02-01",
+                    "value": {
+                        "activeZoneMinutes": 102,
+                        "fatBurnActiveZoneMinutes": 90,
+                        "cardioActiveZoneMinutes": 8,
+                        "peakActiveZoneMinutes": 4,
+                    },
+                }
+            ]
+        },
+    )
     azm_resource.oauth.request.return_value = mock_response
     result = azm_resource.get_azm_timeseries_by_date(date="2025-02-01")
     assert result == mock_response.json.return_value
@@ -41,9 +44,9 @@ def test_get_azm_timeseries_by_date_success(azm_resource, mock_response):
     )
 
 
-def test_get_azm_timeseries_by_date_explicit_period(azm_resource, mock_response):
+def test_get_azm_timeseries_by_date_explicit_period(azm_resource, mock_response_factory):
     """Test successful retrieval of AZM time series by date with explicit ONE_DAY period"""
-    mock_response.json.return_value = {"activities-active-zone-minutes": []}
+    mock_response = mock_response_factory(200, {"activities-active-zone-minutes": []})
     azm_resource.oauth.request.return_value = mock_response
     result = azm_resource.get_azm_timeseries_by_date(date="2025-02-01", period=Period.ONE_DAY)
     assert result == mock_response.json.return_value
@@ -57,9 +60,9 @@ def test_get_azm_timeseries_by_date_explicit_period(azm_resource, mock_response)
     )
 
 
-def test_get_azm_timeseries_by_date_with_user_id(azm_resource, mock_response):
+def test_get_azm_timeseries_by_date_with_user_id(azm_resource, mock_response_factory):
     """Test getting AZM time series for a specific user"""
-    mock_response.json.return_value = {"activities-active-zone-minutes": []}
+    mock_response = mock_response_factory(200, {"activities-active-zone-minutes": []})
     azm_resource.oauth.request.return_value = mock_response
     result = azm_resource.get_azm_timeseries_by_date(date="2025-02-01", user_id="123ABC")
     assert result == mock_response.json.return_value

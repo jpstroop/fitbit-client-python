@@ -3,26 +3,28 @@
 """Tests for the get_friends_leaderboard endpoint."""
 
 
-def test_get_friends_leaderboard(friends_resource, mock_oauth_session, mock_response):
+def test_get_friends_leaderboard(friends_resource, mock_oauth_session, mock_response_factory):
     """Test getting friends leaderboard"""
-    mock_response.json.return_value = {
-        "data": [
-            {
-                "type": "ranked-user",
-                "id": "ABC123",
-                "attributes": {"step-rank": 1, "step-summary": 50000},
-            }
-        ],
-        "included": [
-            {
-                "avatar": "http://example.com/avatar.jpg",
-                "child": False,
-                "friend": True,
-                "name": "Test User",
-            }
-        ],
-    }
-    mock_response.headers = {"content-type": "application/json"}
+    mock_response = mock_response_factory(
+        200,
+        {
+            "data": [
+                {
+                    "type": "ranked-user",
+                    "id": "ABC123",
+                    "attributes": {"step-rank": 1, "step-summary": 50000},
+                }
+            ],
+            "included": [
+                {
+                    "avatar": "http://example.com/avatar.jpg",
+                    "child": False,
+                    "friend": True,
+                    "name": "Test User",
+                }
+            ],
+        },
+    )
     mock_oauth_session.request.return_value = mock_response
     result = friends_resource.get_friends_leaderboard()
     assert "data" in result

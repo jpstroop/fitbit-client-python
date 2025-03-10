@@ -9,9 +9,11 @@ from fitbit_client.resources._constants import ActivityTimeSeriesPath
 from fitbit_client.resources._constants import Period
 
 
-def test_get_activity_timeseries_with_today_date(activity_timeseries_resource, mock_response):
+def test_get_activity_timeseries_with_today_date(
+    activity_timeseries_resource, mock_response_factory
+):
     """Test using 'today' as the date parameter"""
-    mock_response.json.return_value = {"activities-steps": []}
+    mock_response = mock_response_factory(200, {"activities-steps": []})
     activity_timeseries_resource.oauth.request.return_value = mock_response
     activity_timeseries_resource.get_activity_timeseries_by_date(
         resource_path=ActivityTimeSeriesPath.STEPS, date="today", period=Period.ONE_DAY
@@ -26,9 +28,11 @@ def test_get_activity_timeseries_with_today_date(activity_timeseries_resource, m
     )
 
 
-def test_get_activity_timeseries_different_periods(activity_timeseries_resource, mock_response):
+def test_get_activity_timeseries_different_periods(
+    activity_timeseries_resource, mock_response_factory
+):
     """Test getting time series with different period values"""
-    mock_response.json.return_value = {"activities-steps": []}
+    mock_response = mock_response_factory(200, {"activities-steps": []})
     activity_timeseries_resource.oauth.request.return_value = mock_response
     periods = [
         Period.ONE_DAY,

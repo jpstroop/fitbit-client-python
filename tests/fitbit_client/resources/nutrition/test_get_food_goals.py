@@ -3,12 +3,11 @@
 """Tests for the get_food_goals endpoint."""
 
 
-def test_get_food_goals_success(nutrition_resource, mock_response):
+def test_get_food_goals_success(nutrition_resource, mock_response_factory):
     """Test successful retrieval of food goals"""
-    mock_response.json.return_value = {
-        "goals": {"calories": 2000},
-        "foodPlan": {"intensity": "MAINTENANCE"},
-    }
+    mock_response = mock_response_factory(
+        200, {"goals": {"calories": 2000}, "foodPlan": {"intensity": "MAINTENANCE"}}
+    )
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.get_food_goals()
     assert result == mock_response.json.return_value
