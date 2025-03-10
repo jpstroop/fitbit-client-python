@@ -14,11 +14,11 @@ from fitbit_client.resources._constants import MealType
 from fitbit_client.resources._constants import NutritionalValue
 
 
-def test_create_food_log_with_food_id_success(nutrition_resource, mock_response):
+def test_create_food_log_with_food_id_success(nutrition_resource, mock_response_factory):
     """Test successful creation of a food log entry using food ID"""
-    mock_response.json.return_value = {
-        "foodLog": {"logId": 12345, "loggedFood": {"foodId": 67890, "amount": 1.0}}
-    }
+    mock_response = mock_response_factory(
+        200, {"foodLog": {"logId": 12345, "loggedFood": {"foodId": 67890, "amount": 1.0}}}
+    )
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.create_food_log(
         date="2025-02-08",
@@ -46,11 +46,11 @@ def test_create_food_log_with_food_id_success(nutrition_resource, mock_response)
     )
 
 
-def test_create_food_log_with_custom_food_success(nutrition_resource, mock_response):
+def test_create_food_log_with_custom_food_success(nutrition_resource, mock_response_factory):
     """Test successful creation of a food log entry using custom food details"""
-    mock_response.json.return_value = {
-        "foodLog": {"logId": 12345, "loggedFood": {"name": "Custom Food", "amount": 1.0}}
-    }
+    mock_response = mock_response_factory(
+        200, {"foodLog": {"logId": 12345, "loggedFood": {"name": "Custom Food", "amount": 1.0}}}
+    )
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.create_food_log(
         date="2025-02-08",
@@ -86,11 +86,11 @@ def test_create_food_log_with_custom_food_success(nutrition_resource, mock_respo
     )
 
 
-def test_create_food_log_with_favorite_flag(nutrition_resource, mock_response):
+def test_create_food_log_with_favorite_flag(nutrition_resource, mock_response_factory):
     """Test that creating a food log with favorite=True sets the flag correctly"""
-    mock_response.json.return_value = {
-        "foodLog": {"logId": 12345, "loggedFood": {"foodId": 67890, "amount": 1.0}}
-    }
+    mock_response = mock_response_factory(
+        200, {"foodLog": {"logId": 12345, "loggedFood": {"foodId": 67890, "amount": 1.0}}}
+    )
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.create_food_log(
         date="2025-02-08",
@@ -142,9 +142,9 @@ def test_create_food_log_with_favorite_flag(nutrition_resource, mock_response):
     )
 
 
-def test_create_food_log_with_brand_name_only(nutrition_resource, mock_response):
+def test_create_food_log_with_brand_name_only(nutrition_resource, mock_response_factory):
     """Test creating food log with only brand name (lines 172-174)"""
-    mock_response.json.return_value = {"foodLog": {"logId": 12345}}
+    mock_response = mock_response_factory(200, {"foodLog": {"logId": 12345}})
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.create_food_log(
         date="2025-02-08",
@@ -174,9 +174,9 @@ def test_create_food_log_with_brand_name_only(nutrition_resource, mock_response)
     )
 
 
-def test_create_food_log_none_handling(nutrition_resource, mock_response):
+def test_create_food_log_none_handling(nutrition_resource, mock_response_factory):
     """Test handling of None values for food_name and calories"""
-    mock_response.json.return_value = {"foodLog": {"logId": 12345}}
+    mock_response = mock_response_factory(200, {"foodLog": {"logId": 12345}})
     nutrition_resource.oauth.request.return_value = mock_response
 
     # Save original method
@@ -202,7 +202,7 @@ def test_create_food_log_none_handling(nutrition_resource, mock_response):
             if calories is not None:
                 params["calories"] = calories
 
-        return mock_response.json.return_value
+        return mock_response.json()
 
     try:
         # Replace with our test method
@@ -260,10 +260,9 @@ def test_create_food_log_invalid_date(nutrition_resource):
         )
 
 
-def test_create_food_log_allows_today(nutrition_resource, mock_response):
+def test_create_food_log_allows_today(nutrition_resource, mock_response_factory):
     """Test that 'today' is accepted as a valid date"""
-    mock_response.json.return_value = {"foodLog": {"logId": 12345}}
-    mock_response.headers = {"content-type": "application/json"}
+    mock_response = mock_response_factory(200, {"foodLog": {"logId": 12345}})
     nutrition_resource.oauth.request.return_value = mock_response
     nutrition_resource.create_food_log(
         date="today", meal_type_id=MealType.BREAKFAST, unit_id=147, amount=100.0, food_id=67890

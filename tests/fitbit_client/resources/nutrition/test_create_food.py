@@ -11,9 +11,11 @@ from fitbit_client.resources._constants import FoodFormType
 from fitbit_client.resources._constants import NutritionalValue
 
 
-def test_create_food_success(nutrition_resource, mock_response):
+def test_create_food_success(nutrition_resource, mock_response_factory):
     """Test successful creation of a new food"""
-    mock_response.json.return_value = {"foodId": 12345, "name": "Test Food", "calories": 100}
+    mock_response = mock_response_factory(
+        200, {"foodId": 12345, "name": "Test Food", "calories": 100}
+    )
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.create_food(
         name="Test Food",
@@ -47,9 +49,9 @@ def test_create_food_success(nutrition_resource, mock_response):
     )
 
 
-def test_create_food_with_string_nutritional_values(nutrition_resource, mock_response):
+def test_create_food_with_string_nutritional_values(nutrition_resource, mock_response_factory):
     """Test creating food with string nutritional value keys"""
-    mock_response.json.return_value = {"foodId": 12345, "name": "Test Food"}
+    mock_response = mock_response_factory(200, {"foodId": 12345, "name": "Test Food"})
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.create_food(
         name="Test Food",
@@ -102,9 +104,11 @@ def test_create_food_calories_from_fat_must_be_integer(nutrition_resource):
     assert "Calories from fat must be an integer" in str(exc_info.value)
 
 
-def test_create_food_with_calories_from_fat(nutrition_resource, mock_response):
+def test_create_food_with_calories_from_fat(nutrition_resource, mock_response_factory):
     """Test creating food with calories from fat as an integer"""
-    mock_response.json.return_value = {"foodId": 12345, "name": "Test Food", "calories": 100}
+    mock_response = mock_response_factory(
+        200, {"foodId": 12345, "name": "Test Food", "calories": 100}
+    )
     nutrition_resource.oauth.request.return_value = mock_response
 
     result = nutrition_resource.create_food(

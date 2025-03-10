@@ -12,11 +12,11 @@ from fitbit_client.exceptions import MissingParameterException
 from fitbit_client.resources._constants import MealType
 
 
-def test_update_food_log_with_unit_amount_success(nutrition_resource, mock_response):
+def test_update_food_log_with_unit_amount_success(nutrition_resource, mock_response_factory):
     """Test successful update of a food log entry with unit and amount"""
-    mock_response.json.return_value = {
-        "foodLog": {"logId": 12345, "loggedFood": {"foodId": 67890, "amount": 200.0}}
-    }
+    mock_response = mock_response_factory(
+        200, {"foodLog": {"logId": 12345, "loggedFood": {"foodId": 67890, "amount": 200.0}}}
+    )
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.update_food_log(
         food_log_id=12345, meal_type_id=MealType.LUNCH, unit_id=147, amount=200.0
@@ -32,9 +32,11 @@ def test_update_food_log_with_unit_amount_success(nutrition_resource, mock_respo
     )
 
 
-def test_update_food_log_with_calories_success(nutrition_resource, mock_response):
+def test_update_food_log_with_calories_success(nutrition_resource, mock_response_factory):
     """Test successful update of a food log entry with calories"""
-    mock_response.json.return_value = {"foodLog": {"logId": 12345, "loggedFood": {"calories": 300}}}
+    mock_response = mock_response_factory(
+        200, {"foodLog": {"logId": 12345, "loggedFood": {"calories": 300}}}
+    )
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.update_food_log(
         food_log_id=12345, meal_type_id=MealType.LUNCH, calories=300

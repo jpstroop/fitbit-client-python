@@ -195,14 +195,27 @@ All resource mocks are in the root [conftest.py](tests/conftest.py).
 
 ### Response Mocking
 
-The test suite uses consistent patterns for mocking API responses:
+The test suite uses the `mock_response_factory` fixture to create consistent,
+configurable mock responses:
 
 ```python
-mock_response = Mock()
-mock_response.json.return_value = {"data": "test"}
-mock_response.headers = {"content-type": "application/json"}
-mock_response.status_code = 200
+# Creating a mock response with status code and data
+mock_response = mock_response_factory(200, {"data": "test"})
+
+# Creating a mock response with additional headers
+mock_response = mock_response_factory(
+    status_code=200,
+    json_data={"data": "test"},
+    headers={"custom-header": "value"}
+)
+
+# Creating a delete response with no content (204)
+mock_response = mock_response_factory(204)
 ```
+
+This approach provides a clean, standardized way to create mock responses with
+the desired status code, data, and headers. All test files should use this
+factory method rather than manually configuring mock responses.
 
 ## OAuth Callback Implementation
 

@@ -3,9 +3,9 @@
 """Tests for the get_azm_timeseries endpoint."""
 
 
-def test_get_azm_timeseries_with_today_date(azm_resource, mock_response):
+def test_get_azm_timeseries_with_today_date(azm_resource, mock_response_factory):
     """Test using 'today' as the date parameter"""
-    mock_response.json.return_value = {"activities-active-zone-minutes": []}
+    mock_response = mock_response_factory(200, {"activities-active-zone-minutes": []})
     azm_resource.oauth.request.return_value = mock_response
     result = azm_resource.get_azm_timeseries_by_date(date="today")
     assert result == mock_response.json.return_value

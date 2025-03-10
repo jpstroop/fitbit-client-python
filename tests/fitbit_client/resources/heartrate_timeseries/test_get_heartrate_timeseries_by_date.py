@@ -15,7 +15,7 @@ from fitbit_client.resources._constants import Period
 
 
 def test_get_heartrate_timeseries_by_date_success(
-    heartrate_resource, mock_oauth_session, mock_response
+    heartrate_resource, mock_oauth_session, mock_response_factory
 ):
     """Test successful retrieval of heart rate data by date and period"""
     response_data = {
@@ -38,7 +38,7 @@ def test_get_heartrate_timeseries_by_date_success(
             }
         ]
     }
-    mock_response.json.return_value = response_data
+    mock_response = mock_response_factory(200, response_data)
     mock_oauth_session.request.return_value = mock_response
     result = heartrate_resource.get_heartrate_timeseries_by_date(
         date="2024-02-10", period=Period.ONE_DAY
@@ -54,9 +54,9 @@ def test_get_heartrate_timeseries_by_date_success(
     )
 
 
-def test_get_heartrate_timeseries_by_date_today(heartrate_resource, mock_response):
+def test_get_heartrate_timeseries_by_date_today(heartrate_resource, mock_response_factory):
     """Test that 'today' is accepted as a valid date"""
-    mock_response.json.return_value = {"activities-heart": []}
+    mock_response = mock_response_factory(200, {"activities-heart": []})
     heartrate_resource.oauth.request.return_value = mock_response
     result = heartrate_resource.get_heartrate_timeseries_by_date(
         date="today", period=Period.ONE_DAY

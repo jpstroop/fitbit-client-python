@@ -3,23 +3,25 @@
 """Tests for the get_friends endpoint."""
 
 
-def test_get_friends(friends_resource, mock_oauth_session, mock_response):
+def test_get_friends(friends_resource, mock_oauth_session, mock_response_factory):
     """Test getting friends list"""
-    mock_response.json.return_value = {
-        "data": [
-            {
-                "type": "person",
-                "id": "ABC123",
-                "attributes": {
-                    "avatar": "http://example.com/avatar.jpg",
-                    "child": False,
-                    "friend": True,
-                    "name": "Test User",
-                },
-            }
-        ]
-    }
-    mock_response.headers = {"content-type": "application/json"}
+    mock_response = mock_response_factory(
+        200,
+        {
+            "data": [
+                {
+                    "type": "person",
+                    "id": "ABC123",
+                    "attributes": {
+                        "avatar": "http://example.com/avatar.jpg",
+                        "child": False,
+                        "friend": True,
+                        "name": "Test User",
+                    },
+                }
+            ]
+        },
+    )
     mock_oauth_session.request.return_value = mock_response
     result = friends_resource.get_friends()
     assert len(result) == 1

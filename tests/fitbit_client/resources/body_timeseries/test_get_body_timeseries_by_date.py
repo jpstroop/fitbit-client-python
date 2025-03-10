@@ -54,11 +54,11 @@ def test_get_body_timeseries_by_date_period_validation(body_timeseries):
             )
 
 
-def test_get_body_timeseries_by_date_successful_flow(body_timeseries, mock_response):
+def test_get_body_timeseries_by_date_successful_flow(body_timeseries, mock_response_factory):
     """Test the successful flow through validation and request for get_body_timeseries_by_date."""
     # Set up the mock response
+    mock_response = mock_response_factory(200, {"expected": "response"})
     body_timeseries.oauth.request.return_value = mock_response
-    mock_response.json.return_value = {"expected": "response"}
 
     # Test with BMI resource type (which allows all periods)
     result = body_timeseries.get_body_timeseries_by_date(
@@ -103,11 +103,11 @@ def test_get_body_timeseries_by_date_successful_flow(body_timeseries, mock_respo
     )
 
 
-def test_get_body_timeseries_by_date_makes_correct_request(body_timeseries, mock_response):
+def test_get_body_timeseries_by_date_makes_correct_request(body_timeseries, mock_response_factory):
     """Test that the correct endpoint is called with proper parameters."""
     # Set up the mock response
+    mock_response = mock_response_factory(200, {"expected": "response"})
     body_timeseries.oauth.request.return_value = mock_response
-    mock_response.json.return_value = {"expected": "response"}
 
     # Call the method
     result = body_timeseries.get_body_timeseries_by_date(
