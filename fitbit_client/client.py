@@ -54,6 +54,9 @@ class FitbitClient:
         token_cache_path: str = "/tmp/fitbit_tokens.json",
         language: str = "en_US",
         locale: str = "en_US",
+        max_retries: int = 5,
+        retry_after_seconds: int = 30,
+        retry_backoff_factor: float = 2.0,
     ) -> None:
         """Initialize Fitbit client
 
@@ -65,6 +68,9 @@ class FitbitClient:
             token_cache_path: Path to file where auth tokens should be stored (default: /tmp/fitbit_tokens.json)
             language: Language for API responses
             locale: Locale for API responses
+            max_retries: Maximum number of retries for rate-limited requests (default: 3)
+            retry_after_seconds: Initial wait time in seconds between retries (default: 60)
+            retry_backoff_factor: Multiplier for successive retry waits (default: 1.5)
         """
         self.logger = getLogger("fitbit_client")
         self.logger.debug("Initializing Fitbit client")
@@ -75,6 +81,11 @@ class FitbitClient:
             f"Using redirect URI: {redirect_uri} on {parsed_uri.hostname}:{parsed_uri.port}"
         )
 
+        # Save rate limiting config
+        self.max_retries = max_retries
+        self.retry_after_seconds = retry_after_seconds
+        self.retry_backoff_factor = retry_backoff_factor
+
         self.logger.debug("Initializing OAuth handler")
         self.auth: FitbitOAuth2 = FitbitOAuth2(
             client_id=client_id,
@@ -84,31 +95,141 @@ class FitbitClient:
             use_callback_server=use_callback_server,
         )
 
-        self.logger.debug(f"Initializing API resources with language={language}, locale={locale}")
+        self.logger.debug(
+            f"Initializing API resources with language={language}, locale={locale}, "
+            f"rate limiting config: max_retries={max_retries}, "
+            f"retry_after_seconds={retry_after_seconds}, "
+            f"retry_backoff_factor={retry_backoff_factor}"
+        )
+
         # Initialize API resources
         # fmt: off
         # isort: off
-        self.active_zone_minutes: ActiveZoneMinutesResource = ActiveZoneMinutesResource(self.auth.session, language=language, locale=locale)
-        self.activity_timeseries: ActivityTimeSeriesResource = ActivityTimeSeriesResource(self.auth.session, language=language, locale=locale)
-        self.activity: ActivityResource = ActivityResource(self.auth.session, language=language, locale=locale)
-        self.body_timeseries: BodyTimeSeriesResource = BodyTimeSeriesResource(self.auth.session, language=language, locale=locale)
-        self.body: BodyResource = BodyResource(self.auth.session, language=language, locale=locale)
-        self.breathing_rate: BreathingRateResource = BreathingRateResource(self.auth.session, language=language, locale=locale)
-        self.cardio_fitness_score: CardioFitnessScoreResource = CardioFitnessScoreResource(self.auth.session, language=language, locale=locale)
-        self.device: DeviceResource = DeviceResource(self.auth.session, language=language, locale=locale)
-        self.electrocardiogram: ElectrocardiogramResource = ElectrocardiogramResource(self.auth.session, language=language, locale=locale)
-        self.friends: FriendsResource = FriendsResource(self.auth.session, language=language, locale=locale)
-        self.heartrate_timeseries: HeartrateTimeSeriesResource = HeartrateTimeSeriesResource(self.auth.session, language=language, locale=locale)
-        self.heartrate_variability: HeartrateVariabilityResource = HeartrateVariabilityResource(self.auth.session, language=language, locale=locale)
-        self.intraday: IntradayResource = IntradayResource(self.auth.session, language=language, locale=locale)
-        self.irregular_rhythm_notifications: IrregularRhythmNotificationsResource = IrregularRhythmNotificationsResource(self.auth.session, language=language, locale=locale)
-        self.nutrition_timeseries: NutritionTimeSeriesResource = NutritionTimeSeriesResource(self.auth.session, language=language, locale=locale)
-        self.nutrition: NutritionResource = NutritionResource(self.auth.session, language=language, locale=locale)
-        self.sleep: SleepResource = SleepResource(self.auth.session, language=language, locale=locale)
-        self.spo2: SpO2Resource = SpO2Resource(self.auth.session, language=language, locale=locale)
-        self.subscription: SubscriptionResource = SubscriptionResource(self.auth.session, language=language, locale=locale)
-        self.temperature: TemperatureResource = TemperatureResource(self.auth.session, language=language, locale=locale)
-        self.user: UserResource = UserResource(self.auth.session, language=language, locale=locale)
+        self.active_zone_minutes: ActiveZoneMinutesResource = ActiveZoneMinutesResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.activity_timeseries: ActivityTimeSeriesResource = ActivityTimeSeriesResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.activity: ActivityResource = ActivityResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.body_timeseries: BodyTimeSeriesResource = BodyTimeSeriesResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.body: BodyResource = BodyResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.breathing_rate: BreathingRateResource = BreathingRateResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.cardio_fitness_score: CardioFitnessScoreResource = CardioFitnessScoreResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.device: DeviceResource = DeviceResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.electrocardiogram: ElectrocardiogramResource = ElectrocardiogramResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.friends: FriendsResource = FriendsResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.heartrate_timeseries: HeartrateTimeSeriesResource = HeartrateTimeSeriesResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.heartrate_variability: HeartrateVariabilityResource = HeartrateVariabilityResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.intraday: IntradayResource = IntradayResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.irregular_rhythm_notifications: IrregularRhythmNotificationsResource = IrregularRhythmNotificationsResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.nutrition_timeseries: NutritionTimeSeriesResource = NutritionTimeSeriesResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.nutrition: NutritionResource = NutritionResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.sleep: SleepResource = SleepResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.spo2: SpO2Resource = SpO2Resource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.subscription: SubscriptionResource = SubscriptionResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.temperature: TemperatureResource = TemperatureResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
+        
+        self.user: UserResource = UserResource(
+            self.auth.session, locale=locale, language=language,
+            max_retries=max_retries, retry_after_seconds=retry_after_seconds, 
+            retry_backoff_factor=retry_backoff_factor
+        )
         # fmt: on
         # isort: on
         self.logger.debug("Fitbit client initialized successfully")

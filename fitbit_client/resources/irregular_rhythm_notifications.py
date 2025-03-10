@@ -2,15 +2,24 @@
 
 # Standard library imports
 from typing import Optional
+from typing import TYPE_CHECKING
+from typing import Union
 from typing import cast
 
 # Local imports
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import SortDirection
+from fitbit_client.resources.pagination import create_paginated_iterator
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.pagination_validation import validate_pagination_params
 from fitbit_client.utils.types import JSONDict
 from fitbit_client.utils.types import ParamDict
+
+# Use TYPE_CHECKING to avoid circular imports
+if TYPE_CHECKING:
+    # Local imports - only imported during type checking
+    # Local imports
+    from fitbit_client.resources.pagination import PaginatedIterator
 
 
 class IrregularRhythmNotificationsResource(BaseResource):
@@ -52,7 +61,8 @@ class IrregularRhythmNotificationsResource(BaseResource):
         offset: int = 0,
         user_id: str = "-",
         debug: bool = False,
-    ) -> JSONDict:
+        as_iterator: bool = False,
+    ) -> Union[JSONDict, "PaginatedIterator"]:
         """Returns a paginated list of Irregular Rhythm Notifications (IRN) alerts.
 
         This endpoint retrieves alerts generated when the user's device detected signs of
@@ -72,9 +82,13 @@ class IrregularRhythmNotificationsResource(BaseResource):
             offset: Pagination offset (only 0 is supported by the Fitbit API)
             user_id: Optional user ID, defaults to current user ("-")
             debug: If True, prints a curl command to stdout to help with debugging (default: False)
+            as_iterator: If True, returns a PaginatedIterator instead of the raw response (default: False)
 
         Returns:
-            JSONDict: Contains IRN alerts and pagination information for the requested period
+            If as_iterator=False (default):
+                JSONDict: Contains IRN alerts and pagination information for the requested period
+            If as_iterator=True:
+                PaginatedIterator: An iterator that yields each page of IRN alerts
 
         Raises:
             fitbit_client.exceptions.PaginationException: If neither before_date nor after_date is specified
@@ -88,6 +102,14 @@ class IrregularRhythmNotificationsResource(BaseResource):
             - Either before_date or after_date must be specified, but not both
             - The offset parameter only supports 0; use the "next" URL in the pagination response
               to iterate through results
+
+            When using as_iterator=True, you can iterate through all pages like this:
+            ```python
+            for page in client.get_irn_alerts_list(before_date="2025-01-01", as_iterator=True):
+                for alert in page["alerts"]:
+                    print(alert["alertTime"])
+            ```
+
             - Tachogram data represents the time between heartbeats in milliseconds
             - The algorithm analyzes heart rate irregularity patterns during sleep
             - For research purposes only, not for clinical or diagnostic use
@@ -101,9 +123,23 @@ class IrregularRhythmNotificationsResource(BaseResource):
         if after_date:
             params["afterDate"] = after_date
 
-        result = self._make_request(
-            "irn/alerts/list.json", params=params, user_id=user_id, debug=debug
-        )
+        endpoint = "irn/alerts/list.json"
+        result = self._make_request(endpoint, params=params, user_id=user_id, debug=debug)
+
+        # If debug mode is enabled, result will be None
+        if debug or result is None:
+            return cast(JSONDict, result)
+
+        # Return as iterator if requested
+        if as_iterator:
+            return create_paginated_iterator(
+                response=cast(JSONDict, result),
+                resource=self,
+                endpoint=endpoint,
+                method_params=params,
+                debug=debug,
+            )
+
         return cast(JSONDict, result)
 
     def get_irn_profile(self, user_id: str = "-", debug: bool = False) -> JSONDict:

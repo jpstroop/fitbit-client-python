@@ -4,17 +4,26 @@
 from typing import Any
 from typing import Dict
 from typing import Optional
+from typing import TYPE_CHECKING
+from typing import Union
 from typing import cast
 
 # Local imports
 from fitbit_client.exceptions import ParameterValidationException
 from fitbit_client.resources.base import BaseResource
 from fitbit_client.resources.constants import SortDirection
+from fitbit_client.resources.pagination import create_paginated_iterator
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.date_validation import validate_date_range_params
 from fitbit_client.utils.pagination_validation import validate_pagination_params
 from fitbit_client.utils.types import JSONDict
 from fitbit_client.utils.types import ParamDict
+
+# Use TYPE_CHECKING to avoid circular imports
+if TYPE_CHECKING:
+    # Local imports - only imported during type checking
+    # Local imports
+    from fitbit_client.resources.pagination import PaginatedIterator
 
 
 class SleepResource(BaseResource):
@@ -314,7 +323,8 @@ class SleepResource(BaseResource):
         offset: int = 0,
         user_id: str = "-",
         debug: bool = False,
-    ) -> JSONDict:
+        as_iterator: bool = False,
+    ) -> Union[JSONDict, "PaginatedIterator"]:
         """Retrieves a paginated list of sleep logs filtered by date.
 
         This endpoint returns sleep logs before or after a specified date with
@@ -331,9 +341,13 @@ class SleepResource(BaseResource):
             offset: Offset for pagination (must be 0)
             user_id: Optional user ID, defaults to current user ("-")
             debug: If True, prints a curl command to stdout to help with debugging (default: False)
+            as_iterator: If True, returns a PaginatedIterator instead of the raw response (default: False)
 
         Returns:
-            JSONDict: Paginated sleep logs with navigation links and sleep entries
+            If as_iterator=False (default):
+                JSONDict: Paginated sleep logs with navigation links and sleep entries
+            If as_iterator=True:
+                PaginatedIterator: An iterator that yields each page of sleep logs
 
         Raises:
             fitbit_client.exceptions.PaginationError: If parameters are invalid (see Notes)
@@ -347,9 +361,12 @@ class SleepResource(BaseResource):
             - If before_date is used, sort must be DESCENDING
             - If after_date is used, sort must be ASCENDING
 
-            To handle pagination properly, use the URLs provided in the "pagination.next"
-            and "pagination.previous" fields of the response. This is more reliable than
-            manually incrementing the offset.
+            When using as_iterator=True, you can iterate through all pages like this:
+            ```python
+            for page in client.get_sleep_log_list(before_date="2025-01-01", as_iterator=True):
+                for sleep_entry in page["sleep"]:
+                    print(sleep_entry["logId"])
+            ```
 
             This endpoint returns the same sleep data structure as get_sleep_log_by_date,
             but organized in a paginated format rather than grouped by date.
@@ -362,11 +379,27 @@ class SleepResource(BaseResource):
         if after_date:
             params["afterDate"] = after_date
 
+        endpoint = "sleep/list.json"
         result = self._make_request(
-            "sleep/list.json",
+            endpoint,
             params=params,
             user_id=user_id,
             api_version=SleepResource.API_VERSION,
             debug=debug,
         )
+
+        # If debug mode is enabled, result will be None
+        if debug or result is None:
+            return cast(JSONDict, result)
+
+        # Return as iterator if requested
+        if as_iterator:
+            return create_paginated_iterator(
+                response=cast(JSONDict, result),
+                resource=self,
+                endpoint=endpoint,
+                method_params=params,
+                debug=debug,
+            )
+
         return cast(JSONDict, result)

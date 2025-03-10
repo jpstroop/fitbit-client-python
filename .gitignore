@@ -48,10 +48,6 @@ htmlcov/
 
 # Mac
 .DS_Store
-*,cover
-
-# Mac
-.DS_Store
 
 # Project specific
 _api-docs
