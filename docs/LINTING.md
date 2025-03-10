@@ -53,7 +53,7 @@ from requests_oauthlib import OAuth2Session
 
 # Local imports
 from fitbit_client.exceptions import FitbitAPIException
-from fitbit_client.resources.base import BaseResource
+from fitbit_client.resources._base import BaseResource
 ```
 
 ## Documentation Requirements

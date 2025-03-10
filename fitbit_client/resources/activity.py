@@ -12,11 +12,11 @@ from typing import cast
 # Local imports
 from fitbit_client.exceptions import MissingParameterException
 from fitbit_client.exceptions import ValidationException
-from fitbit_client.resources.base import BaseResource
-from fitbit_client.resources.constants import ActivityGoalPeriod
-from fitbit_client.resources.constants import ActivityGoalType
-from fitbit_client.resources.constants import SortDirection
-from fitbit_client.resources.pagination import create_paginated_iterator
+from fitbit_client.resources._base import BaseResource
+from fitbit_client.resources._constants import ActivityGoalPeriod
+from fitbit_client.resources._constants import ActivityGoalType
+from fitbit_client.resources._constants import SortDirection
+from fitbit_client.resources._pagination import create_paginated_iterator
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.pagination_validation import validate_pagination_params
 from fitbit_client.utils.types import JSONDict
@@ -27,7 +27,7 @@ from fitbit_client.utils.types import ParamDict
 if TYPE_CHECKING:
     # Local imports - only imported during type checking
     # Local imports
-    from fitbit_client.resources.pagination import PaginatedIterator
+    from fitbit_client.resources._pagination import PaginatedIterator
 
 
 class ActivityResource(BaseResource):

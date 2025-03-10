@@ -5,10 +5,10 @@ from typing import Optional
 from typing import cast
 
 # Local imports
-from fitbit_client.resources.base import BaseResource
-from fitbit_client.resources.constants import ClockTimeFormat
-from fitbit_client.resources.constants import Gender
-from fitbit_client.resources.constants import StartDayOfWeek
+from fitbit_client.resources._base import BaseResource
+from fitbit_client.resources._constants import ClockTimeFormat
+from fitbit_client.resources._constants import Gender
+from fitbit_client.resources._constants import StartDayOfWeek
 from fitbit_client.utils.date_validation import validate_date_param
 from fitbit_client.utils.types import JSONDict
 from fitbit_client.utils.types import ParamDict

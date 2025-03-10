@@ -11,7 +11,7 @@ from typing import cast
 
 # Local imports
 from fitbit_client.exceptions import PaginationException
-from fitbit_client.resources.constants import SortDirection
+from fitbit_client.resources._constants import SortDirection
 
 # Type variables for decorator typing
 P = ParamSpec("P")

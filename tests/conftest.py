@@ -14,7 +14,7 @@ from requests_oauthlib import OAuth2Session
 from fitbit_client.resources.active_zone_minutes import ActiveZoneMinutesResource
 from fitbit_client.resources.activity import ActivityResource
 from fitbit_client.resources.activity_timeseries import ActivityTimeSeriesResource
-from fitbit_client.resources.base import BaseResource
+from fitbit_client.resources._base import BaseResource
 from fitbit_client.resources.body import BodyResource
 from fitbit_client.resources.body_timeseries import BodyTimeSeriesResource
 from fitbit_client.resources.breathing_rate import BreathingRateResource
@@ -99,7 +99,7 @@ def mock_response_factory():
 @fixture
 def base_resource(mock_oauth_session, mock_logger):
     """Fixture to provide a BaseResource instance with standard locale settings"""
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         resource = BaseResource(
             oauth_session=mock_oauth_session,
             locale="en_US",
@@ -113,13 +113,13 @@ def base_resource(mock_oauth_session, mock_logger):
 
 @fixture
 def activity_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return ActivityResource(oauth_session=mock_oauth_session, locale="en_US", language="en_US")
 
 
 @fixture
 def activity_timeseries_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return ActivityTimeSeriesResource(
             oauth_session=mock_oauth_session, locale="en_US", language="en_US"
         )
@@ -127,7 +127,7 @@ def activity_timeseries_resource(mock_oauth_session, mock_logger):
 
 @fixture
 def azm_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return ActiveZoneMinutesResource(
             oauth_session=mock_oauth_session, locale="en_US", language="en_US"
         )
@@ -135,49 +135,49 @@ def azm_resource(mock_oauth_session, mock_logger):
 
 @fixture
 def body_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return BodyResource(mock_oauth_session, "en_US", "en_US")
 
 
 @fixture
 def body_timeseries(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return BodyTimeSeriesResource(mock_oauth_session, "en_US", "en_US")
 
 
 @fixture
 def breathing_rate_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return BreathingRateResource(mock_oauth_session, "en_US", "en_US")
 
 
 @fixture
 def cardio_fitness_score_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return CardioFitnessScoreResource(mock_oauth_session, "en_US", "en_US")
 
 
 @fixture
 def device_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return DeviceResource(mock_oauth_session, "en_US", "en_US")
 
 
 @fixture
 def ecg_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return ElectrocardiogramResource(mock_oauth_session, "en_US", "en_US")
 
 
 @fixture
 def friends_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return FriendsResource(oauth_session=mock_oauth_session, locale="en_US", language="en_US")
 
 
 @fixture
 def heartrate_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return HeartrateTimeSeriesResource(
             oauth_session=mock_oauth_session, locale="en_US", language="en_US"
         )
@@ -185,59 +185,59 @@ def heartrate_resource(mock_oauth_session, mock_logger):
 
 @fixture
 def hrv_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return HeartrateVariabilityResource(mock_oauth_session, "en_US", "en_US")
 
 
 @fixture
 def intraday_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return IntradayResource(oauth_session=mock_oauth_session, locale="en_US", language="en_US")
 
 
 @fixture
 def irn_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return IrregularRhythmNotificationsResource(mock_oauth_session, "en_US", "en_US")
 
 
 @fixture
 def nutrition_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return NutritionResource(oauth_session=mock_oauth_session, locale="en_US", language="en_US")
 
 
 @fixture
 def nutrition_timeseries_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return NutritionTimeSeriesResource(mock_oauth_session, "en_US", "en_US")
 
 
 @fixture
 def sleep_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return SleepResource(mock_oauth_session, "en_US", "en_US")
 
 
 @fixture
 def spo2_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return SpO2Resource(mock_oauth_session, "en_US", "en_US")
 
 
 @fixture
 def subscription_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return SubscriptionResource(mock_oauth_session, "en_US", "en_US")
 
 
 @fixture
 def temperature_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return TemperatureResource(mock_oauth_session, "en_US", "en_US")
 
 
 @fixture
 def user_resource(mock_oauth_session, mock_logger):
-    with patch("fitbit_client.resources.base.getLogger", return_value=mock_logger):
+    with patch("fitbit_client.resources._base.getLogger", return_value=mock_logger):
         return UserResource(mock_oauth_session, "en_US", "en_US")
