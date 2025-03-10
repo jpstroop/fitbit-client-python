@@ -79,14 +79,12 @@ class TestCallbackServer:
 
     def test_create_handler(self, server):
         """Test the factory function for creating CallbackHandler instances"""
-        # Setup mock objects
         mock_request = MagicMock()
         mock_client_address = ("127.0.0.1", 1234)
         mock_server = MagicMock()
 
         # Patch the CallbackHandler to verify it gets instantiated correctly
         with patch("fitbit_client.auth.callback_server.CallbackHandler") as mock_handler_class:
-            # Setup the mock to return a mock instance
             mock_handler = MagicMock()
             mock_handler_class.return_value = mock_handler
 
@@ -361,7 +359,6 @@ class TestCallbackServer:
     def test_stop_server_removes_temp_files(self, server):
         """Test that temporary files are cleaned up"""
         with patch("fitbit_client.auth.callback_server.unlink") as mock_unlink:
-            # Setup mock temp files
             server.cert_file = Mock()
             server.cert_file.name = "test_cert.pem"
             server.key_file = Mock()
@@ -383,7 +380,6 @@ class TestCallbackServer:
         with patch(
             "fitbit_client.auth.callback_server.unlink", side_effect=Exception("Cleanup Error")
         ):
-            # Setup mock temp files
             server.cert_file = Mock()
             server.cert_file.name = "test_cert.pem"
             server.key_file = Mock()

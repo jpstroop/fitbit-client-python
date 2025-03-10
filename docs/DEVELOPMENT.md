@@ -1,6 +1,6 @@
 # Conventions, Patterns, and Development Guide
 
-## Development Environment Setup
+## Set up Development Environment
 
 ### Prerequisites
 
@@ -8,7 +8,7 @@
 - PDM
 - Git
 
-### Initial Setup
+### Download and Install the Source Code
 
 1. Clone the repository:
 
@@ -206,7 +206,7 @@ Method aliases were implemented for several important reasons:
    direct aliases, developers can choose the approach that best fits their needs
    \- organization or conciseness.
 
-All method aliases are set up in the `_setup_method_aliases()` method in the
+All method aliases are set up in the `_set_up_method_aliases()` method in the
 [`FitbitClient`](fitbit_client/client.py) class, which is called during
 initialization. Each alias is a direct reference to the corresponding resource
 method, ensuring consistent behavior regardless of how the method is accessed.

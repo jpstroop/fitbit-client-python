@@ -191,7 +191,6 @@ class TestFitbitOAuth2:
             "expires_at": time() + 3600,
         }
 
-        # Setup mocks
         oauth.is_authenticated = Mock(return_value=True)
         oauth.get_authorization_url = Mock(return_value=("test_url", "test_state"))
         oauth.fetch_token = Mock(return_value=mock_token)
@@ -215,7 +214,6 @@ class TestFitbitOAuth2:
             "expires_at": time() + 3600,
         }
 
-        # Setup mocks
         oauth.get_authorization_url = Mock(return_value=("test_url", "test_state"))
         oauth.fetch_token = Mock(return_value=mock_token)
         oauth.is_authenticated = Mock(return_value=False)
@@ -356,7 +354,6 @@ class TestFitbitOAuth2:
         mock_session.fetch_token.side_effect = original_error
         oauth.session = mock_session
 
-        # Setup logger mock to capture log message
         mock_logger = Mock()
         oauth.logger = mock_logger
 
@@ -386,7 +383,6 @@ class TestFitbitOAuth2:
         mock_session.fetch_token.side_effect = original_error
         oauth.session = mock_session
 
-        # Setup logger mock to capture log message
         mock_logger = Mock()
         oauth.logger = mock_logger
 
@@ -479,7 +475,6 @@ class TestFitbitOAuth2:
         mock_session.refresh_token.side_effect = unexpected_error
         oauth.session = mock_session
 
-        # Setup logger mock to capture log message
         mock_logger = Mock()
         oauth.logger = mock_logger
 
@@ -677,7 +672,6 @@ class TestFitbitOAuth2:
 
     def test_is_authenticated_with_valid_token(self, oauth):
         """Test is_authenticated with a non-expired token"""
-        # Setup a valid token with future expiry
         future_time = time() + 3600  # 1 hour in the future
         oauth.token = {"access_token": "valid_token", "expires_at": future_time}
 
@@ -688,7 +682,6 @@ class TestFitbitOAuth2:
 
     def test_is_authenticated_with_expired_token(self, oauth):
         """Test is_authenticated with an expired token"""
-        # Setup an expired token
         past_time = time() - 3600  # 1 hour in the past
         oauth.token = {"access_token": "expired_token", "expires_at": past_time}
 

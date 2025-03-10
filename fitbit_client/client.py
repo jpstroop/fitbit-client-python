@@ -235,7 +235,7 @@ class FitbitClient:
         self.logger.debug("Fitbit client initialized successfully")
 
         # Set up method aliases
-        self._setup_method_aliases()
+        self._set_up_method_aliases()
 
     def authenticate(self, force_new: bool = False) -> bool:
         """
@@ -268,7 +268,7 @@ class FitbitClient:
             self.logger.error(f"System error during authentication: {str(e)}")
             raise
 
-    def _setup_method_aliases(self) -> None:
+    def _set_up_method_aliases(self) -> None:
         """Set up direct access to resource methods as client attributes for convenience."""
         self.logger.debug("Setting up method aliases")
 

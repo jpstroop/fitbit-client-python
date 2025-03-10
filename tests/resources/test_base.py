@@ -672,9 +672,7 @@ def test_make_direct_request_unexpected_content_type(mock_get_calling, base_reso
 @patch("fitbit_client.resources.base.BaseResource._get_retry_after")
 def test_direct_request_rate_limit_retry(mock_get_retry, mock_sleep, base_resource, mock_logger):
     """Test rate limit retry for direct requests."""
-    # This tests lines 691-693 in base.py
 
-    # Setup mock responses
     rate_limit_response = Mock()
     rate_limit_response.status_code = 429
     rate_limit_response.headers = {
@@ -1022,7 +1020,6 @@ def test_rate_limit_retry_with_fitbit_headers(
     mock_sleep, base_resource, mock_oauth_session, mock_logger
 ):
     """Test that rate limit retry correctly uses Fitbit headers for retry timing."""
-    # Setup mock responses
     rate_limit_response = Mock()
     rate_limit_response.status_code = 429
     rate_limit_response.headers = {
