@@ -8,7 +8,7 @@
 from fitbit_client.resources._constants import MealType
 
 
-def test_custom_user_id(nutrition_resource, mock_response):
+def test_custom_user_id(nutrition_resource, mock_response_factory):
     """Test that endpoints correctly handle custom user IDs"""
     custom_user_id = "123ABC"
     test_cases = [
@@ -35,7 +35,7 @@ def test_custom_user_id(nutrition_resource, mock_response):
             f"https://api.fitbit.com/1/user/{custom_user_id}/foods/log/water/date/2025-02-08.json",
         ),
     ]
-    mock_response.json.return_value = {"success": True}
+    mock_response = mock_response_factory(200, {"success": True})
     nutrition_resource.oauth.request.return_value = mock_response
     for method, params, expected_url in test_cases:
         result = method(**params)

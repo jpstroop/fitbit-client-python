@@ -3,9 +3,11 @@
 """Tests for the create_water_goal endpoint."""
 
 
-def test_create_water_goal_success(nutrition_resource, mock_response):
+def test_create_water_goal_success(nutrition_resource, mock_response_factory):
     """Test successful creation of a water goal"""
-    mock_response.json.return_value = {"goal": {"goal": 2000.0, "startDate": "2025-02-08"}}
+    mock_response = mock_response_factory(
+        200, {"goal": {"goal": 2000.0, "startDate": "2025-02-08"}}
+    )
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.create_water_goal(target=2000.0)
     assert result == mock_response.json.return_value

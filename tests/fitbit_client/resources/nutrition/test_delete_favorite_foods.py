@@ -3,9 +3,9 @@
 """Tests for the delete_favorite_foods endpoint."""
 
 
-def test_delete_favorite_food_success(nutrition_resource, mock_response):
+def test_delete_favorite_food_success(nutrition_resource, mock_response_factory):
     """Test successful deletion of a favorite food"""
-    mock_response.status_code = 204
+    mock_response = mock_response_factory(204)
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.delete_favorite_food(food_id=12345)
     assert result is None

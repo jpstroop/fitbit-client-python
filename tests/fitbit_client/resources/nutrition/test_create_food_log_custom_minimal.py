@@ -3,14 +3,12 @@
 """Tests for the create_food_log_custom_minimal endpoint."""
 
 # Local imports
-
-# Local imports
 from fitbit_client.resources._constants import MealType
 
 
-def test_create_food_log_custom_minimal(nutrition_resource, mock_response):
+def test_create_food_log_custom_minimal(nutrition_resource, mock_response_factory):
     """Test creating custom food log with minimal parameters (no brand or nutritional values)"""
-    mock_response.json.return_value = {"foodLog": {"logId": 12345}}
+    mock_response = mock_response_factory(200, {"foodLog": {"logId": 12345}})
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.create_food_log(
         date="2025-02-08",

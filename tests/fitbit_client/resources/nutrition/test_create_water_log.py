@@ -3,8 +3,6 @@
 """Tests for the create_water_log endpoint."""
 
 # Third party imports
-
-# Third party imports
 from pytest import raises
 
 # Local imports
@@ -12,9 +10,9 @@ from fitbit_client.exceptions import InvalidDateException
 from fitbit_client.resources._constants import WaterUnit
 
 
-def test_create_water_log_success(nutrition_resource, mock_response):
+def test_create_water_log_success(nutrition_resource, mock_response_factory):
     """Test successful creation of a water log entry"""
-    mock_response.json.return_value = {"waterLog": {"logId": 12345, "amount": 500.0}}
+    mock_response = mock_response_factory(200, {"waterLog": {"logId": 12345, "amount": 500.0}})
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.create_water_log(
         amount=500.0, date="2025-02-08", unit=WaterUnit.MILLILITERS
@@ -36,8 +34,9 @@ def test_create_water_log_invalid_date(nutrition_resource):
         nutrition_resource.create_water_log(amount=500.0, date="invalid-date")
 
 
-def test_create_water_log_allows_today(nutrition_resource, mock_response):
+def test_create_water_log_allows_today(nutrition_resource, mock_response_factory):
     """Test that 'today' is accepted as a valid date"""
+    mock_response = mock_response_factory(200)
     mock_response.json.return_value = {"waterLog": {"logId": 12345}}
     mock_response.headers = {"content-type": "application/json"}
     nutrition_resource.oauth.request.return_value = mock_response
