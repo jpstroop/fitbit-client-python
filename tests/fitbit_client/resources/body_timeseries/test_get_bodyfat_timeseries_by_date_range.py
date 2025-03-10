@@ -42,11 +42,13 @@ def test_get_bodyfat_timeseries_by_date_range_max_days(body_timeseries):
     assert "body fat" in str(exc_info.value)
 
 
-def test_get_bodyfat_timeseries_by_date_range_makes_correct_request(body_timeseries, mock_response):
+def test_get_bodyfat_timeseries_by_date_range_makes_correct_request(
+    body_timeseries, mock_response_factory
+):
     """Test that the correct endpoint is called with proper parameters."""
     # Set up the mock response
+    mock_response = mock_response_factory(200, {"expected": "response"})
     body_timeseries.oauth.request.return_value = mock_response
-    mock_response.json.return_value = {"expected": "response"}
 
     # Call the method with a valid date range (under 30 days)
     result = body_timeseries.get_bodyfat_timeseries_by_date_range(

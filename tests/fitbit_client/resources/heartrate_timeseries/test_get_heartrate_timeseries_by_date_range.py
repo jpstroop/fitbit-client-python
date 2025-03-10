@@ -13,7 +13,7 @@ from fitbit_client.exceptions import InvalidDateRangeException
 from fitbit_client.exceptions import ParameterValidationException
 
 
-def test_get_heartrate_timeseries_by_date_range_success(heartrate_resource, mock_response):
+def test_get_heartrate_timeseries_by_date_range_success(heartrate_resource, mock_response_factory):
     """Test successful retrieval of heart rate data by date range"""
     response_data = {
         "activities-heart": [
@@ -21,7 +21,7 @@ def test_get_heartrate_timeseries_by_date_range_success(heartrate_resource, mock
             {"dateTime": "2024-02-11", "value": {"restingHeartRate": 68, "heartRateZones": []}},
         ]
     }
-    mock_response.json.return_value = response_data
+    mock_response = mock_response_factory(200, response_data)
     heartrate_resource.oauth.request.return_value = mock_response
     result = heartrate_resource.get_heartrate_timeseries_by_date_range(
         start_date="2024-02-10", end_date="2024-02-11"
@@ -37,9 +37,9 @@ def test_get_heartrate_timeseries_by_date_range_success(heartrate_resource, mock
     )
 
 
-def test_get_heartrate_timeseries_by_date_range_today(heartrate_resource, mock_response):
+def test_get_heartrate_timeseries_by_date_range_today(heartrate_resource, mock_response_factory):
     """Test that 'today' is accepted in date range"""
-    mock_response.json.return_value = {"activities-heart": []}
+    mock_response = mock_response_factory(200, {"activities-heart": []})
     heartrate_resource.oauth.request.return_value = mock_response
     result = heartrate_resource.get_heartrate_timeseries_by_date_range(
         start_date="today", end_date="today"

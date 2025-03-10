@@ -3,18 +3,21 @@
 """Tests for the get_meals endpoint."""
 
 
-def test_get_meals_success(nutrition_resource, mock_response):
+def test_get_meals_success(nutrition_resource, mock_response_factory):
     """Test successful retrieval of all meals"""
-    mock_response.json.return_value = {
-        "meals": [
-            {
-                "id": 12345,
-                "name": "Test Meal",
-                "description": "Test meal description",
-                "mealFoods": [{"foodId": 67890, "amount": 100.0, "unitId": 147}],
-            }
-        ]
-    }
+    mock_response = mock_response_factory(
+        200,
+        {
+            "meals": [
+                {
+                    "id": 12345,
+                    "name": "Test Meal",
+                    "description": "Test meal description",
+                    "mealFoods": [{"foodId": 67890, "amount": 100.0, "unitId": 147}],
+                }
+            ]
+        },
+    )
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.get_meals()
     assert result == mock_response.json.return_value

@@ -54,11 +54,13 @@ def test_get_body_timeseries_by_date_range_max_days(body_timeseries):
             )
 
 
-def test_get_body_timeseries_by_date_range_makes_correct_request(body_timeseries, mock_response):
+def test_get_body_timeseries_by_date_range_makes_correct_request(
+    body_timeseries, mock_response_factory
+):
     """Test that the correct endpoint is called with proper parameters."""
     # Set up the mock response
+    mock_response = mock_response_factory(200, {"expected": "response"})
     body_timeseries.oauth.request.return_value = mock_response
-    mock_response.json.return_value = {"expected": "response"}
 
     # Call the method with valid parameters that don't exceed range limits
     result = body_timeseries.get_body_timeseries_by_date_range(

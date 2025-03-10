@@ -8,9 +8,9 @@
 from fitbit_client.resources._constants import WaterUnit
 
 
-def test_update_water_log_success(nutrition_resource, mock_response):
+def test_update_water_log_success(nutrition_resource, mock_response_factory):
     """Test successful update of a water log entry"""
-    mock_response.json.return_value = {"waterLog": {"logId": 12345, "amount": 1000.0}}
+    mock_response = mock_response_factory(200, {"waterLog": {"logId": 12345, "amount": 1000.0}})
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.update_water_log(
         water_log_id=12345, amount=1000.0, unit=WaterUnit.MILLILITERS
@@ -26,9 +26,9 @@ def test_update_water_log_success(nutrition_resource, mock_response):
     )
 
 
-def test_update_water_log_without_unit(nutrition_resource, mock_response):
+def test_update_water_log_without_unit(nutrition_resource, mock_response_factory):
     """Test updating water log without specifying unit (lines 733-735)"""
-    mock_response.json.return_value = {"waterLog": {"logId": 12345, "amount": 1000.0}}
+    mock_response = mock_response_factory(200, {"waterLog": {"logId": 12345, "amount": 1000.0}})
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.update_water_log(water_log_id=12345, amount=1000.0)
     assert result == mock_response.json.return_value

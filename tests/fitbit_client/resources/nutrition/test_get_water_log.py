@@ -11,12 +11,11 @@ from pytest import raises
 from fitbit_client.exceptions import InvalidDateException
 
 
-def test_get_water_log_success(nutrition_resource, mock_response):
+def test_get_water_log_success(nutrition_resource, mock_response_factory):
     """Test successful retrieval of water log entries"""
-    mock_response.json.return_value = {
-        "water": [{"logId": 12345, "amount": 500.0}],
-        "summary": {"water": 500.0},
-    }
+    mock_response = mock_response_factory(
+        200, {"water": [{"logId": 12345, "amount": 500.0}], "summary": {"water": 500.0}}
+    )
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.get_water_log(date="2025-02-08")
     assert result == mock_response.json.return_value
@@ -36,9 +35,8 @@ def test_get_water_log_invalid_date(nutrition_resource):
         nutrition_resource.get_water_log("invalid-date")
 
 
-def test_get_water_log_allows_today(nutrition_resource, mock_response):
+def test_get_water_log_allows_today(nutrition_resource, mock_response_factory):
     """Test that 'today' is accepted as a valid date"""
-    mock_response.json.return_value = {"water": []}
-    mock_response.headers = {"content-type": "application/json"}
+    mock_response = mock_response_factory(200, {"water": []})
     nutrition_resource.oauth.request.return_value = mock_response
     nutrition_resource.get_water_log("today")

@@ -13,11 +13,13 @@ from fitbit_client.resources._constants import ActivityTimeSeriesPath
 from fitbit_client.resources._constants import Period
 
 
-def test_get_activity_timeseries_by_date_success(activity_timeseries_resource, mock_response):
+def test_get_activity_timeseries_by_date_success(
+    activity_timeseries_resource, mock_response_factory
+):
     """Test successful retrieval of activity time series by date"""
-    mock_response.json.return_value = {
-        "activities-steps": [{"dateTime": "2024-02-01", "value": "10000"}]
-    }
+    mock_response = mock_response_factory(
+        200, {"activities-steps": [{"dateTime": "2024-02-01", "value": "10000"}]}
+    )
     activity_timeseries_resource.oauth.request.return_value = mock_response
     result = activity_timeseries_resource.get_activity_timeseries_by_date(
         resource_path=ActivityTimeSeriesPath.STEPS, date="2024-02-01", period=Period.ONE_DAY
@@ -33,9 +35,11 @@ def test_get_activity_timeseries_by_date_success(activity_timeseries_resource, m
     )
 
 
-def test_get_activity_timeseries_by_date_with_user_id(activity_timeseries_resource, mock_response):
+def test_get_activity_timeseries_by_date_with_user_id(
+    activity_timeseries_resource, mock_response_factory
+):
     """Test getting time series for a specific user"""
-    mock_response.json.return_value = {"activities-steps": []}
+    mock_response = mock_response_factory(200, {"activities-steps": []})
     activity_timeseries_resource.oauth.request.return_value = mock_response
     result = activity_timeseries_resource.get_activity_timeseries_by_date(
         resource_path=ActivityTimeSeriesPath.STEPS,
@@ -68,13 +72,16 @@ def test_get_activity_timeseries_by_date_invalid_date(activity_timeseries_resour
 # Local imports
 
 
-def test_calories_variants(activity_timeseries_resource, mock_response):
+def test_calories_variants(activity_timeseries_resource, mock_response_factory):
     """Test different calorie measurement types return expected data"""
-    mock_response.json.return_value = {
-        "activities-activityCalories": [{"dateTime": "2024-02-01", "value": "300"}],
-        "activities-calories": [{"dateTime": "2024-02-01", "value": "2000"}],
-        "activities-caloriesBMR": [{"dateTime": "2024-02-01", "value": "1700"}],
-    }
+    mock_response = mock_response_factory(
+        200,
+        {
+            "activities-activityCalories": [{"dateTime": "2024-02-01", "value": "300"}],
+            "activities-calories": [{"dateTime": "2024-02-01", "value": "2000"}],
+            "activities-caloriesBMR": [{"dateTime": "2024-02-01", "value": "1700"}],
+        },
+    )
     activity_timeseries_resource.oauth.request.return_value = mock_response
     calorie_types = [
         ActivityTimeSeriesPath.ACTIVITY_CALORIES,

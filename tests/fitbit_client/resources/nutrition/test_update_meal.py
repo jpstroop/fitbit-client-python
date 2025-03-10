@@ -3,16 +3,19 @@
 """Tests for the update_meal endpoint."""
 
 
-def test_update_meal_success(nutrition_resource, mock_response):
+def test_update_meal_success(nutrition_resource, mock_response_factory):
     """Test successful update of a meal"""
-    mock_response.json.return_value = {
-        "meal": {
-            "id": 12345,
-            "name": "Updated Meal",
-            "description": "Updated description",
-            "mealFoods": [{"foodId": 67890, "amount": 200.0, "unitId": 147}],
-        }
-    }
+    mock_response = mock_response_factory(
+        200,
+        {
+            "meal": {
+                "id": 12345,
+                "name": "Updated Meal",
+                "description": "Updated description",
+                "mealFoods": [{"foodId": 67890, "amount": 200.0, "unitId": 147}],
+            }
+        },
+    )
     nutrition_resource.oauth.request.return_value = mock_response
     foods = [{"food_id": 67890, "amount": 200.0, "unit_id": 147}]
     result = nutrition_resource.update_meal(

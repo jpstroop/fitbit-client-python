@@ -3,11 +3,11 @@
 """Tests for the get_favorite_foods endpoint."""
 
 
-def test_get_favorite_foods_success(nutrition_resource, mock_response):
+def test_get_favorite_foods_success(nutrition_resource, mock_response_factory):
     """Test successful retrieval of favorite foods"""
-    mock_response.json.return_value = [
-        {"foodId": 12345, "name": "Test Food", "defaultServingSize": 100.0, "calories": 100}
-    ]
+    mock_response = mock_response_factory(
+        200, [{"foodId": 12345, "name": "Test Food", "defaultServingSize": 100.0, "calories": 100}]
+    )
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.get_favorite_foods()
     assert result == mock_response.json.return_value

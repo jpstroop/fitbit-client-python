@@ -3,12 +3,15 @@
 """Tests for the get_food_units endpoint."""
 
 
-def test_get_food_units_success(nutrition_resource, mock_response):
+def test_get_food_units_success(nutrition_resource, mock_response_factory):
     """Test successful retrieval of food units"""
-    mock_response.json.return_value = [
-        {"id": 147, "name": "gram", "plural": "grams"},
-        {"id": 204, "name": "medium", "plural": "mediums"},
-    ]
+    mock_response = mock_response_factory(
+        200,
+        [
+            {"id": 147, "name": "gram", "plural": "grams"},
+            {"id": 204, "name": "medium", "plural": "mediums"},
+        ],
+    )
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.get_food_units()
     assert result == mock_response.json.return_value

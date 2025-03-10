@@ -11,12 +11,15 @@ from pytest import raises
 from fitbit_client.exceptions import InvalidDateException
 
 
-def test_get_food_log_success(nutrition_resource, mock_response):
+def test_get_food_log_success(nutrition_resource, mock_response_factory):
     """Test successful retrieval of food log entries"""
-    mock_response.json.return_value = {
-        "foods": [{"logId": 12345, "loggedFood": {"foodId": 67890, "amount": 100.0}}],
-        "summary": {"calories": 500},
-    }
+    mock_response = mock_response_factory(
+        200,
+        {
+            "foods": [{"logId": 12345, "loggedFood": {"foodId": 67890, "amount": 100.0}}],
+            "summary": {"calories": 500},
+        },
+    )
     nutrition_resource.oauth.request.return_value = mock_response
     result = nutrition_resource.get_food_log(date="2025-02-08")
     assert result == mock_response.json.return_value
@@ -36,9 +39,8 @@ def test_get_food_log_invalid_date(nutrition_resource):
         nutrition_resource.get_food_log("invalid-date")
 
 
-def test_get_food_log_allows_today(nutrition_resource, mock_response):
+def test_get_food_log_allows_today(nutrition_resource, mock_response_factory):
     """Test that 'today' is accepted as a valid date"""
-    mock_response.json.return_value = {"foods": []}
-    mock_response.headers = {"content-type": "application/json"}
+    mock_response = mock_response_factory(200, {"foods": []})
     nutrition_resource.oauth.request.return_value = mock_response
     nutrition_resource.get_food_log("today")

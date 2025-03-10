@@ -14,14 +14,19 @@ from fitbit_client.exceptions import ValidationException
 from fitbit_client.resources._constants import ActivityTimeSeriesPath
 
 
-def test_get_activity_timeseries_by_date_range_success(activity_timeseries_resource, mock_response):
+def test_get_activity_timeseries_by_date_range_success(
+    activity_timeseries_resource, mock_response_factory
+):
     """Test successful retrieval of activity time series by date range"""
-    mock_response.json.return_value = {
-        "activities-steps": [
-            {"dateTime": "2024-02-01", "value": "10000"},
-            {"dateTime": "2024-02-02", "value": "12000"},
-        ]
-    }
+    mock_response = mock_response_factory(
+        200,
+        {
+            "activities-steps": [
+                {"dateTime": "2024-02-01", "value": "10000"},
+                {"dateTime": "2024-02-02", "value": "12000"},
+            ]
+        },
+    )
     activity_timeseries_resource.oauth.request.return_value = mock_response
     result = activity_timeseries_resource.get_activity_timeseries_by_date_range(
         resource_path=ActivityTimeSeriesPath.STEPS, start_date="2024-02-01", end_date="2024-02-02"
@@ -43,10 +48,10 @@ def test_get_activity_timeseries_by_date_range_success(activity_timeseries_resou
 
 
 def test_get_activity_timeseries_by_date_range_with_user_id(
-    activity_timeseries_resource, mock_response
+    activity_timeseries_resource, mock_response_factory
 ):
     """Test getting time series by date range for a specific user"""
-    mock_response.json.return_value = {"activities-steps": []}
+    mock_response = mock_response_factory(200, {"activities-steps": []})
     activity_timeseries_resource.oauth.request.return_value = mock_response
     result = activity_timeseries_resource.get_activity_timeseries_by_date_range(
         resource_path=ActivityTimeSeriesPath.STEPS,

@@ -36,11 +36,13 @@ def test_get_bodyfat_timeseries_by_date_period_validation(body_timeseries):
         assert f"Period {period.value} not supported for body fat" in str(exc_info.value)
 
 
-def test_get_bodyfat_timeseries_by_date_makes_correct_request(body_timeseries, mock_response):
+def test_get_bodyfat_timeseries_by_date_makes_correct_request(
+    body_timeseries, mock_response_factory
+):
     """Test that the correct endpoint is called with proper parameters."""
     # Set up the mock response
+    mock_response = mock_response_factory(200, {"expected": "response"})
     body_timeseries.oauth.request.return_value = mock_response
-    mock_response.json.return_value = {"expected": "response"}
 
     # Call the method
     result = body_timeseries.get_bodyfat_timeseries_by_date(
