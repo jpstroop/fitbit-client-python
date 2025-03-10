@@ -14,27 +14,31 @@ from fitbit_client.utils.curl_debug_mixin import CurlDebugMixin
 
 
 # Create a test class that uses the mixin for debug testing
-class TestResource(CurlDebugMixin):
-    """Test class that uses CurlDebugMixin"""
+# Using a function to create the test class to avoid pytest collection warning
+def create_test_resource_class():
+    class TestResource(CurlDebugMixin):
+        """Test class that uses CurlDebugMixin"""
 
-    def __init__(self):
-        self.oauth = Mock()
-        self.oauth.token = {"access_token": "test_token"}
+        def __init__(self):
+            self.oauth = Mock()
+            self.oauth.token = {"access_token": "test_token"}
 
-    def make_debug_request(self, debug=False):
-        """Test method that simulates _make_request with debug mode"""
-        url = "https://api.fitbit.com/1/user/-/test/endpoint"
+        def make_debug_request(self, debug=False):
+            """Test method that simulates _make_request with debug mode"""
+            url = "https://api.fitbit.com/1/user/-/test/endpoint"
 
-        if debug:
-            curl_command = self._build_curl_command(
-                url=url, http_method="GET", params={"param1": "value1"}
-            )
-            print(f"\n# Debug curl command:")
-            print(curl_command)
-            print()
-            return None
+            if debug:
+                curl_command = self._build_curl_command(
+                    url=url, http_method="GET", params={"param1": "value1"}
+                )
+                print(f"\n# Debug curl command:")
+                print(curl_command)
+                print()
+                return None
 
-        return {"success": True}
+            return {"success": True}
+
+    return TestResource
 
 
 @fixture
@@ -101,7 +105,8 @@ def test_build_curl_command_with_delete(curl_debug_mixin):
 
 def test_debug_mode_integration(capsys):
     """Test debug mode integration with a resource class"""
-    # Create test resource
+    # Create test resource class and instance
+    TestResource = create_test_resource_class()
     resource = TestResource()
 
     # Call make_debug_request with debug=True
