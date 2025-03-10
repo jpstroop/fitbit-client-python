@@ -17,8 +17,9 @@ from fitbit_client.utils.types import JSONDict
 # Set up logging
 logger = logging.getLogger(__name__)
 
-# Avoid circular imports
+# Use TYPE_CHECKING to avoid circular imports
 if TYPE_CHECKING:
+    # Local imports - only imported during type checking
     # Local imports
     from fitbit_client.resources.base import BaseResource
 

@@ -23,10 +23,7 @@ from fitbit_client.utils.types import JSONDict
 from fitbit_client.utils.types import JSONList
 from fitbit_client.utils.types import ParamDict
 
-# We use TYPE_CHECKING to avoid circular imports at runtime.
-# PaginatedIterator is only needed for type annotations, not for runtime code.
-# This pattern is recommended by the Python typing documentation:
-# https://docs.python.org/3/library/typing.html#typing.TYPE_CHECKING
+# Use TYPE_CHECKING to avoid circular imports
 if TYPE_CHECKING:
     # Local imports - only imported during type checking
     # Local imports
@@ -271,7 +268,6 @@ class ActivityResource(BaseResource):
             return cast(JSONDict, result)
 
         # Return as iterator if requested
-        # We use string literal type annotation 'PaginatedIterator' to avoid circular imports
         if as_iterator:
             return create_paginated_iterator(
                 response=cast(JSONDict, result),

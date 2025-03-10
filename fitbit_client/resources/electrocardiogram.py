@@ -17,7 +17,9 @@ from fitbit_client.utils.pagination_validation import validate_pagination_params
 from fitbit_client.utils.types import JSONDict
 from fitbit_client.utils.types import ParamDict
 
+# Use TYPE_CHECKING to avoid circular imports
 if TYPE_CHECKING:
+    # Local imports - only imported during type checking
     # Local imports
     from fitbit_client.resources.pagination import PaginatedIterator
 
@@ -128,7 +130,6 @@ class ElectrocardiogramResource(BaseResource):
             return cast(JSONDict, result)
 
         # Return as iterator if requested
-        # We use TYPE_CHECKING for PaginatedIterator type to avoid circular imports
         if as_iterator:
             return create_paginated_iterator(
                 response=cast(JSONDict, result),
