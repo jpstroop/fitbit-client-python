@@ -18,35 +18,33 @@ from fitbit_client.exceptions import InvalidDateRangeException
 
 def test_get_azm_timeseries_by_interval_success(azm_resource, mock_response_factory):
     """Test successful retrieval of AZM time series by date range"""
-    mock_response = mock_response_factory(
-        200,
-        {
-            "activities-active-zone-minutes": [
-                {
-                    "dateTime": "2025-02-01",
-                    "value": {
-                        "activeZoneMinutes": 102,
-                        "fatBurnActiveZoneMinutes": 90,
-                        "cardioActiveZoneMinutes": 8,
-                        "peakActiveZoneMinutes": 4,
-                    },
+    expected_data = {
+        "activities-active-zone-minutes": [
+            {
+                "dateTime": "2025-02-01",
+                "value": {
+                    "activeZoneMinutes": 102,
+                    "fatBurnActiveZoneMinutes": 90,
+                    "cardioActiveZoneMinutes": 8,
+                    "peakActiveZoneMinutes": 4,
                 },
-                {
-                    "dateTime": "2025-02-02",
-                    "value": {
-                        "activeZoneMinutes": 47,
-                        "fatBurnActiveZoneMinutes": 43,
-                        "cardioActiveZoneMinutes": 4,
-                    },
+            },
+            {
+                "dateTime": "2025-02-02",
+                "value": {
+                    "activeZoneMinutes": 47,
+                    "fatBurnActiveZoneMinutes": 43,
+                    "cardioActiveZoneMinutes": 4,
                 },
-            ]
-        },
-    )
+            },
+        ]
+    }
+    mock_response = mock_response_factory(200, expected_data)
     azm_resource.oauth.request.return_value = mock_response
     result = azm_resource.get_azm_timeseries_by_interval(
         start_date="2025-02-01", end_date="2025-02-02"
     )
-    assert result == mock_response.json.return_value
+    assert result == expected_data
     azm_resource.oauth.request.assert_called_once_with(
         "GET",
         "https://api.fitbit.com/1/user/-/activities/active-zone-minutes/date/2025-02-01/2025-02-02.json",
@@ -59,12 +57,13 @@ def test_get_azm_timeseries_by_interval_success(azm_resource, mock_response_fact
 
 def test_get_azm_timeseries_by_interval_with_user_id(azm_resource, mock_response_factory):
     """Test getting AZM time series by date range for a specific user"""
-    mock_response = mock_response_factory(200, {"activities-active-zone-minutes": []})
+    expected_data = {"activities-active-zone-minutes": []}
+    mock_response = mock_response_factory(200, expected_data)
     azm_resource.oauth.request.return_value = mock_response
     result = azm_resource.get_azm_timeseries_by_interval(
         start_date="2025-02-01", end_date="2025-02-02", user_id="123ABC"
     )
-    assert result == mock_response.json.return_value
+    assert result == expected_data
     azm_resource.oauth.request.assert_called_once_with(
         "GET",
         "https://api.fitbit.com/1/user/123ABC/activities/active-zone-minutes/date/2025-02-01/2025-02-02.json",
