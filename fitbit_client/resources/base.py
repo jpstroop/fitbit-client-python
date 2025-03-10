@@ -2,14 +2,18 @@
 
 # Standard library imports
 from datetime import datetime
+from datetime import timedelta
 from inspect import currentframe
 from json import JSONDecodeError
 from json import dumps
 from logging import getLogger
+from time import sleep
 from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Set
+from typing import Tuple
+from typing import Union
 from typing import cast
 from typing import overload
 from urllib.parse import urlencode
@@ -21,6 +25,8 @@ from requests_oauthlib import OAuth2Session
 # Local imports
 from fitbit_client.exceptions import ERROR_TYPE_EXCEPTIONS
 from fitbit_client.exceptions import FitbitAPIException
+from fitbit_client.exceptions import RateLimitExceededException
+from fitbit_client.exceptions import RequestException
 from fitbit_client.exceptions import STATUS_CODE_EXCEPTIONS
 from fitbit_client.utils.curl_debug_mixin import CurlDebugMixin
 from fitbit_client.utils.types import FormDataDict
@@ -69,6 +75,7 @@ class BaseResource(CurlDebugMixin):
      - Detailed logging of requests, responses, and errors
      - Debug capabilities for API troubleshooting (via CurlDebugMixin)
      - OAuth2 authentication management
+     - Rate limiting and throttling for API requests
 
     Note:
         All resource-specific classes inherit from this class and use its _make_request
@@ -78,13 +85,29 @@ class BaseResource(CurlDebugMixin):
 
     API_BASE: str = "https://api.fitbit.com"
 
-    def __init__(self, oauth_session: OAuth2Session, locale: str, language: str) -> None:
+    # Default rate limiting parameters
+    DEFAULT_MAX_RETRIES = 3
+    DEFAULT_RETRY_AFTER_SECONDS = 60
+    DEFAULT_RETRY_BACKOFF_FACTOR = 1.5
+
+    def __init__(
+        self,
+        oauth_session: OAuth2Session,
+        locale: str,
+        language: str,
+        max_retries: int = DEFAULT_MAX_RETRIES,
+        retry_after_seconds: int = DEFAULT_RETRY_AFTER_SECONDS,
+        retry_backoff_factor: float = DEFAULT_RETRY_BACKOFF_FACTOR,
+    ) -> None:
         """Initialize a new resource instance with authentication and locale settings.
 
         Args:
             oauth_session: Authenticated OAuth2 session for API requests
             locale: Locale for API responses (e.g., 'en_US')
             language: Language for API responses (e.g., 'en_US')
+            max_retries: Maximum number of retries for rate-limited requests (default: 3)
+            retry_after_seconds: Initial wait time in seconds between retries (default: 60)
+            retry_backoff_factor: Multiplier for successive retry waits (default: 1.5)
 
         The locale and language settings affect how the Fitbit API formats responses,
         particularly for things like:
@@ -95,9 +118,19 @@ class BaseResource(CurlDebugMixin):
 
         These settings are passed with each request in the Accept-Locale and
         Accept-Language headers.
+
+        Rate limiting parameters control how the client handles 429 (Too Many Requests)
+        responses from the API. The default behavior is to retry up to 3 times with
+        exponential backoff starting at 60 seconds.
         """
         self.headers: Dict = {"Accept-Locale": locale, "Accept-Language": language}
         self.oauth: OAuth2Session = oauth_session
+
+        # Rate limiting configuration
+        self.max_retries = max_retries
+        self.retry_after_seconds = retry_after_seconds
+        self.retry_backoff_factor = retry_backoff_factor
+
         # Initialize loggers
         self.logger = getLogger(f"fitbit_client.{self.__class__.__name__}")
         self.data_logger = getLogger("fitbit_client.data")
@@ -282,6 +315,44 @@ class BaseResource(CurlDebugMixin):
             self._log_data(calling_method, content)
         return cast(JSONType, content)
 
+    def _get_retry_after(self, response: Response, retry_count: int) -> int:
+        """
+        Determine how long to wait before retrying a rate-limited request.
+
+        Args:
+            response: API response with rate limit information
+            retry_count: Current retry attempt number (0-based)
+
+        Returns:
+            Number of seconds to wait before retrying
+
+        This method tries to use the Retry-After header if available, or falls back
+        to exponential backoff based on the configured retry_after_seconds and
+        retry_backoff_factor.
+        """
+        # Try to get the Retry-After header (seconds until rate limit reset)
+        retry_after_header = response.headers.get("Retry-After")
+
+        if retry_after_header and retry_after_header.isdigit():
+            return int(retry_after_header)
+
+        # If we don't have a Retry-After header, use exponential backoff
+        # Formula: retry_time = base_time * (backoff_factor ^ retry_count)
+        return int(self.retry_after_seconds * (self.retry_backoff_factor**retry_count))
+
+    def _should_retry_request(self, exception: Exception) -> bool:
+        """
+        Determine if a request should be retried based on the exception.
+
+        Args:
+            exception: The exception that was raised
+
+        Returns:
+            True if the request should be retried, False otherwise
+        """
+        # Currently we only retry for rate limit exceptions
+        return isinstance(exception, RateLimitExceededException)
+
     def _handle_error_response(self, response: Response) -> None:
         """
         Parse error response and raise appropriate exception.
@@ -317,10 +388,17 @@ class BaseResource(CurlDebugMixin):
             error_type, STATUS_CODE_EXCEPTIONS.get(response.status_code, FitbitAPIException)
         )
 
+        # Add information about retry if this is a rate limit error
+        retry_info = ""
+        if response.status_code == 429:
+            retry_after = self._get_retry_after(response, 0)
+            retry_info = f" (Will retry after {retry_after} seconds if retries are enabled)"
+
         self.logger.error(
             f"{exception_class.__name__}: {message} "
             f"[Type: {error_type}, Status: {response.status_code}]"
             f"{f', Field: {field_name}' if field_name else ''}"
+            f"{retry_info}"
         )
 
         raise exception_class(
@@ -403,39 +481,158 @@ class BaseResource(CurlDebugMixin):
 
         self.headers.update(headers)
 
-        try:
-            response: Response = self.oauth.request(
-                http_method, url, data=data, json=json, params=params, headers=self.headers
-            )
+        retries_left = self.max_retries
+        retry_count = 0
+        last_exception = None
 
-            # Handle error responses
-            if response.status_code >= 400:
-                self._handle_error_response(response)
+        while True:
+            try:
+                if retry_count > 0:
+                    self.logger.info(
+                        f"Retry attempt {retry_count}/{self.max_retries} for {calling_method} to {endpoint}"
+                    )
 
-            content_type = response.headers.get("content-type", "").lower()
-
-            # Handle empty responses
-            if response.status_code == 204 or not content_type:
-                self.logger.info(
-                    f"{calling_method} succeeded for {endpoint} (status {response.status_code})"
+                response: Response = self.oauth.request(
+                    http_method, url, data=data, json=json, params=params, headers=self.headers
                 )
+
+                # Handle error responses
+                if response.status_code >= 400:
+                    self._handle_error_response(response)
+
+                content_type = response.headers.get("content-type", "").lower()
+
+                # Handle empty responses
+                if response.status_code == 204 or not content_type:
+                    self.logger.info(
+                        f"{calling_method} succeeded for {endpoint} (status {response.status_code})"
+                    )
+                    return None
+
+                # Handle JSON responses
+                if "application/json" in content_type:
+                    return self._handle_json_response(calling_method, endpoint, response)
+
+                # Handle XML/TCX responses
+                elif "application/vnd.garmin.tcx+xml" in content_type or "text/xml" in content_type:
+                    self._log_response(calling_method, endpoint, response)
+                    return cast(str, response.text)
+
+                # Handle unexpected content types
+                self.logger.error(f"Unexpected content type {content_type} for {endpoint}")
                 return None
 
-            # Handle JSON responses
-            if "application/json" in content_type:
-                return self._handle_json_response(calling_method, endpoint, response)
+            except Exception as e:
+                last_exception = e
 
-            # Handle XML/TCX responses
-            elif "application/vnd.garmin.tcx+xml" in content_type or "text/xml" in content_type:
-                self._log_response(calling_method, endpoint, response)
-                return cast(str, response.text)
+                # Decide whether to retry based on the exception
+                if retries_left > 0 and self._should_retry_request(e):
+                    retry_count += 1
+                    retries_left -= 1
 
-            # Handle unexpected content types
-            self.logger.error(f"Unexpected content type {content_type} for {endpoint}")
-            return None
+                    # Calculate how long to wait before retrying
+                    # For rate limit errors, use exponential backoff
+                    retry_seconds = int(
+                        self.retry_after_seconds * (self.retry_backoff_factor ** (retry_count - 1))
+                    )
 
-        except Exception as e:
-            self.logger.error(
-                f"{e.__class__.__name__} in {calling_method} for {endpoint}: {str(e)}"
-            )
-            raise
+                    self.logger.warning(
+                        f"Rate limit exceeded for {calling_method} to {endpoint}. "
+                        f"Retrying in {retry_seconds} seconds. "
+                        f"({retries_left} retries remaining)"
+                    )
+
+                    # Wait before retrying
+                    sleep(retry_seconds)
+                    continue
+
+                # If we're not retrying, log and re-raise the exception
+                self.logger.error(
+                    f"{e.__class__.__name__} in {calling_method} for {endpoint}: {str(e)}"
+                )
+                raise
+
+    def _make_direct_request(self, path: str, debug: bool = False) -> JSONType:
+        """Makes a request directly to the specified path.
+
+        This method is used internally for pagination to follow "next" URLs.
+        Unlike _make_request, it takes a full relative path rather than constructing
+        the URL from components.
+
+        Args:
+            path: Full relative API path including query string (e.g., '/1/user/-/sleep/list.json?offset=10&limit=10')
+            debug: If True, prints a curl command to stdout to help with debugging
+
+        Returns:
+            JSONDict: The API response as a dictionary
+
+        Raises:
+            Same exceptions as _make_request
+        """
+        url = f"{self.API_BASE}{path}"
+        calling_method = self._get_calling_method()
+
+        if debug:
+            curl_command = self._build_curl_command(url, "GET")
+            print(f"\n# Debug curl command for {calling_method} (pagination):")
+            print(curl_command)
+            print()
+            return {}
+
+        retries_left = self.max_retries
+        retry_count = 0
+
+        while True:
+            try:
+                if retry_count > 0:
+                    self.logger.info(
+                        f"Retry attempt {retry_count}/{self.max_retries} for pagination request to {path}"
+                    )
+
+                response: Response = self.oauth.request("GET", url, headers=self.headers)
+
+                # Handle error responses
+                if response.status_code >= 400:
+                    self._handle_error_response(response)
+
+                content_type = response.headers.get("content-type", "").lower()
+
+                # Handle JSON responses
+                if "application/json" in content_type:
+                    return self._handle_json_response(calling_method, path, response)
+
+                # Handle unexpected content types
+                self.logger.error(f"Unexpected content type {content_type} for {path}")
+                return {}
+
+            except Exception as e:
+                # Decide whether to retry based on the exception
+                if retries_left > 0 and self._should_retry_request(e):
+                    retry_count += 1
+                    retries_left -= 1
+
+                    # Calculate how long to wait before retrying
+                    # For rate limit errors, use exponential backoff
+                    retry_seconds = int(
+                        self.retry_after_seconds * (self.retry_backoff_factor ** (retry_count - 1))
+                    )
+
+                    self.logger.warning(
+                        f"Rate limit exceeded for pagination request to {path}. "
+                        f"Retrying in {retry_seconds} seconds. "
+                        f"({retries_left} retries remaining)"
+                    )
+
+                    # Wait before retrying
+                    sleep(retry_seconds)
+                    continue
+
+                # If we're not retrying, log and re-raise the exception
+                self.logger.error(
+                    f"{e.__class__.__name__} in {calling_method} for {path}: {str(e)}"
+                )
+                raise RequestException(
+                    message=f"Pagination request failed: {str(e)}",
+                    error_type="request",
+                    status_code=500,
+                )

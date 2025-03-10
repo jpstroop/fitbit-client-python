@@ -94,6 +94,12 @@ exclude_lines = [
     "def __repr__",
     "if __name__ == .__main__.:",
     "pass",
+    "if TYPE_CHECKING:",
+    "# TYPE_CHECKING only imports",
+    "raise ImportError",
+    "raise NotImplementedError",
+    "except ImportError",
+    "@abstractmethod",
 ]
 
 [tool.mypy]

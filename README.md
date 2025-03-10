@@ -156,6 +156,54 @@ between sessions. If provided, the client will:
 3. Set Callback URL to "https://localhost:8080" (or your preferred local URL)
 4. Copy your Client ID and Client Secret
 
+## Pagination
+
+Some Fitbit API endpoints support pagination for large result sets. With this
+client, you can work with paginated endpoints in two ways:
+
+```python
+# Standard way - get a single page of results
+sleep_logs = client.get_sleep_log_list(before_date="2025-01-01")
+
+# Iterator way - get an iterator that fetches all pages automatically
+for page in client.get_sleep_log_list(before_date="2025-01-01", as_iterator=True):
+    for sleep_entry in page["sleep"]:
+        print(sleep_entry["logId"])
+```
+
+Endpoints that support pagination:
+
+- `get_sleep_log_list()`
+- `get_activity_log_list()`
+- `get_ecg_log_list()`
+- `get_irn_alerts_list()`
+
+For more details, see [PAGINATION.md](docs/PAGINATION.md).
+
+## Rate Limiting
+
+The client includes automatic retry handling for rate-limited requests. When a
+rate limit is encountered, the client will:
+
+1. Log the rate limit event
+2. Wait using an exponential backoff strategy
+3. Automatically retry the request
+
+You can configure rate limiting behavior:
+
+```python
+client = FitbitClient(
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+    redirect_uri="https://localhost:8080",
+    max_retries=5,                # Maximum number of retry attempts (default: 3)
+    retry_after_seconds=30,       # Base wait time in seconds (default: 60)
+    retry_backoff_factor=2.0      # Multiplier for successive waits (default: 1.5)
+)
+```
+
+For more details, see [RATE_LIMITING.md](docs/RATE_LIMITING.md).
+
 ## Additional Documentation
 
 ### For API Library Users
@@ -165,6 +213,9 @@ between sessions. If provided, the client will:
 - [NAMING.md](docs/NAMING.md): API method naming conventions
 - [VALIDATIONS.md](docs/VALIDATIONS.md): Input parameter validation
 - [ERROR_HANDLING.md](docs/ERROR_HANDLING.md): Exception hierarchy and handling
+- [PAGINATION.md](docs/PAGINATION.md): Working with paginated endpoints
+- [RATE_LIMITING.md](docs/RATE_LIMITING.md): Rate limit handling and
+  configuration
 
 It's also worth reviewing
 [Fitbit's Best Practices](https://dev.fitbit.com/build/reference/web-api/developer-guide/best-practices/)
