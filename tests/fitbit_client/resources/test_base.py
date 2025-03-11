@@ -258,17 +258,18 @@ def test_log_response_for_error_without_content(base_resource, mock_logger):
 # -----------------------------------------------------------------------------
 
 
-def test_handle_json_response(base_resource, mock_response):
+def test_handle_json_response(base_resource, mock_response_factory):
     """Test JSON response handling"""
-    mock_response.json.return_value = {"data": "test"}
-    mock_response.status_code = 200
+    expected_data = {"data": "test"}
+    mock_response = mock_response_factory(200, expected_data)
 
     result = base_resource._handle_json_response("test_method", "test/endpoint", mock_response)
-    assert result == {"data": "test"}
+    assert result == expected_data
 
 
-def test_handle_json_response_invalid(base_resource, mock_response):
+def test_handle_json_response_invalid(base_resource, mock_response_factory):
     """Test invalid JSON handling"""
+    mock_response = mock_response_factory(200)
     mock_response.json.side_effect = JSONDecodeError("Invalid JSON", "doc", 0)
     mock_response.text = "Invalid {json"
 
@@ -295,44 +296,49 @@ def test_handle_json_response_with_invalid_json(base_resource, mock_logger):
 # -----------------------------------------------------------------------------
 
 
-def test_make_request_json_success(base_resource, mock_oauth_session, mock_response):
+def test_make_request_json_success(base_resource, mock_oauth_session, mock_response_factory):
     """Test successful JSON request"""
-    mock_response.json.return_value = {"success": True}
-    mock_response.headers = {"content-type": "application/json"}
-    mock_response.status_code = 200
+    expected_data = {"success": True}
+    mock_response = mock_response_factory(
+        200, expected_data, headers={"content-type": "application/json"}
+    )
     mock_oauth_session.request.return_value = mock_response
 
     result = base_resource._make_request("test/endpoint")
-    assert result == {"success": True}
+    assert result == expected_data
 
 
-def test_make_request_no_content(base_resource, mock_oauth_session, mock_response):
+def test_make_request_no_content(base_resource, mock_oauth_session, mock_response_factory):
     """Test request with no content"""
-    mock_response.status_code = 204
-    mock_response.headers = {}
-    mock_response.json.return_value = {"success": True}
+    mock_response = mock_response_factory(204, headers={})
     mock_oauth_session.request.return_value = mock_response
 
     result = base_resource._make_request("test/endpoint")
     assert result is None
 
 
-def test_make_request_xml_response(base_resource, mock_oauth_session, mock_response):
+def test_make_request_xml_response(base_resource, mock_oauth_session, mock_response_factory):
     """Test XML response handling"""
+    mock_response = mock_response_factory(
+        200,
+        headers={"content-type": "application/vnd.garmin.tcx+xml"},
+        content_type="application/vnd.garmin.tcx+xml",
+    )
     mock_response.text = "<test>data</test>"
-    mock_response.headers = {"content-type": "application/vnd.garmin.tcx+xml"}
-    mock_response.status_code = 200
     mock_oauth_session.request.return_value = mock_response
 
     result = base_resource._make_request("test/endpoint")
     assert result == "<test>data</test>"
 
 
-def test_make_request_unexpected_content_type(base_resource, mock_oauth_session, mock_response):
+def test_make_request_unexpected_content_type(
+    base_resource, mock_oauth_session, mock_response_factory
+):
     """Test handling of unexpected content type"""
+    mock_response = mock_response_factory(
+        200, headers={"content-type": "text/plain"}, content_type="text/plain"
+    )
     mock_response.text = "some data"
-    mock_response.headers = {"content-type": "text/plain"}
-    mock_response.status_code = 200
     mock_oauth_session.request.return_value = mock_response
 
     result = base_resource._make_request("test/endpoint")

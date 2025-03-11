@@ -195,27 +195,81 @@ All resource mocks are in the root [conftest.py](tests/conftest.py).
 
 ### Response Mocking
 
-The test suite uses the `mock_response_factory` fixture to create consistent,
-configurable mock responses:
+The test suite uses the `mock_response_factory` fixture from `tests/conftest.py`
+to create consistent, configurable mock responses. This is the required pattern
+for all tests that need to mock HTTP responses.
+
+#### Standard Mock Response Pattern
 
 ```python
-# Creating a mock response with status code and data
+def test_some_endpoint(resource, mock_oauth_session, mock_response_factory):
+    """Test description."""
+    # Define expected data first
+    expected_data = {"data": "test"}
+    
+    # Create mock response using the factory
+    mock_response = mock_response_factory(200, expected_data)
+    
+    # Assign to oauth.request.return_value
+    resource.oauth.request.return_value = mock_response
+    
+    # Call the method under test
+    result = resource.some_method()
+    
+    # Assert against expected_data, not mock_response.json.return_value
+    assert result == expected_data
+```
+
+#### Response Factory Examples
+
+```python
+# Success response with data
 mock_response = mock_response_factory(200, {"data": "test"})
 
-# Creating a mock response with additional headers
+# Response with custom headers
 mock_response = mock_response_factory(
     status_code=200,
     json_data={"data": "test"},
     headers={"custom-header": "value"}
 )
 
-# Creating a delete response with no content (204)
+# Delete/no content response (204)
 mock_response = mock_response_factory(204)
+
+# Error response
+mock_response = mock_response_factory(
+    400, 
+    {"errors": [{"errorType": "validation", "message": "Error message"}]}
+)
+
+# Non-JSON response (XML)
+mock_response = mock_response_factory(
+    200, 
+    headers={"content-type": "application/vnd.garmin.tcx+xml"},
+    content_type="application/vnd.garmin.tcx+xml"
+)
+mock_response.text = "<xml>content</xml>"
+```
+
+#### Parameter Validation Pattern
+
+For tests that only need to verify parameter validation or endpoint construction
+(not response handling), it's acceptable to use the following alternative
+pattern:
+
+```python
+def test_validation(resource):
+    """Test parameter validation."""
+    resource._make_request = Mock()
+    resource.some_method(param="value")
+    resource._make_request.assert_called_once_with(
+        "endpoint/path", params={"param": "value"}, user_id="-", debug=False
+    )
 ```
 
 This approach provides a clean, standardized way to create mock responses with
-the desired status code, data, and headers. All test files should use this
-factory method rather than manually configuring mock responses.
+the desired status code, data, and headers. All test files must use one of these
+patterns.
 
 ## OAuth Callback Implementation
 
