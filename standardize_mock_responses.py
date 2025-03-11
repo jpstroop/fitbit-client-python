@@ -114,14 +114,14 @@ def transform_file(file_path: str, dry_run: bool = False) -> bool:
         return test_func
 
     content = re.sub(pattern5, fix_mock_response_usage, content, flags=re.DOTALL)
-    
+
     # Pattern 6: Replace assert result == mock_response.json.return_value with assert result == expected_data
-    pattern6 = r'([ \t]*assert\s+.*?==\s*)mock_response\.json\.return_value'
-    
+    pattern6 = r"([ \t]*assert\s+.*?==\s*)mock_response\.json\.return_value"
+
     def fix_assertions(match):
         before_part = match.group(1)
         return f"{before_part}mock_response.json()"
-    
+
     content = re.sub(pattern6, fix_assertions, content)
 
     # If no changes were made, return False
@@ -143,21 +143,21 @@ def find_files_to_transform() -> List[Tuple[str, bool]]:
     if len(sys.argv) > 1 and not sys.argv[1].startswith("--"):
         test_dir = Path(sys.argv[1])
         print(f"Searching in directory: {test_dir}")
-    
+
     result = []
     verbose = "--verbose" in sys.argv
-    
+
     for root, _, files in os.walk(test_dir):
         for file in files:
             if file.endswith(".py") and file.startswith("test_"):
                 file_path = os.path.join(root, file)
-                
+
                 # First check for any mention of mock_response
                 has_mock_response = bool(find_pattern_in_file(file_path, r"mock_response"))
-                
+
                 if not has_mock_response:
                     continue
-                
+
                 # More detailed patterns
                 # Check if file uses mock_response directly as parameter
                 uses_mock_response = bool(
@@ -165,33 +165,35 @@ def find_files_to_transform() -> List[Tuple[str, bool]]:
                         file_path, r"def\s+test_\w+\([^)]*,\s*mock_response\s*[,)]"
                     )
                 )
-                
+
                 # Check if file directly manipulates mock_response
                 manipulates_mock_response = bool(
                     find_pattern_in_file(
                         file_path, r"mock_response\.(json\.return_value|status_code)\s*="
                     )
                 )
-                
+
                 # Check if file uses mock_response.json.return_value in assertions
                 uses_return_value_in_assertions = bool(
                     find_pattern_in_file(
                         file_path, r"assert\s+.*?=.*?mock_response\.json\.return_value"
                     )
                 )
-                
+
                 # Check if file uses mock_response_factory
                 uses_factory = bool(
                     find_pattern_in_file(file_path, r"mock_response\s*=\s*mock_response_factory")
                 )
-                
+
                 # Determine if file needs transformation
-                needs_transform = (uses_mock_response or manipulates_mock_response) and not uses_factory
-                
+                needs_transform = (
+                    uses_mock_response or manipulates_mock_response
+                ) and not uses_factory
+
                 # Also flag files that use factory but still use mock_response.json.return_value in assertions
                 if uses_factory and uses_return_value_in_assertions and not needs_transform:
                     needs_transform = True
-                
+
                 if verbose or needs_transform:
                     print(f"File: {file_path}")
                     print(f"  Has mock_response: {has_mock_response}")
@@ -200,7 +202,7 @@ def find_files_to_transform() -> List[Tuple[str, bool]]:
                     print(f"  Uses in assertions: {uses_return_value_in_assertions}")
                     print(f"  Uses factory: {uses_factory}")
                     print(f"  Needs transform: {needs_transform}")
-                
+
                 if needs_transform:
                     result.append((file_path, needs_transform))
 
