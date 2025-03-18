@@ -1,5 +1,6 @@
 # fitbit_client/resources/_base.py
 
+
 # Standard library imports
 from datetime import datetime
 from inspect import currentframe
@@ -14,6 +15,7 @@ from typing import cast
 
 # Third party imports
 from requests import Response
+import re
 from requests_oauthlib import OAuth2Session
 
 # Local imports
@@ -516,8 +518,9 @@ class BaseResource(CurlDebugMixin):
 
         if debug:
             curl_command = self._build_curl_command(url, http_method, data, json, params)
+            sanitized_curl_command = self._sanitize_curl_command(curl_command)
             print(f"\n# Debug curl command for {calling_method}:")
-            print(curl_command)
+            print(sanitized_curl_command)
             print()
             return None
 
