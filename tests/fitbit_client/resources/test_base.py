@@ -619,8 +619,14 @@ def test_make_direct_request_with_debug(mock_build_curl, mock_print, base_resour
         # Verify the curl command was built correctly
         mock_build_curl.assert_called_once_with("https://api.fitbit.com/test", "GET")
 
-        # Verify print was called with the right message pattern
-        mock_print.assert_any_call("\n# Debug curl command for test_pagination (pagination):")
+        # Verify security warning messages were printed
+        mock_print.assert_any_call(
+            "\n# DEBUG MODE: Security Warning - contains authentication tokens!"
+        )
+        mock_print.assert_any_call(
+            "# See docs/SECURITY.md for guidance on sharing this output safely."
+        )
+        mock_print.assert_any_call("# Debug curl command for test_pagination (pagination):")
 
 
 @patch("fitbit_client.resources._base.BaseResource._handle_json_response")

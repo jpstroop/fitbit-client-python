@@ -37,6 +37,10 @@ class CurlDebugMixin:
         """
         Build a curl command string for debugging API requests.
         
+        WARNING: Security Risk - The generated command includes the actual OAuth bearer token,
+        which should never be logged, shared, or committed to version control.
+        See docs/SECURITY.md for guidance on securely using this feature.
+        
         Args:
             url: Full API URL
             http_method: HTTP method (GET, POST, DELETE)
@@ -49,7 +53,7 @@ class CurlDebugMixin:
 
         The generated command includes:
         - The HTTP method (for non-GET requests)
-        - Authorization header with OAuth token
+        - Authorization header with OAuth token (SENSITIVE INFORMATION)
         - Request body (if data or json is provided)
         - Query parameters (if provided)
         
