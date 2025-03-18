@@ -1,11 +1,13 @@
 # fitbit_client/resources/_base.py
 
+
 # Standard library imports
 from datetime import datetime
 from inspect import currentframe
 from json import JSONDecodeError
 from json import dumps
 from logging import getLogger
+import re
 from time import sleep
 from typing import Dict
 from typing import Optional
@@ -480,7 +482,8 @@ class BaseResource(CurlDebugMixin):
             requires_user_id: Whether the endpoint requires user_id in the path
             http_method: HTTP method to use (GET, POST, DELETE)
             api_version: API version to use (default: "1")
-            debug: If True, prints a curl command to stdout to help with debugging
+            debug: If True, prints a curl command to stdout to help with debugging.
+                 WARNING: This exposes authentication tokens! See docs/SECURITY.md for guidance.
 
         Returns:
             JSONType: The API response in one of these formats:
@@ -516,7 +519,9 @@ class BaseResource(CurlDebugMixin):
 
         if debug:
             curl_command = self._build_curl_command(url, http_method, data, json, params)
-            print(f"\n# Debug curl command for {calling_method}:")
+            print(f"\n# DEBUG MODE: Security Warning - contains authentication tokens!")
+            print(f"# See docs/SECURITY.md for guidance on sharing this output safely.")
+            print(f"# Debug curl command for {calling_method}:")
             print(curl_command)
             print()
             return None
@@ -628,7 +633,8 @@ class BaseResource(CurlDebugMixin):
 
         Args:
             path: Full relative API path including query string (e.g., '/1/user/-/sleep/list.json?offset=10&limit=10')
-            debug: If True, prints a curl command to stdout to help with debugging
+            debug: If True, prints a curl command to stdout to help with debugging.
+                 WARNING: This exposes authentication tokens! See docs/SECURITY.md for guidance.
 
         Returns:
             JSONDict: The API response as a dictionary
@@ -641,7 +647,9 @@ class BaseResource(CurlDebugMixin):
 
         if debug:
             curl_command = self._build_curl_command(url, "GET")
-            print(f"\n# Debug curl command for {calling_method} (pagination):")
+            print(f"\n# DEBUG MODE: Security Warning - contains authentication tokens!")
+            print(f"# See docs/SECURITY.md for guidance on sharing this output safely.")
+            print(f"# Debug curl command for {calling_method} (pagination):")
             print(curl_command)
             print()
             return {}

@@ -195,9 +195,13 @@ All resource mocks are in the root [conftest.py](tests/conftest.py).
 
 ### Response Mocking
 
+# \<<\<<\<<< Updated upstream The test suite uses the `mock_response_factory` fixture from `tests/conftest.py` to create consistent, configurable mock responses. This is the required pattern for all tests that need to mock HTTP responses.
+
 The test suite uses the `mock_response_factory` fixture from `tests/conftest.py`
 to create consistent, configurable mock responses. This is the required pattern
 for all tests that need to mock HTTP responses.
+
+> > > > > > > Stashed changes
 
 #### Standard Mock Response Pattern
 
@@ -253,9 +257,13 @@ mock_response.text = "<xml>content</xml>"
 
 #### Parameter Validation Pattern
 
+# \<<\<<\<<< Updated upstream For tests that only need to verify parameter validation or endpoint construction (not response handling), it's acceptable to use the following alternative pattern:
+
 For tests that only need to verify parameter validation or endpoint construction
 (not response handling), it's acceptable to use the following alternative
 pattern:
+
+> > > > > > > Stashed changes
 
 ```python
 def test_validation(resource):
@@ -267,9 +275,12 @@ def test_validation(resource):
     )
 ```
 
-This approach provides a clean, standardized way to create mock responses with
+# This approach provides a clean, standardized way to create mock responses with \<<\<<\<<< Updated upstream the desired status code, data, and headers. All test files must use one of these patterns.
+
 the desired status code, data, and headers. All test files must use one of these
 patterns.
+
+> > > > > > > Stashed changes
 
 ## OAuth Callback Implementation
 
