@@ -3,15 +3,16 @@
 [![CI](https://github.com/jpstroop/fitbit-client-python/actions/workflows/ci.yml/badge.svg)](https://github.com/jpstroop/fitbit-client-python/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/jpstroop/fitbit-client-python/graph/badge.svg?token=DM0JD8VKZ4)](https://codecov.io/gh/jpstroop/fitbit-client-python)
 
-[![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
+[![Tested with Pytest](https://img.shields.io/badge/Pytest-tested-0A9EDC?logo=pytest&logoColor=#0A9EDC)](https://docs.pytest.org/en/stable/)
+[![Type checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 [![Doc style: MDformat](https://img.shields.io/badge/doc_style-mdformat-1c55ff?style=flat)](https://mdformat.readthedocs.io/en/stable/)
 
-[![PyPy 3.11](https://img.shields.io/badge/pypy-3.11-4bb2c5.svg)](https://doc.pypy.org/en/latest/release-v7.3.17.html)
-[![Python 3.11](https://img.shields.io/badge/python-3.11-1e405d.svg)](https://www.python.org/downloads/release/python-3110/)
-[![Python 3.12](https://img.shields.io/badge/python-3.12-1e405d.svg)](https://www.python.org/downloads/release/python-3120/)
-[![Python 3.13](https://img.shields.io/badge/python-3.13-1e405d.svg)](https://www.python.org/downloads/release/python-3130/)
+[![PyPy 3.11](https://img.shields.io/badge/pypy-3.11-4bb2c5?logo=pypy&logoColor=#4bb2c5)](https://doc.pypy.org/en/latest/release-v7.3.17.html)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-1e405d?logo=python&logoColor=#3776AB)](https://www.python.org/downloads/release/python-3110/)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-1e405d?logo=python&logoColor=#3776AB)](https://www.python.org/downloads/release/python-3120/)
+[![Python 3.13](https://img.shields.io/badge/python-3.13-1e405d?logo=python&logoColor=#3776AB)](https://www.python.org/downloads/release/python-3130/)
 
 [![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](#)
 [![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=F0F0F0)](#)
