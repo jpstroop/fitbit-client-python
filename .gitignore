@@ -65,4 +65,4 @@ _cov_html
 secrets.json
 tokens.json
 TODO.md
-
+.tool-versions

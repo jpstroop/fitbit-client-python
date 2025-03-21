@@ -374,7 +374,7 @@ class IntradayResource(BaseResource):
             IntradayDetailLevel.FIVE_MINUTES,
             IntradayDetailLevel.FIFTEEN_MINUTES,
         ]
-        if detail_level not in IntradayDetailLevel:
+        if detail_level not in valid_levels:
             raise IntradayValidationException(
                 message="Invalid detail level",
                 field_name="detail_level",
@@ -532,11 +532,12 @@ class IntradayResource(BaseResource):
             Personal applications automatically have access to intraday data.
             Other application types require special approval from Fitbit.
         """
-        if detail_level not in IntradayDetailLevel:
+        valid_levels = list(IntradayDetailLevel)
+        if detail_level not in valid_levels:
             raise IntradayValidationException(
                 message="Invalid detail level",
                 field_name="detail_level",
-                allowed_values=[l.value for l in IntradayDetailLevel],
+                allowed_values=[l.value for l in valid_levels],
                 resource_name="heart rate",
             )
 
