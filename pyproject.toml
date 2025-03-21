@@ -6,7 +6,7 @@ authors = [
 ]
 description = "A Python client for the Fitbit API"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 classifiers = [
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
@@ -45,7 +45,6 @@ build-backend = "pdm.backend"
 
 [tool.black]
 line-length = 100
-target-version = ['py313']
 preview = true
 quiet = true
 skip-magic-trailing-comma = true
@@ -76,7 +75,7 @@ extensions = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-minversion = 6.0
+minversion = "6.0"
 python_files = "test_*.py"
 addopts = "-ra -q --cov=fitbit_client --cache-clear --cov-report=term-missing --tb=native -W error::DeprecationWarning"
 pythonpath = ["."]

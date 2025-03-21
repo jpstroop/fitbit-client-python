@@ -1,7 +1,5 @@
 # Python API Client for Fitbit™
 
-# Fitbit Client
-
 [![CI](https://github.com/jpstroop/fitbit-client-python/actions/workflows/ci.yml/badge.svg)](https://github.com/jpstroop/fitbit-client-python/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/jpstroop/fitbit-client-python/graph/badge.svg?token=DM0JD8VKZ4)](https://codecov.io/gh/jpstroop/fitbit-client-python)
 
@@ -10,7 +8,14 @@
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 [![Doc style: MDformat](https://img.shields.io/badge/doc_style-mdformat-1c55ff?style=flat)](https://mdformat.readthedocs.io/en/stable/)
 
-[![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/release/python-3130/)
+[![PyPy 3.11](https://img.shields.io/badge/pypy-3.11-4bb2c5.svg)](https://doc.pypy.org/en/latest/release-v7.3.17.html)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-1e405d.svg)](https://www.python.org/downloads/release/python-3110/)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-1e405d.svg)](https://www.python.org/downloads/release/python-3120/)
+[![Python 3.13](https://img.shields.io/badge/python-3.13-1e405d.svg)](https://www.python.org/downloads/release/python-3130/)
+
+[![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](#)
+[![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=F0F0F0)](#)
+[![Windows](https://custom-icon-badges.demolab.com/badge/Windows-0078D6?logo=windows11&logoColor=white)](#)
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
@@ -19,7 +24,7 @@ OAuth2 PKCE authentication and resource-based API interactions.
 
 ## Installation
 
-This package requires Python 3.13 (or later, when there is a later).
+Requires Python 3.11 or later
 
 Once published, install like this:
 
@@ -160,8 +165,8 @@ between sessions. If provided, the client will:
 
 ## Pagination
 
-Some Fitbit API endpoints support pagination for large result sets. With this
-client, you can work with paginated endpoints in two ways:
+Some Fitbit API endpoints support pagination for large result sets. You can work
+with paginated endpoints in two ways:
 
 ```python
 # Standard way - get a single page of results
